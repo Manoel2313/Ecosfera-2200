@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecosfera 2200 - v0.0</title>
+    <style>
+        /* ===== RESET E ESTILOS GLOBAIS ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background: #0a0a0a;
+            color: #b0b0b0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: 
+                radial-gradient(ellipse at 20% 50%, rgba(0, 255, 100, 0.05) 0%, transparent 70%),
+                radial-gradient(ellipse at 80% 50%, rgba(255, 100, 0, 0.05) 0%, transparent 70%);
+        }
+
+        /* ===== CONTAINER PRINCIPAL ===== */
+        #game {
+            width: 1100px;
+            max-width: 98vw;
+            background: #121212;
+            border: 2px solid #2a4a2a;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 0 60px rgba(0, 255, 100, 0.08), inset 0 0 60px rgba(0, 0, 0, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #game::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.03) 2px, rgba(0, 0, 0, 0.03) 4px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ===== HEADER ===== */
+        #header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #1a1a1a;
+            border-bottom: 2px solid #2a4a2a;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            border-radius: 8px 8px 0 0;
+        }
+
+        #title {
+            font-size: 22px;
+            color: #4aff8a;
+            text-shadow: 0 0 20px rgba(74, 255, 138, 0.2);
+            letter-spacing: 4px;
+        }
+
+        #title span {
+            color: #ff6a33;
+            text-shadow: 0 0 20px rgba(255, 106, 51, 0.2);
+        }
+
+        #cycle-info {
+            font-size: 14px;
+            color: #888;
+            text-align: right;
+        }
+
+        #cycle-info .day {
+            color: #ffcc44;
+        }
+
+        #cycle-info .night {
+            color: #4466ff;
+        }
+
+        #turn-counter {
+            font-size: 28px;
+            color: #4aff8a;
+            font-weight: bold;
+        }
+
+        /* ===== STATS BAR ===== */
+        #stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 8px;
+            padding: 12px 15px;
+            background: #161616;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            padding: 4px 8px;
+            background: #0d0d0d;
+            border-radius: 4px;
+            border-left: 3px solid #2a4a2a;
+        }
+
+        .stat .icon {
+            font-size: 18px;
+        }
+
+        .stat .value {
+            color: #e0e0e0;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .stat .label {
+            color: #777;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat.danger .value {
+            color: #ff4444;
+        }
+
+        .stat.warning .value {
+            color: #ffaa44;
+        }
+
+        .stat.safe .value {
+            color: #4aff8a;
+        }
+
+        /* ===== CONTAINER PRINCIPAL (3 COLUNAS) ===== */
+        #main {
+            display: grid;
+            grid-template-columns: 1fr 1.6fr 1fr;
+            gap: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== COLUNA ESQUERDA - BUNKER ===== */
+        #bunker-panel {
+            background: #141414;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        #bunker-panel h3 {
+            color: #4aff8a;
+            font-size: 14px;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #2a2a2a;
+            padding-bottom: 8px;
+        }
+
+        .bunker-action {
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            background: #1a1a1a;
+            border: 1px solid #2a3a2a;
+            border-radius: 6px;
+            color: #b0b0b0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .bunker-action:hover:not(:disabled) {
+            background: #1f2a1f;
+            border-color: #4aff8a;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(74, 255, 138, 0.05);
+        }
+
+        .bunker-action:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .bunker-action .cost {
+            color: #ff6a33;
+            font-size: 10px;
+        }
+
+        /* ===== COLUNA CENTRAL - MAPA/LOG ===== */
+        #map-panel {
+            background: #141414;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 400px;
+        }
+
+        #map-panel h3 {
+            color: #ff6a33;
+            font-size: 14px;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #2a2a2a;
+            padding-bottom: 8px;
+        }
+
+        #map-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .map-location {
+            padding: 14px 10px;
+            background: #0d0d0d;
+            border: 1px solid #1a2a1a;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #888;
+        }
+
+        .map-location:hover:not(.locked):not(:disabled) {
+            background: #1a2a1a;
+            border-color: #4aff8a;
+            color: #fff;
+            transform: scale(1.02);
+        }
+
+        .map-location .loc-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .map-location .loc-name {
+            font-size: 11px;
+            font-weight: bold;
+            color: #ccc;
+        }
+
+        .map-location .loc-resources {
+            font-size: 9px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .map-location.locked {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .map-location.current {
+            border-color: #4aff8a;
+            background: #1a2a1a;
+            box-shadow: 0 0 30px rgba(74, 255, 138, 0.05);
+        }
+
+        .map-location.has-mutants {
+            border-color: #ff4444;
+            background: #1a0a0a;
+        }
+
+        /* ===== LOG ===== */
+        #log {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 6px;
+            padding: 10px;
+            height: 160px;
+            overflow-y: auto;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        #log::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #log::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        #log::-webkit-scrollbar-thumb {
+            background: #2a4a2a;
+            border-radius: 4px;
+        }
+
+        .log-entry {
+            padding: 2px 0;
+            border-bottom: 1px solid #0d0d0d;
+            color: #999;
+        }
+
+        .log-entry .time {
+            color: #4aff8a;
+        }
+
+        .log-entry .highlight {
+            color: #ffcc44;
+        }
+
+        .log-entry .danger {
+            color: #ff4444;
+        }
+
+        .log-entry .success {
+            color: #4aff8a;
+        }
+
+        /* ===== COLUNA DIREITA - INVENTÁRIO ===== */
+        #inventory-panel {
+            background: #141414;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        #inventory-panel h3 {
+            color: #ffcc44;
+            font-size: 14px;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #2a2a2a;
+            padding-bottom: 8px;
+        }
+
+        .inv-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 10px;
+            background: #0d0d0d;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            font-size: 12px;
+            border-left: 2px solid #2a3a2a;
+        }
+
+        .inv-item .qty {
+            color: #4aff8a;
+            font-weight: bold;
+        }
+
+        .inv-item .item-name {
+            color: #ccc;
+        }
+
+        .inv-empty {
+            color: #444;
+            font-size: 12px;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        /* ===== BOTÕES GERAIS ===== */
+        #actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        #actions button {
+            flex: 1;
+            min-width: 80px;
+            padding: 10px 12px;
+            background: #1a1a1a;
+            border: 1px solid #2a3a2a;
+            border-radius: 6px;
+            color: #b0b0b0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #actions button:hover:not(:disabled) {
+            background: #1f2a1f;
+            border-color: #4aff8a;
+            color: #fff;
+        }
+
+        #actions button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        #actions button.danger:hover:not(:disabled) {
+            border-color: #ff4444;
+            background: #1a0a0a;
+        }
+
+        /* ===== MODAL ===== */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #modal.active {
+            display: flex;
+        }
+
+        #modal-content {
+            background: #1a1a1a;
+            border: 2px solid #2a4a2a;
+            border-radius: 12px;
+            padding: 30px 40px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 80px rgba(0, 0, 0, 0.9);
+        }
+
+        #modal-content h2 {
+            color: #4aff8a;
+            text-align: center;
+            margin-bottom: 15px;
+            letter-spacing: 3px;
+        }
+
+        #modal-content p {
+            color: #aaa;
+            line-height: 1.6;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        #modal-content .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        #modal-content .modal-actions button {
+            padding: 10px 30px;
+            background: #1a2a1a;
+            border: 1px solid #2a4a2a;
+            border-radius: 6px;
+            color: #b0b0b0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #modal-content .modal-actions button:hover {
+            background: #2a3a2a;
+            border-color: #4aff8a;
+            color: #fff;
+        }
+
+        #modal-content .modal-actions button.danger {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        #modal-content .modal-actions button.danger:hover {
+            background: #2a0a0a;
+            border-color: #ff6666;
+            color: #ff6666;
+        }
+
+        /* ===== RESPONSIVIDADE ===== */
+        @media (max-width: 900px) {
+            #main {
+                grid-template-columns: 1fr;
+            }
+
+            #stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            #game {
+                padding: 12px;
+            }
+
+            #header {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+
+            #title {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            #stats {
+                grid-template-columns: 1fr;
+            }
+
+            #map-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #modal-content {
+                padding: 20px;
+            }
+        }
+
+        /* ===== SCROLLBAR GLOBAL ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2a4a2a;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== JOGO ===== -->
+    <div id="game">
+
+        <!-- HEADER -->
+        <div id="header">
+            <div id="title">🌍 ECOSFERA <span>2200</span></div>
+            <div id="cycle-info">
+                <div id="cycle-display" class="day">☀️ DIA</div>
+                <div>Turnos: <span id="turn-counter">10</span></div>
+            </div>
+        </div>
+
+        <!-- STATS -->
+        <div id="stats">
+            <div class="stat safe">
+                <span class="icon">🫧</span>
+                <div>
+                    <div class="label">Oxigênio</div>
+                    <div class="value" id="stat-oxygen">100</div>
+                </div>
+            </div>
+            <div class="stat warning">
+                <span class="icon">☣️</span>
+                <div>
+                    <div class="label">Contaminação</div>
+                    <div class="value" id="stat-contamination">0%</div>
+                </div>
+            </div>
+            <div class="stat safe">
+                <span class="icon">⚡</span>
+                <div>
+                    <div class="label">Energia</div>
+                    <div class="value" id="stat-energy">50</div>
+                </div>
+            </div>
+            <div class="stat">
+                <span class="icon">🍖</span>
+                <div>
+                    <div class="label">Fome</div>
+                    <div class="value" id="stat-hunger">100%</div>
+                </div>
+            </div>
+            <div class="stat">
+                <span class="icon">💧</span>
+                <div>
+                    <div class="label">Sede</div>
+                    <div class="value" id="stat-thirst">100%</div>
+                </div>
+            </div>
+            <div class="stat">
+                <span class="icon">🛡️</span>
+                <div>
+                    <div class="label">Traje</div>
+                    <div class="value" id="stat-suit">100%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN -->
+        <div id="main">
+
+            <!-- COLUNA ESQUERDA - BUNKER -->
+            <div id="bunker-panel">
+                <h3>🏚️ BUNKER</h3>
+                <button class="bunker-action" id="btn-purify-water">
+                    💧 Purificar Água <span class="cost">(gasta 2 Energia)</span>
+                </button>
+                <button class="bunker-action" id="btn-process-biomass">
+                    🌱 Processar Biomassa <span class="cost">(gasta 1 Energia)</span>
+                </button>
+                <button class="bunker-action" id="btn-repair-suit">
+                    🔧 Reparar Traje <span class="cost">(gasta 3 Sucata)</span>
+                </button>
+                <button class="bunker-action" id="btn-upgrade-machine">
+                    ⚙️ Melhorar Máquina <span class="cost">(gasta 5 Sucata + 3 Plástico)</span>
+                </button>
+                <button class="bunker-action" id="btn-rest">
+                    💤 Descansar <span class="cost">(recupera 10% de tudo)</span>
+                </button>
+                <div style="margin-top:12px;padding:10px;background:#0a0a0a;border-radius:6px;border:1px solid #1a2a1a;">
+                    <div style="font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1px;">Máquina de Carbono</div>
+                    <div style="font-size:20px;color:#4aff8a;" id="machine-status">🟢 ATIVA</div>
+                    <div style="font-size:11px;color:#888;">Produz: <span id="machine-production">2</span> Oxigênio/turno</div>
+                    <div style="font-size:11px;color:#888;">Nível: <span id="machine-level">1</span></div>
+                </div>
+            </div>
+
+            <!-- COLUNA CENTRAL - MAPA -->
+            <div id="map-panel">
+                <h3>🗺️ SUPERFÍCIE</h3>
+                <div id="map-grid">
+                    <div class="map-location current" data-location="bunker">
+                        <span class="loc-icon">🏚️</span>
+                        <span class="loc-name">BUNKER</span>
+                        <span class="loc-resources">(seguro)</span>
+                    </div>
+                    <div class="map-location" data-location="lixao">
+                        <span class="loc-icon">🗑️</span>
+                        <span class="loc-name">LIXÃO</span>
+                        <span class="loc-resources">Sucata + Plástico</span>
+                    </div>
+                    <div class="map-location" data-location="rio">
+                        <span class="loc-icon">🌊</span>
+                        <span class="loc-name">RIO POLUÍDO</span>
+                        <span class="loc-resources">Água + Biomassa</span>
+                    </div>
+                    <div class="map-location" data-location="fabrica">
+                        <span class="loc-icon">🏭</span>
+                        <span class="loc-name">FÁBRICA</span>
+                        <span class="loc-resources">Sucata + Peças Raras</span>
+                    </div>
+                    <div class="map-location" data-location="cemit">
+                        <span class="loc-icon">🚗</span>
+                        <span class="loc-name">CEMITÉRIO</span>
+                        <span class="loc-resources">Metal + Combustível</span>
+                    </div>
+                    <div class="map-location" data-location="bunker2">
+                        <span class="loc-icon">🔒</span>
+                        <span class="loc-name">BUNKER SECRETO</span>
+                        <span class="loc-resources">🔒 BLOQUEADO</span>
+                    </div>
+                </div>
+
+                <!-- LOG -->
+                <div id="log">
+                    <div class="log-entry"><span class="time">[SISTEMA]</span> Bem-vindo à Ecosfera 2200.</div>
+                    <div class="log-entry"><span class="time">[SISTEMA]</span> Sobreviva. Purifique. Descubra a verdade.</div>
+                    <div class="log-entry"><span class="time">[SISTEMA]</span> Use o mapa para explorar a superfície.</div>
+                </div>
+
+                <!-- AÇÕES -->
+                <div id="actions">
+                    <button id="btn-explore">🔍 EXPLORAR</button>
+                    <button id="btn-end-turn">⏭️ PASSAR TURNO</button>
+                    <button id="btn-return">🏠 VOLTAR</button>
+                </div>
+            </div>
+
+            <!-- COLUNA DIREITA - INVENTÁRIO -->
+            <div id="inventory-panel">
+                <h3>🎒 INVENTÁRIO</h3>
+                <div id="inventory-list">
+                    <div class="inv-empty">Nenhum item. Explore para coletar recursos.</div>
+                </div>
+                <div style="margin-top:12px;padding:10px;background:#0a0a0a;border-radius:6px;border:1px solid #1a2a1a;">
+                    <div style="font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1px;">Local Atual</div>
+                    <div style="font-size:14px;color:#4aff8a;" id="current-location-display">🏚️ BUNKER</div>
+                    <div style="font-size:11px;color:#888;" id="location-status">🔒 Seguro</div>
+                </div>
+            </div>
+
+        </div><!-- /main -->
+    </div><!-- /game -->
+
+    <!-- ===== MODAL ===== -->
+    <div id="modal">
+        <div id="modal-content">
+            <h2 id="modal-title">⚠️ EVENTO</h2>
+            <p id="modal-text">Conteúdo do evento...</p>
+            <div class="modal-actions">
+                <button id="modal-btn-ok">OK</button>
+                <button id="modal-btn-cancel" class="danger" style="display:none;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ============================================================
+        //  ECOSFERA 2200 - v0.0
+        //  Todas as mecânicas discutidas implementadas
+        // ============================================================
+
+        // ===== ESTADO DO JOGO =====
+        const GameState = {
+            // Ciclo
+            cycle: 'day', // 'day' | 'night'
+            turn: 10,
+            maxTurn: 10,
+
+            // Recursos
+            resources: {
+                oxygen: 100,
+                contamination: 0,
+                energy: 50,
+                hunger: 100,
+                thirst: 100,
+                suit: 100,
+                // Inventário
+                scrap: 0,
+                plastic: 0,
+                water: 0,
+                biomass: 0,
+                rare_parts: 0,
+                mutant_bodies: 0,
+                purified_water: 0,
+                processed_food: 0,
+            },
+
+            // Máquina
+            machine: {
+                level: 1,
+                active: true,
+                production: 2,
+            },
+
+            // Localização
+            currentLocation: 'bunker',
+            locations: {
+                bunker: { name: 'BUNKER', unlocked: true, resources: [], danger: 0 },
+                lixao: { name: 'LIXÃO', unlocked: true, resources: ['scrap', 'plastic'], danger: 15 },
+                rio: { name: 'RIO POLUÍDO', unlocked: true, resources: ['water', 'biomass'], danger: 20 },
+                fabrica: { name: 'FÁBRICA', unlocked: true, resources: ['scrap', 'rare_parts'], danger: 35 },
+                cemit: { name: 'CEMITÉRIO', unlocked: true, resources: ['scrap', 'plastic'], danger: 25 },
+                bunker2: { name: 'BUNKER SECRETO', unlocked: false, resources: ['rare_parts', 'mutant_bodies'], danger: 50 },
+            },
+
+            // Mutantes no local atual
+            mutants: 0,
+            mutantTypes: ['Rastejador', 'Triturador', 'Sibila', 'Colosso'],
+
+            // Log
+            log: [],
+
+            // Game Over
+            gameOver: false,
+
+            // Flag para evitar múltiplos eventos
+            eventLock: false,
+        };
+
+        // ===== REFERÊNCIAS DOM =====
+        const DOM = {};
+
+        function cacheDOM() {
+            DOM.stats = {
+                oxygen: document.getElementById('stat-oxygen'),
+                contamination: document.getElementById('stat-contamination'),
+                energy: document.getElementById('stat-energy'),
+                hunger: document.getElementById('stat-hunger'),
+                thirst: document.getElementById('stat-thirst'),
+                suit: document.getElementById('stat-suit'),
+            };
+            DOM.turnCounter = document.getElementById('turn-counter');
+            DOM.cycleDisplay = document.getElementById('cycle-display');
+            DOM.log = document.getElementById('log');
+            DOM.inventoryList = document.getElementById('inventory-list');
+            DOM.currentLocationDisplay = document.getElementById('current-location-display');
+            DOM.locationStatus = document.getElementById('location-status');
+            DOM.machineStatus = document.getElementById('machine-status');
+            DOM.machineProduction = document.getElementById('machine-production');
+            DOM.machineLevel = document.getElementById('machine-level');
+
+            DOM.btnExplore = document.getElementById('btn-explore');
+            DOM.btnEndTurn = document.getElementById('btn-end-turn');
+            DOM.btnReturn = document.getElementById('btn-return');
+            DOM.btnPurifyWater = document.getElementById('btn-purify-water');
+            DOM.btnProcessBiomass = document.getElementById('btn-process-biomass');
+            DOM.btnRepairSuit = document.getElementById('btn-repair-suit');
+            DOM.btnUpgradeMachine = document.getElementById('btn-upgrade-machine');
+            DOM.btnRest = document.getElementById('btn-rest');
+
+            DOM.mapLocations = document.querySelectorAll('.map-location');
+
+            DOM.modal = document.getElementById('modal');
+            DOM.modalTitle = document.getElementById('modal-title');
+            DOM.modalText = document.getElementById('modal-text');
+            DOM.modalBtnOk = document.getElementById('modal-btn-ok');
+            DOM.modalBtnCancel = document.getElementById('modal-btn-cancel');
+        }
+
+        // ===== FUNÇÕES AUXILIARES =====
+
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
+        function random(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function pickRandom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        // ===== LOG =====
+
+        function addLog(message, type = 'normal') {
+            const entry = {
+                time: `[T${GameState.maxTurn - GameState.turn + 1}]`,
+                message: message,
+                type: type,
+            };
+            GameState.log.unshift(entry);
+            renderLog();
+        }
+
+        function renderLog() {
+            DOM.log.innerHTML = GameState.log.slice(0, 50).map(entry => {
+                let colorClass = '';
+                if (entry.type === 'danger') colorClass = 'danger';
+                else if (entry.type === 'success') colorClass = 'success';
+                else if (entry.type === 'highlight') colorClass = 'highlight';
+                return `<div class="log-entry"><span class="time">${entry.time}</span> <span class="${colorClass}">${entry.message}</span></div>`;
+            }).join('');
+        }
+
+        // ===== RENDERIZAÇÃO =====
+
+        function renderStats() {
+            const r = GameState.resources;
+            DOM.stats.oxygen.textContent = Math.floor(r.oxygen);
+            DOM.stats.contamination.textContent = Math.floor(r.contamination) + '%';
+            DOM.stats.energy.textContent = Math.floor(r.energy);
+            DOM.stats.hunger.textContent = Math.floor(r.hunger) + '%';
+            DOM.stats.thirst.textContent = Math.floor(r.thirst) + '%';
+            DOM.stats.suit.textContent = Math.floor(r.suit) + '%';
+
+            // Cores dinâmicas
+            DOM.stats.oxygen.parentElement.parentElement.className = 'stat ' + (r.oxygen > 30 ? 'safe' : 'danger');
+            DOM.stats.contamination.parentElement.parentElement.className = 'stat ' + (r.contamination < 50 ? 'safe' : (r
+                .contamination < 75 ? 'warning' : 'danger'));
+            DOM.stats.hunger.parentElement.parentElement.className = 'stat ' + (r.hunger > 30 ? 'safe' : 'danger');
+            DOM.stats.thirst.parentElement.parentElement.className = 'stat ' + (r.thirst > 30 ? 'safe' : 'danger');
+            DOM.stats.suit.parentElement.parentElement.className = 'stat ' + (r.suit > 30 ? 'safe' : 'danger');
+        }
+
+        function renderTurn() {
+            DOM.turnCounter.textContent = GameState.turn;
+            const isDay = GameState.cycle === 'day';
+            DOM.cycleDisplay.textContent = isDay ? '☀️ DIA' : '🌙 NOITE';
+            DOM.cycleDisplay.className = isDay ? 'day' : 'night';
+        }
+
+        function renderInventory() {
+            const r = GameState.resources;
+            const items = [
+                { key: 'scrap', label: '🪚 Sucata', qty: r.scrap },
+                { key: 'plastic', label: '🧴 Plástico', qty: r.plastic },
+                { key: 'water', label: '💧 Água Poluída', qty: r.water },
+                { key: 'biomass', label: '🌱 Biomassa', qty: r.biomass },
+                { key: 'rare_parts', label: '⚙️ Peças Raras', qty: r.rare_parts },
+                { key: 'mutant_bodies', label: '🧬 Corpos Mutantes', qty: r.mutant_bodies },
+                { key: 'purified_water', label: '💧💎 Água Purificada', qty: r.purified_water },
+                { key: 'processed_food', label: '🍖 Comida Processada', qty: r.processed_food },
+            ];
+
+            const hasItems = items.some(i => i.qty > 0);
+            if (!hasItems) {
+                DOM.inventoryList.innerHTML = `<div class="inv-empty">Nenhum item. Explore para coletar recursos.</div>`;
+                return;
+            }
+
+            DOM.inventoryList.innerHTML = items
+                .filter(i => i.qty > 0)
+                .map(i => `<div class="inv-item"><span class="item-name">${i.label}</span><span class="qty">${i.qty}</span></div>`)
+                .join('');
+        }
+
+        function renderLocation() {
+            const loc = GameState.locations[GameState.currentLocation];
+            DOM.currentLocationDisplay.textContent = `📍 ${loc.name}`;
+            const isBunker = GameState.currentLocation === 'bunker';
+            DOM.locationStatus.textContent = isBunker ? '🔒 Seguro' : `⚠️ Perigo: ${loc.danger}%`;
+            DOM.locationStatus.style.color = isBunker ? '#4aff8a' : '#ff6a33';
+
+            // Atualizar mapa
+            DOM.mapLocations.forEach(el => {
+                const locId = el.dataset.location;
+                el.classList.remove('current', 'has-mutants');
+                if (locId === GameState.currentLocation) el.classList.add('current');
+                if (locId !== 'bunker' && GameState.mutants > 0 && locId === GameState.currentLocation) {
+                    el.classList.add('has-mutants');
+                }
+                if (!GameState.locations[locId].unlocked) {
+                    el.classList.add('locked');
+                } else {
+                    el.classList.remove('locked');
+                }
+            });
+        }
+
+        function renderMachine() {
+            DOM.machineStatus.textContent = GameState.machine.active ? '🟢 ATIVA' : '🔴 INATIVA';
+            DOM.machineStatus.style.color = GameState.machine.active ? '#4aff8a' : '#ff4444';
+            DOM.machineProduction.textContent = GameState.machine.production;
+            DOM.machineLevel.textContent = GameState.machine.level;
+        }
+
+        function renderAll() {
+            renderStats();
+            renderTurn();
+            renderInventory();
+            renderLocation();
+            renderMachine();
+            updateButtons();
+        }
+
+        // ===== BOTÕES =====
+
+        function updateButtons() {
+            const r = GameState.resources;
+            const isBunker = GameState.currentLocation === 'bunker';
+            const hasTurn = GameState.turn > 0;
+            const notGameOver = !GameState.gameOver;
+
+            DOM.btnExplore.disabled = !hasTurn || isBunker || GameState.gameOver || GameState.eventLock;
+            DOM.btnEndTurn.disabled = !hasTurn || GameState.gameOver || GameState.eventLock;
+            DOM.btnReturn.disabled = isBunker || GameState.gameOver || GameState.eventLock;
+
+            DOM.btnPurifyWater.disabled = !isBunker || r.water < 2 || r.energy < 2 || GameState.gameOver || GameState
+            .eventLock;
+            DOM.btnProcessBiomass.disabled = !isBunker || r.biomass < 1 || r.energy < 1 || GameState.gameOver || GameState
+                .eventLock;
+            DOM.btnRepairSuit.disabled = !isBunker || r.scrap < 3 || r.suit >= 100 || GameState.gameOver || GameState
+                .eventLock;
+            DOM.btnUpgradeMachine.disabled = !isBunker || r.scrap < 5 || r.plastic < 3 || GameState.gameOver || GameState
+                .eventLock;
+            DOM.btnRest.disabled = !isBunker || GameState.gameOver || GameState.eventLock;
+        }
+
+        // ===== AÇÕES DO BUNKER =====
+
+        function actionPurifyWater() {
+            if (GameState.eventLock) return;
+            const r = GameState.resources;
+            if (r.water < 2) { showModal('Água Insuficiente', 'Você precisa de 2 Água Poluída para purificar.', 'warning'); return; }
+            if (r.energy < 2) { showModal('Energia Insuficiente', 'Você precisa de 2 Energia.', 'warning'); return; }
+
+            r.water -= 2;
+            r.energy -= 2;
+            r.purified_water += 1;
+            addLog('💧 Purificou 2 Água Poluída em 1 Água Purificada.', 'success');
+            GameState.turn -= 1;
+            checkTurnEnd();
+            renderAll();
+        }
+
+        function actionProcessBiomass() {
+            if (GameState.eventLock) return;
+            const r = GameState.resources;
+            if (r.biomass < 1) { showModal('Biomassa Insuficiente', 'Você precisa de 1 Biomassa.', 'warning'); return; }
+            if (r.energy < 1) { showModal('Energia Insuficiente', 'Você precisa de 1 Energia.', 'warning'); return; }
+
+            r.biomass -= 1;
+            r.energy -= 1;
+            r.processed_food += 1;
+            addLog('🌱 Processou Biomassa em Comida.', 'success');
+            GameState.turn -= 1;
+            checkTurnEnd();
+            renderAll();
+        }
+
+        function actionRepairSuit() {
+            if (GameState.eventLock) return;
+            const r = GameState.resources;
+            if (r.scrap < 3) { showModal('Sucata Insuficiente', 'Você precisa de 3 Sucata.', 'warning'); return; }
+            if (r.suit >= 100) { showModal('Traje Intacto', 'Seu traje já está em perfeito estado.', 'warning'); return; }
+
+            r.scrap -= 3;
+            r.suit = Math.min(100, r.suit + 30);
+            addLog('🔧 Reparou o traje (+30%).', 'success');
+            GameState.turn -= 1;
+            checkTurnEnd();
+            renderAll();
+        }
+
+        function actionUpgradeMachine() {
+            if (GameState.eventLock) return;
+            const r = GameState.resources;
+            if (r.scrap < 5) { showModal('Sucata Insuficiente', 'Você precisa de 5 Sucata.', 'warning'); return; }
+            if (r.plastic < 3) { showModal('Plástico Insuficiente', 'Você precisa de 3 Plástico.', 'warning'); return; }
+
+            r.scrap -= 5;
+            r.plastic -= 3;
+            GameState.machine.level += 1;
+            GameState.machine.production = Math.floor(GameState.machine.level * 1.5) + 1;
+            addLog(`⚙️ Máquina melhorada para Nível ${GameState.machine.level}! Produz ${GameState.machine.production} Oxigênio/turno.`, 'highlight');
+            GameState.turn -= 1;
+            checkTurnEnd();
+            renderAll();
+        }
+
+        function actionRest() {
+            if (GameState.eventLock) return;
+            const r = GameState.resources;
+            r.contamination = Math.max(0, r.contamination - 15);
+            r.hunger = Math.min(100, r.hunger + 10);
+            r.thirst = Math.min(100, r.thirst + 10);
+            r.suit = Math.min(100, r.suit + 5);
+            r.energy = Math.min(100, r.energy + 5);
+            addLog('💤 Descansou. Recuperou 15% de contaminação e 10% de fome/sede.', 'success');
+            GameState.turn -= 1;
+            checkTurnEnd();
+            renderAll();
+        }
+
+        // ===== EXPLORAÇÃO =====
+
+        function actionExplore() {
+            if (GameState.eventLock) return;
+            if (GameState.currentLocation === 'bunker') {
+                showModal('No Bunker', 'Você já está no bunker. Selecione um local no mapa para explorar.', 'warning');
+                return;
+            }
+            if (GameState.turn <= 0) {
+                showModal('Sem Turnos', 'Você não tem turnos restantes. Passe o turno ou espere a noite.', 'warning');
+                return;
+            }
+
+            const loc = GameState.locations[GameState.currentLocation];
+            if (!loc.unlocked) {
+                showModal('Local Bloqueado', 'Este local ainda não foi desbloqueado.', 'warning');
+                return;
+            }
+
+            // Consome turno
+            GameState.turn -= 1;
+
+            // Verifica mutantes
+            const mutantChance = GameState.cycle === 'night' ? loc.danger * 2 : loc.danger;
+            const hasMutant = random(0, 100) < mutantChance;
+
+            if (hasMutant) {
+                // Encontro com mutante!
+                const mutantType = pickRandom(GameState.mutantTypes);
+                GameState.mutants += 1;
+                addLog(`⚠️ Encontrou um ${mutantType} em ${loc.name}!`, 'danger');
+
+                // Tenta fugir ou lutar?
+                const fleeChance = GameState.cycle === 'day' ? 60 : 30;
+                if (random(0, 100) < fleeChance) {
+                    addLog(`🏃 Conseguiu fugir do ${mutantType}!`, 'highlight');
+                    // Perde um pouco de oxigênio e energia
+                    GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 5);
+                    GameState.resources.energy = Math.max(0, GameState.resources.energy - 2);
+                } else {
+                    // Combate! (simplificado)
+                    const fightWin = random(0, 100) < (GameState.resources.suit / 2);
+                    if (fightWin) {
+                        GameState.resources.mutant_bodies += 1;
+                        GameState.resources.biomass += 2;
+                        addLog(`⚔️ Derrotou o ${mutantType}! Coletou 1 Corpo e 2 Biomassa.`, 'success');
+                        GameState.resources.suit = Math.max(0, GameState.resources.suit - 10);
+                        GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 10);
+                    } else {
+                        addLog(`💀 Foi ferido pelo ${mutantType}! Perdeu oxigênio e danificou o traje.`, 'danger');
+                        GameState.resources.suit = Math.max(0, GameState.resources.suit - 25);
+                        GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 15);
+                        GameState.resources.contamination = Math.min(100, GameState.resources.contamination + 10);
+                    }
+                }
+            } else {
+                // Coleta recursos
+                const resources = loc.resources;
+                if (resources.length > 0) {
+                    const collected = [];
+                    resources.forEach(res => {
+                        const amount = GameState.cycle === 'day' ? random(1, 3) : random(0, 2);
+                        if (amount > 0) {
+                            GameState.resources[res] += amount;
+                            collected.push(`${amount} ${res}`);
+                        }
+                    });
+                    if (collected.length > 0) {
+                        addLog(`📦 Coletou: ${collected.join(', ')} em ${loc.name}.`, 'success');
+                    } else {
+                        addLog(`🔍 Não encontrou nada útil em ${loc.name}.`, 'normal');
+                    }
+                } else {
+                    addLog(`🔍 Explorou ${loc.name} mas não encontrou recursos.`, 'normal');
+                }
+            }
+
+            // Consome recursos por turno
+            GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 2);
+            GameState.resources.hunger = Math.max(0, GameState.resources.hunger - 3);
+            GameState.resources.thirst = Math.max(0, GameState.resources.thirst - 3);
+            GameState.resources.contamination = Math.min(100, GameState.resources.contamination + 2);
+
+            // Verifica morte
+            checkDeath();
+
+            renderAll();
+            checkTurnEnd();
+        }
+
+        // ===== PASSAR TURNO =====
+
+        function actionEndTurn() {
+            if (GameState.eventLock) return;
+            if (GameState.turn <= 0) {
+                // Mudar ciclo
+                if (GameState.cycle === 'day') {
+                    GameState.cycle = 'night';
+                    addLog('🌙 A noite caiu. Mutantes estão mais agressivos.', 'danger');
+                } else {
+                    GameState.cycle = 'day';
+                    addLog('☀️ O dia amanheceu. A superfície está mais calma.', 'success');
+                }
+                GameState.turn = GameState.maxTurn;
+
+                // Máquina produz oxigênio
+                if (GameState.machine.active) {
+                    const produced = GameState.machine.production;
+                    GameState.resources.oxygen = Math.min(100, GameState.resources.oxygen + produced);
+                    addLog(`🫧 Máquina produziu ${produced} Oxigênio.`, 'highlight');
+                }
+
+                // Evento aleatório noturno
+                if (GameState.cycle === 'night' && random(0, 100) < 30) {
+                    triggerNightEvent();
+                }
+
+                renderAll();
+                return;
+            }
+
+            // Passar um turno sem fazer nada
+            GameState.turn -= 1;
+            GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 1);
+            GameState.resources.hunger = Math.max(0, GameState.resources.hunger - 2);
+            GameState.resources.thirst = Math.max(0, GameState.resources.thirst - 2);
+            if (GameState.currentLocation !== 'bunker') {
+                GameState.resources.contamination = Math.min(100, GameState.resources.contamination + 3);
+            }
+            addLog(`⏭️ Passou um turno. (${GameState.turn} restantes)`, 'normal');
+            checkDeath();
+            renderAll();
+            checkTurnEnd();
+        }
+
+        // ===== VOLTAR AO BUNKER =====
+
+        function actionReturn() {
+            if (GameState.eventLock) return;
+            if (GameState.currentLocation === 'bunker') {
+                showModal('Já no Bunker', 'Você já está no bunker.', 'warning');
+                return;
+            }
+
+            // Gasta turno para voltar
+            GameState.turn -= 1;
+            GameState.currentLocation = 'bunker';
+            GameState.mutants = 0;
+            addLog('🏠 Retornou ao bunker em segurança.', 'success');
+
+            // Recupera um pouco
+            GameState.resources.oxygen = Math.min(100, GameState.resources.oxygen + 5);
+            GameState.resources.contamination = Math.max(0, GameState.resources.contamination - 5);
+
+            renderAll();
+            checkTurnEnd();
+        }
+
+        // ===== EVENTOS =====
+
+        function triggerNightEvent() {
+            const events = [
+                {
+                    title: '🌪️ Tempestade Tóxica!',
+                    text: 'Uma tempestade de poluição varre a superfície. O oxigênio cai drasticamente!',
+                    effect: () => {
+                        GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 20);
+                        GameState.resources.contamination = Math.min(100, GameState.resources.contamination + 15);
+                        GameState.resources.suit = Math.max(0, GameState.resources.suit - 10);
+                        addLog('🌪️ Tempestade tóxica atingiu o bunker!', 'danger');
+                    }
+                },
+                {
+                    title: '📡 Sinal de Rádio',
+                    text: 'Você capta um sinal de outro sobrevivente! Ele pede ajuda em troca de recursos.',
+                    effect: () => {
+                        const reward = random(2, 5);
+                        GameState.resources.scrap += reward;
+                        GameState.resources.plastic += random(1, 3);
+                        addLog(`📡 Respondeu ao sinal. Ganhou ${reward} Sucata e Plástico.`, 'highlight');
+                    }
+                },
+                {
+                    title: '🧬 Mutação no Bunker!',
+                    text: 'Um mutante conseguiu infiltrar-se no bunker! Você precisa lidar com ele.',
+                    effect: () => {
+                        if (random(0, 100) < 50) {
+                            GameState.resources.mutant_bodies += 1;
+                            addLog('⚔️ Matou o invasor! Coletou 1 Corpo Mutante.', 'success');
+                        } else {
+                            GameState.resources.suit = Math.max(0, GameState.resources.suit - 15);
+                            GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 10);
+                            addLog('💥 O mutante danificou o bunker antes de ser expulso!', 'danger');
+                        }
+                    }
+                },
+                {
+                    title: '💀 Horda de Mutantes!',
+                    text: 'Uma horda está se aproximando do bunker! Você precisa se preparar.',
+                    effect: () => {
+                        if (GameState.resources.energy > 10) {
+                            GameState.resources.energy -= 10;
+                            addLog('🛡️ Usou energia para reforçar as defesas. A horda passou. (-10 Energia)', 'highlight');
+                        } else {
+                            GameState.resources.suit = Math.max(0, GameState.resources.suit - 20);
+                            GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 15);
+                            addLog('💀 A horda invadiu! Perdeu oxigênio e danificou o traje.', 'danger');
+                        }
+                    }
+                },
+            ];
+
+            const event = pickRandom(events);
+            showModal(event.title, event.text, 'event', () => {
+                event.effect();
+                renderAll();
+            });
+        }
+
+        // ===== MODAL =====
+
+        function showModal(title, text, type = 'info', onOk = null) {
+            GameState.eventLock = true;
+            DOM.modalTitle.textContent = title;
+            DOM.modalText.textContent = text;
+            DOM.modal.classList.add('active');
+
+            DOM.modalBtnOk.onclick = () => {
+                DOM.modal.classList.remove('active');
+                GameState.eventLock = false;
+                if (onOk) onOk();
+                renderAll();
+            };
+
+            DOM.modalBtnCancel.style.display = 'none';
+            if (type === 'warning') {
+                DOM.modalBtnOk.textContent = 'OK';
+            } else if (type === 'event') {
+                DOM.modalBtnOk.textContent = 'CONTINUAR';
+            } else {
+                DOM.modalBtnOk.textContent = 'OK';
+            }
+        }
+
+        // ===== CHECAGENS =====
+
+        function checkDeath() {
+            const r = GameState.resources;
+            if (r.oxygen <= 0) {
+                GameState.gameOver = true;
+                showModal('💀 FALHA CRÍTICA - SEM OXIGÊNIO', 'Você ficou sem oxigênio. A Ecosfera 2200 reivindicou mais uma vida...', 'warning');
+                return true;
+            }
+            if (r.hunger <= 0) {
+                GameState.gameOver = true;
+                showModal('💀 FALHA CRÍTICA - FOME', 'Você morreu de fome. A superfície não perdoa os fracos.', 'warning');
+                return true;
+            }
+            if (r.thirst <= 0) {
+                GameState.gameOver = true;
+                showModal('💀 FALHA CRÍTICA - SEDE', 'A desidratação levou você. A água é vida, e ela é escassa.', 'warning');
+                return true;
+            }
+            if (r.suit <= 0) {
+                GameState.gameOver = true;
+                showModal('💀 FALHA CRÍTICA - TRAJE DESTRUÍDO', 'Seu traje se despedaçou. A contaminação te consumiu.', 'warning');
+                return true;
+            }
+            if (r.contamination >= 100) {
+                GameState.gameOver = true;
+                showModal('💀 FALHA CRÍTICA - CONTAMINAÇÃO TOTAL', 'A poluição tomou conta do seu corpo. Você se tornou parte do problema.', 'warning');
+                return true;
+            }
+            return false;
+        }
+
+        function checkTurnEnd() {
+            if (GameState.turn <= 0 && !GameState.gameOver) {
+                // Mudar ciclo automaticamente
+                if (GameState.cycle === 'day') {
+                    GameState.cycle = 'night';
+                    addLog('🌙 A noite caiu. Mutantes estão mais agressivos.', 'danger');
+                } else {
+                    GameState.cycle = 'day';
+                    addLog('☀️ O dia amanheceu. A superfície está mais calma.', 'success');
+                }
+                GameState.turn = GameState.maxTurn;
+
+                // Máquina produz oxigênio
+                if (GameState.machine.active) {
+                    const produced = GameState.machine.production;
+                    GameState.resources.oxygen = Math.min(100, GameState.resources.oxygen + produced);
+                    addLog(`🫧 Máquina produziu ${produced} Oxigênio.`, 'highlight');
+                }
+
+                // Evento aleatório
+                if (GameState.cycle === 'night' && random(0, 100) < 30) {
+                    triggerNightEvent();
+                }
+
+                renderAll();
+            }
+        }
+
+        // ===== CLIQUE NO MAPA =====
+
+        function setupMapClicks() {
+            DOM.mapLocations.forEach(el => {
+                el.addEventListener('click', function() {
+                    if (GameState.eventLock) return;
+                    const locId = this.dataset.location;
+                    if (!GameState.locations[locId].unlocked) {
+                        showModal('🔒 Local Bloqueado', 'Este local ainda não foi desbloqueado. Continue explorando para encontrar pistas.', 'warning');
+                        return;
+                    }
+                    if (locId === GameState.currentLocation) {
+                        showModal('📍 Mesmo Local', 'Você já está aqui.', 'warning');
+                        return;
+                    }
+                    if (GameState.turn <= 0) {
+                        showModal('⏳ Sem Turnos', 'Você não tem turnos restantes. Aguarde a próxima fase.', 'warning');
+                        return;
+                    }
+
+                    GameState.currentLocation = locId;
+                    GameState.mutants = random(0, 2);
+                    addLog(`🚶 Movendo para ${GameState.locations[locId].name}...`, 'normal');
+                    renderAll();
+                });
+            });
+        }
+
+        // ===== INICIALIZAÇÃO =====
+
+        function init() {
+            cacheDOM();
+
+            // Adicionar logs iniciais
+            addLog('🌍 ECOSFERA 2200 - Sistema iniciado.', 'highlight');
+            addLog('📖 "Sobreviva. Purifique. Descubra a verdade."', 'highlight');
+            addLog('💡 Dica: Explore durante o dia, se esconda à noite.', 'normal');
+
+            // Configurar eventos
+            DOM.btnExplore.addEventListener('click', actionExplore);
+            DOM.btnEndTurn.addEventListener('click', actionEndTurn);
+            DOM.btnReturn.addEventListener('click', actionReturn);
+            DOM.btnPurifyWater.addEventListener('click', actionPurifyWater);
+            DOM.btnProcessBiomass.addEventListener('click', actionProcessBiomass);
+            DOM.btnRepairSuit.addEventListener('click', actionRepairSuit);
+            DOM.btnUpgradeMachine.addEventListener('click', actionUpgradeMachine);
+            DOM.btnRest.addEventListener('click', actionRest);
+
+            setupMapClicks();
+
+            // Renderizar tudo
+            renderAll();
+
+            // Mostrar mensagem de boas-vindas
+            setTimeout(() => {
+                showModal(
+                    '🌍 ECOSFERA 2200',
+                    'Bem-vindo ao último refúgio da humanidade.\n\nO mundo está poluído. Mutantes vagam pela superfície.\nSua missão: sobreviver, purificar o ar e descobrir a verdade sobre o que aconteceu.\n\n☀️ Durante o DIA (10 turnos): Explore, colete recursos.\n🌙 Durante a NOITE (10 turnos): Fique no bunker, se esconda.\n\nBoa sorte, sobrevivente.',
+                    'info'
+                );
+            }, 500);
+
+            console.log('🌍 ECOSFERA 2200 - v0.0 carregada com sucesso!');
+            console.log('Todas as mecânicas implementadas:');
+            console.log(' - Ciclo Dia/Noite (10 turnos cada)');
+            console.log(' - Exploração com coleta de recursos');
+            console.log(' - Combate e fuga de mutantes');
+            console.log(' - Gestão do bunker (purificação, processamento, reparos)');
+            console.log(' - Máquina de carbono com upgrades');
+            console.log(' - Sistema de contaminação');
+            console.log(' - Eventos aleatórios noturnos');
+            console.log(' - Sistema de fome/sede/oxigênio/traje');
+            console.log(' - Múltiplas localizações para explorar');
+        }
+
+        // Iniciar quando a página carregar
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+
+</body>
+</html>
