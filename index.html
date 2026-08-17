@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ecosfera 2200 - v0.0</title>
+    <title>Ecosfera 2200 - v2.0</title>
     <style>
-        /* ===== RESET E ESTILOS GLOBAIS ===== */
+        /* ============================================================
+           RESET E ESTILOS GLOBAIS
+           ============================================================ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Special+Elite&display=swap');
 
         body {
             font-family: 'Share Tech Mono', monospace;
@@ -22,22 +24,25 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-image: 
-                radial-gradient(ellipse at 20% 50%, rgba(0, 255, 100, 0.05) 0%, transparent 70%),
-                radial-gradient(ellipse at 80% 50%, rgba(255, 100, 0, 0.05) 0%, transparent 70%);
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(0, 255, 100, 0.03) 0%, transparent 70%),
+                radial-gradient(ellipse at 80% 50%, rgba(255, 100, 0, 0.03) 0%, transparent 70%);
         }
 
-        /* ===== CONTAINER PRINCIPAL ===== */
         #game {
-            width: 1100px;
+            width: 950px;
             max-width: 98vw;
-            background: #121212;
+            height: 700px;
+            max-height: 98vh;
+            background: #111111;
             border: 2px solid #2a4a2a;
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 0 60px rgba(0, 255, 100, 0.08), inset 0 0 60px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 60px rgba(0, 255, 100, 0.06), inset 0 0 60px rgba(0, 0, 0, 0.8);
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         #game::before {
@@ -47,142 +52,456 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: 
+            background:
                 repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.03) 2px, rgba(0, 0, 0, 0.03) 4px);
             pointer-events: none;
             z-index: 0;
         }
 
-        /* ===== HEADER ===== */
+        /* ============================================================
+           HEADER
+           ============================================================ */
         #header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 15px;
+            padding: 8px 15px;
             background: #1a1a1a;
             border-bottom: 2px solid #2a4a2a;
-            margin-bottom: 15px;
+            border-radius: 8px 8px 0 0;
             position: relative;
             z-index: 1;
-            border-radius: 8px 8px 0 0;
+            flex-shrink: 0;
         }
 
         #title {
-            font-size: 22px;
+            font-size: 18px;
             color: #4aff8a;
-            text-shadow: 0 0 20px rgba(74, 255, 138, 0.2);
-            letter-spacing: 4px;
+            text-shadow: 0 0 20px rgba(74, 255, 138, 0.15);
+            letter-spacing: 3px;
         }
 
         #title span {
             color: #ff6a33;
-            text-shadow: 0 0 20px rgba(255, 106, 51, 0.2);
         }
 
-        #cycle-info {
-            font-size: 14px;
+        #player-name-display {
+            font-size: 13px;
             color: #888;
-            text-align: right;
         }
 
-        #cycle-info .day {
+        #player-name-display span {
             color: #ffcc44;
         }
 
-        #cycle-info .night {
+        /* ============================================================
+           TELAS
+           ============================================================ */
+        .screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* ============================================================
+           TELA INICIAL
+           ============================================================ */
+        #screen-start {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #screen-start .logo {
+            font-size: 42px;
+            color: #4aff8a;
+            text-shadow: 0 0 40px rgba(74, 255, 138, 0.15);
+            letter-spacing: 6px;
+            margin-bottom: 10px;
+        }
+
+        #screen-start .logo span {
+            color: #ff6a33;
+        }
+
+        #screen-start .subtitle {
+            font-size: 14px;
+            color: #666;
+            letter-spacing: 4px;
+            margin-bottom: 25px;
+        }
+
+        #lore-text {
+            max-width: 600px;
+            background: #0d0d0d;
+            border: 1px solid #1a2a1a;
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin: 0 auto 25px;
+            text-align: left;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #aaa;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #lore-text .highlight {
+            color: #ff6a33;
+        }
+        #lore-text .highlight-green {
+            color: #4aff8a;
+        }
+        #lore-text .danger {
+            color: #ff4444;
+        }
+
+        #lore-text::-webkit-scrollbar {
+            width: 4px;
+        }
+        #lore-text::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        #lore-text::-webkit-scrollbar-thumb {
+            background: #2a4a2a;
+            border-radius: 4px;
+        }
+
+        #create-form {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #create-form input {
+            padding: 12px 20px;
+            background: #0d0d0d;
+            border: 1px solid #2a3a2a;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            width: 220px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        #create-form input:focus {
+            border-color: #4aff8a;
+            box-shadow: 0 0 20px rgba(74, 255, 138, 0.05);
+        }
+
+        #create-form input::placeholder {
+            color: #444;
+        }
+
+        #create-form button {
+            padding: 12px 30px;
+            background: #1a2a1a;
+            border: 1px solid #4aff8a;
+            border-radius: 6px;
+            color: #4aff8a;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #create-form button:hover {
+            background: #2a3a2a;
+            box-shadow: 0 0 30px rgba(74, 255, 138, 0.1);
+            transform: scale(1.02);
+        }
+
+        #create-form button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ============================================================
+           TELA DO BUNKER
+           ============================================================ */
+        #screen-bunker {
+            gap: 12px;
+        }
+
+        #bunker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #0d0d0d;
+            border: 1px solid #1a2a1a;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        #bunker-header .time-display {
+            font-size: 14px;
+            color: #888;
+        }
+
+        #bunker-header .time-display .day {
+            color: #ffcc44;
+        }
+        #bunker-header .time-display .night {
             color: #4466ff;
         }
 
-        #turn-counter {
-            font-size: 28px;
+        #bunker-header .status {
+            font-size: 12px;
             color: #4aff8a;
-            font-weight: bold;
         }
 
-        /* ===== STATS BAR ===== */
-        #stats {
+        #bunker-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 8px;
-            padding: 12px 15px;
-            background: #161616;
-            border: 1px solid #2a2a2a;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            position: relative;
-            z-index: 1;
+            flex-shrink: 0;
         }
 
-        .stat {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            padding: 4px 8px;
+        .bunker-stat {
             background: #0d0d0d;
-            border-radius: 4px;
-            border-left: 3px solid #2a4a2a;
+            border: 1px solid #1a2a1a;
+            border-radius: 6px;
+            padding: 8px 12px;
+            text-align: center;
         }
 
-        .stat .icon {
+        .bunker-stat .stat-icon {
             font-size: 18px;
+            display: block;
         }
 
-        .stat .value {
+        .bunker-stat .stat-value {
+            font-size: 16px;
             color: #e0e0e0;
             font-weight: bold;
-            font-size: 14px;
         }
 
-        .stat .label {
-            color: #777;
-            font-size: 10px;
+        .bunker-stat .stat-label {
+            font-size: 9px;
+            color: #666;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        .stat.danger .value {
+        .bunker-stat.danger .stat-value {
+            color: #ff4444;
+        }
+        .bunker-stat.warning .stat-value {
+            color: #ffaa44;
+        }
+        .bunker-stat.safe .stat-value {
+            color: #4aff8a;
+        }
+
+        #bunker-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            flex: 1;
+            align-content: center;
+            padding: 10px 0;
+        }
+
+        .bunker-btn {
+            padding: 25px 15px;
+            background: #0d0d0d;
+            border: 1px solid #1a2a1a;
+            border-radius: 8px;
+            color: #b0b0b0;
+            font-family: 'Share Tech Mono', monospace;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bunker-btn:hover:not(:disabled) {
+            background: #1a1a1a;
+            border-color: #2a4a2a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .bunker-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .bunker-btn .btn-icon {
+            font-size: 32px;
+        }
+        .bunker-btn .btn-label {
+            font-size: 14px;
+            color: #ccc;
+            letter-spacing: 2px;
+        }
+        .bunker-btn .btn-desc {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .bunker-btn.surface {
+            border-color: #2a4a3a;
+        }
+        .bunker-btn.surface:hover:not(:disabled) {
+            border-color: #4aff8a;
+        }
+
+        .bunker-btn.dormitory {
+            border-color: #3a2a4a;
+        }
+        .bunker-btn.dormitory:hover:not(:disabled) {
+            border-color: #8844ff;
+        }
+
+        .bunker-btn.machine {
+            border-color: #4a3a2a;
+        }
+        .bunker-btn.machine:hover:not(:disabled) {
+            border-color: #ff8844;
+        }
+
+        /* ============================================================
+           TELA DA SUPERFÍCIE (NARRATIVA)
+           ============================================================ */
+        #screen-surface {
+            gap: 12px;
+        }
+
+        #surface-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #0d0d0d;
+            border: 1px solid #1a2a1a;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        #surface-header .location {
+            font-size: 14px;
+            color: #ff6a33;
+        }
+
+        #surface-header .danger-level {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 4px;
+            background: #1a0a0a;
+            border: 1px solid #ff4444;
             color: #ff4444;
         }
 
-        .stat.warning .value {
-            color: #ffaa44;
-        }
-
-        .stat.safe .value {
+        #surface-header .danger-level.safe {
+            border-color: #4aff8a;
             color: #4aff8a;
+            background: #0a1a0a;
         }
 
-        /* ===== CONTAINER PRINCIPAL (3 COLUNAS) ===== */
-        #main {
+        #surface-status {
             display: grid;
-            grid-template-columns: 1fr 1.6fr 1fr;
-            gap: 15px;
-            position: relative;
-            z-index: 1;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            flex-shrink: 0;
         }
 
-        /* ===== COLUNA ESQUERDA - BUNKER ===== */
-        #bunker-panel {
-            background: #141414;
-            border: 1px solid #2a2a2a;
-            border-radius: 8px;
-            padding: 15px;
+        .surface-stat {
+            background: #0d0d0d;
+            border: 1px solid #1a2a1a;
+            border-radius: 6px;
+            padding: 6px 10px;
+            text-align: center;
         }
 
-        #bunker-panel h3 {
-            color: #4aff8a;
+        .surface-stat .stat-label {
+            font-size: 9px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .surface-stat .stat-value {
             font-size: 14px;
-            letter-spacing: 2px;
-            margin-bottom: 12px;
-            border-bottom: 1px solid #2a2a2a;
-            padding-bottom: 8px;
+            color: #e0e0e0;
         }
 
-        .bunker-action {
-            width: 100%;
-            padding: 10px 12px;
-            margin-bottom: 8px;
+        /* Narrativa */
+        #surface-narrative {
+            flex: 1;
+            overflow-y: auto;
+            background: #0d0d0d;
+            border: 1px solid #1a2a1a;
+            border-radius: 6px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        #surface-narrative::-webkit-scrollbar {
+            width: 4px;
+        }
+        #surface-narrative::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        #surface-narrative::-webkit-scrollbar-thumb {
+            background: #2a4a2a;
+            border-radius: 4px;
+        }
+
+        .narrative-text {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #ccc;
+            padding: 10px 15px;
+            background: #0a0a0a;
+            border-radius: 6px;
+            border-left: 3px solid #2a4a2a;
+        }
+
+        .narrative-text .highlight {
+            color: #ffcc44;
+        }
+        .narrative-text .danger {
+            color: #ff4444;
+        }
+        .narrative-text .success {
+            color: #4aff8a;
+        }
+        .narrative-text .info {
+            color: #4488ff;
+        }
+
+        .narrative-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .narrative-options button {
+            padding: 12px 16px;
             background: #1a1a1a;
             border: 1px solid #2a3a2a;
             border-radius: 6px;
@@ -192,235 +511,306 @@
             cursor: pointer;
             transition: all 0.3s;
             text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .bunker-action:hover:not(:disabled) {
-            background: #1f2a1f;
+        .narrative-options button:hover:not(:disabled) {
+            background: #2a2a2a;
             border-color: #4aff8a;
             color: #fff;
-            box-shadow: 0 0 20px rgba(74, 255, 138, 0.05);
+            transform: scale(1.01);
         }
 
-        .bunker-action:disabled {
+        .narrative-options button:disabled {
             opacity: 0.3;
             cursor: not-allowed;
         }
 
-        .bunker-action .cost {
-            color: #ff6a33;
-            font-size: 10px;
+        .narrative-options button .opt-icon {
+            font-size: 18px;
         }
 
-        /* ===== COLUNA CENTRAL - MAPA/LOG ===== */
-        #map-panel {
-            background: #141414;
-            border: 1px solid #2a2a2a;
-            border-radius: 8px;
-            padding: 15px;
-            min-height: 400px;
+        .narrative-options button.danger {
+            border-color: #ff4444;
+            color: #ff4444;
         }
 
-        #map-panel h3 {
-            color: #ff6a33;
-            font-size: 14px;
-            letter-spacing: 2px;
-            margin-bottom: 12px;
-            border-bottom: 1px solid #2a2a2a;
-            padding-bottom: 8px;
+        .narrative-options button.danger:hover:not(:disabled) {
+            background: #1a0a0a;
+            border-color: #ff6666;
         }
 
-        #map-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            margin-bottom: 12px;
+        .narrative-options button.success {
+            border-color: #4aff8a;
+            color: #4aff8a;
         }
 
-        .map-location {
-            padding: 14px 10px;
+        .narrative-options button.success:hover:not(:disabled) {
+            background: #0a1a0a;
+        }
+
+        .narrative-options button.warning {
+            border-color: #ffaa44;
+            color: #ffaa44;
+        }
+
+        .narrative-options button.warning:hover:not(:disabled) {
+            background: #1a1a0a;
+        }
+
+        /* ============================================================
+           TELA DE COMBATE
+           ============================================================ */
+        #screen-combat {
+            gap: 12px;
+            justify-content: center;
+        }
+
+        #combat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
             background: #0d0d0d;
             border: 1px solid #1a2a1a;
             border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        #combat-header .enemy-name {
+            font-size: 18px;
+            color: #ff4444;
+        }
+
+        #combat-header .enemy-hp {
+            font-size: 14px;
+            color: #ffaa44;
+        }
+
+        #combat-status {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .combatant {
+            background: #0d0d0d;
+            border: 1px solid #1a2a1a;
+            border-radius: 6px;
+            padding: 12px 15px;
             text-align: center;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.3s;
+        }
+
+        .combatant .name {
+            font-size: 12px;
             color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .map-location:hover:not(.locked):not(:disabled) {
-            background: #1a2a1a;
-            border-color: #4aff8a;
-            color: #fff;
-            transform: scale(1.02);
+        .combatant .hp-bar {
+            width: 100%;
+            height: 12px;
+            background: #1a1a1a;
+            border-radius: 6px;
+            margin: 6px 0;
+            overflow: hidden;
+            border: 1px solid #2a2a2a;
         }
 
-        .map-location .loc-icon {
-            font-size: 24px;
-            display: block;
-            margin-bottom: 4px;
+        .combatant .hp-fill {
+            height: 100%;
+            background: #4aff8a;
+            border-radius: 6px;
+            transition: width 0.5s;
         }
 
-        .map-location .loc-name {
-            font-size: 11px;
-            font-weight: bold;
-            color: #ccc;
+        .combatant .hp-fill.enemy {
+            background: #ff4444;
         }
 
-        .map-location .loc-resources {
-            font-size: 9px;
-            color: #666;
-            margin-top: 4px;
+        .combatant .hp-text {
+            font-size: 12px;
+            color: #aaa;
         }
 
-        .map-location.locked {
-            opacity: 0.3;
-            cursor: not-allowed;
+        .combatant.player .hp-fill {
+            background: #4aff8a;
         }
 
-        .map-location.current {
-            border-color: #4aff8a;
-            background: #1a2a1a;
-            box-shadow: 0 0 30px rgba(74, 255, 138, 0.05);
-        }
-
-        .map-location.has-mutants {
-            border-color: #ff4444;
-            background: #1a0a0a;
-        }
-
-        /* ===== LOG ===== */
-        #log {
+        #combat-log {
+            flex: 1;
+            overflow-y: auto;
             background: #0a0a0a;
             border: 1px solid #1a1a1a;
             border-radius: 6px;
-            padding: 10px;
-            height: 160px;
-            overflow-y: auto;
-            font-size: 11px;
-            line-height: 1.6;
+            padding: 12px 15px;
+            font-size: 12px;
+            line-height: 1.8;
+            color: #888;
+            min-height: 100px;
+            max-height: 200px;
         }
 
-        #log::-webkit-scrollbar {
+        #combat-log::-webkit-scrollbar {
             width: 4px;
         }
-
-        #log::-webkit-scrollbar-track {
+        #combat-log::-webkit-scrollbar-track {
             background: #0a0a0a;
         }
-
-        #log::-webkit-scrollbar-thumb {
+        #combat-log::-webkit-scrollbar-thumb {
             background: #2a4a2a;
             border-radius: 4px;
         }
 
-        .log-entry {
+        .combat-log-entry {
             padding: 2px 0;
             border-bottom: 1px solid #0d0d0d;
-            color: #999;
         }
 
-        .log-entry .time {
-            color: #4aff8a;
-        }
-
-        .log-entry .highlight {
-            color: #ffcc44;
-        }
-
-        .log-entry .danger {
+        .combat-log-entry .damage {
             color: #ff4444;
         }
-
-        .log-entry .success {
+        .combat-log-entry .heal {
             color: #4aff8a;
         }
-
-        /* ===== COLUNA DIREITA - INVENTÁRIO ===== */
-        #inventory-panel {
-            background: #141414;
-            border: 1px solid #2a2a2a;
-            border-radius: 8px;
-            padding: 15px;
+        .combat-log-entry .dodge {
+            color: #4488ff;
+        }
+        .combat-log-entry .flee {
+            color: #ffaa44;
         }
 
-        #inventory-panel h3 {
-            color: #ffcc44;
-            font-size: 14px;
-            letter-spacing: 2px;
-            margin-bottom: 12px;
-            border-bottom: 1px solid #2a2a2a;
-            padding-bottom: 8px;
+        #combat-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            flex-shrink: 0;
+            padding-top: 8px;
         }
 
-        .inv-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 10px;
-            background: #0d0d0d;
-            border-radius: 4px;
-            margin-bottom: 4px;
-            font-size: 12px;
-            border-left: 2px solid #2a3a2a;
-        }
-
-        .inv-item .qty {
-            color: #4aff8a;
-            font-weight: bold;
-        }
-
-        .inv-item .item-name {
-            color: #ccc;
-        }
-
-        .inv-empty {
-            color: #444;
-            font-size: 12px;
-            text-align: center;
-            padding: 20px 0;
-        }
-
-        /* ===== BOTÕES GERAIS ===== */
-        #actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-
-        #actions button {
-            flex: 1;
-            min-width: 80px;
-            padding: 10px 12px;
+        #combat-actions button {
+            padding: 14px 12px;
             background: #1a1a1a;
             border: 1px solid #2a3a2a;
             border-radius: 6px;
             color: #b0b0b0;
             font-family: 'Share Tech Mono', monospace;
-            font-size: 11px;
+            font-size: 13px;
             cursor: pointer;
             transition: all 0.3s;
             text-transform: uppercase;
             letter-spacing: 1px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
         }
 
-        #actions button:hover:not(:disabled) {
-            background: #1f2a1f;
+        #combat-actions button:hover:not(:disabled) {
+            background: #2a2a2a;
             border-color: #4aff8a;
             color: #fff;
         }
 
-        #actions button:disabled {
+        #combat-actions button:disabled {
             opacity: 0.3;
             cursor: not-allowed;
         }
 
-        #actions button.danger:hover:not(:disabled) {
-            border-color: #ff4444;
-            background: #1a0a0a;
+        #combat-actions button .sub {
+            font-size: 9px;
+            color: #666;
+            text-transform: none;
         }
 
-        /* ===== MODAL ===== */
+        #combat-actions button.attack {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+        #combat-actions button.attack:hover:not(:disabled) {
+            background: #1a0a0a;
+            border-color: #ff6666;
+        }
+
+        #combat-actions button.defense {
+            border-color: #4488ff;
+            color: #4488ff;
+        }
+        #combat-actions button.defense:hover:not(:disabled) {
+            background: #0a0a1a;
+            border-color: #6688ff;
+        }
+
+        #combat-actions button.flee {
+            border-color: #ffaa44;
+            color: #ffaa44;
+        }
+        #combat-actions button.flee:hover:not(:disabled) {
+            background: #1a1a0a;
+            border-color: #ffcc44;
+        }
+
+        /* ============================================================
+           TELA DA MÁQUINA
+           ============================================================ */
+        #screen-machine {
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            text-align: center;
+        }
+
+        #screen-machine .machine-icon {
+            font-size: 72px;
+        }
+        #screen-machine .machine-title {
+            font-size: 22px;
+            color: #ff8844;
+            letter-spacing: 3px;
+        }
+        #screen-machine .machine-status {
+            font-size: 16px;
+            color: #4aff8a;
+            padding: 10px 30px;
+            background: #0d0d0d;
+            border: 1px solid #1a2a1a;
+            border-radius: 6px;
+        }
+        #screen-machine .machine-battery {
+            font-size: 48px;
+            color: #ffcc44;
+        }
+        #screen-machine .machine-desc {
+            color: #666;
+            font-size: 12px;
+        }
+
+        #screen-machine button {
+            padding: 12px 40px;
+            background: #1a1a1a;
+            border: 1px solid #2a3a2a;
+            border-radius: 6px;
+            color: #b0b0b0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        #screen-machine button:hover {
+            background: #2a2a2a;
+            border-color: #4aff8a;
+            color: #fff;
+        }
+
+        /* ============================================================
+           MODAL
+           ============================================================ */
         #modal {
             display: none;
             position: fixed;
@@ -442,19 +832,18 @@
             background: #1a1a1a;
             border: 2px solid #2a4a2a;
             border-radius: 12px;
-            padding: 30px 40px;
-            max-width: 500px;
+            padding: 30px 35px;
+            max-width: 450px;
             width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
             box-shadow: 0 0 80px rgba(0, 0, 0, 0.9);
         }
 
         #modal-content h2 {
             color: #4aff8a;
             text-align: center;
-            margin-bottom: 15px;
-            letter-spacing: 3px;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+            font-size: 20px;
         }
 
         #modal-content p {
@@ -462,13 +851,14 @@
             line-height: 1.6;
             font-size: 14px;
             margin-bottom: 15px;
+            text-align: center;
         }
 
         #modal-content .modal-actions {
             display: flex;
             gap: 10px;
             justify-content: center;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         #modal-content .modal-actions button {
@@ -502,38 +892,95 @@
             color: #ff6666;
         }
 
-        /* ===== RESPONSIVIDADE ===== */
-        @media (max-width: 900px) {
-            #main {
-                grid-template-columns: 1fr;
+        /* ============================================================
+           RESPONSIVIDADE
+           ============================================================ */
+        @media (max-width: 700px) {
+            #game {
+                height: 100vh;
+                max-height: 100vh;
+                border-radius: 0;
+                padding: 12px;
+                border: none;
             }
 
-            #stats {
+            #bunker-stats {
                 grid-template-columns: repeat(2, 1fr);
             }
 
-            #game {
-                padding: 12px;
+            #bunker-actions {
+                grid-template-columns: 1fr;
+                gap: 8px;
             }
 
-            #header {
-                flex-direction: column;
-                gap: 8px;
-                text-align: center;
+            .bunker-btn {
+                padding: 15px;
+                flex-direction: row;
+                gap: 12px;
+            }
+
+            .bunker-btn .btn-icon {
+                font-size: 24px;
+            }
+
+            #surface-status {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .narrative-options {
+                grid-template-columns: 1fr;
+            }
+
+            #combat-actions {
+                grid-template-columns: 1fr;
+            }
+
+            #combat-status {
+                grid-template-columns: 1fr;
             }
 
             #title {
-                font-size: 18px;
+                font-size: 14px;
+            }
+
+            #screen-start .logo {
+                font-size: 28px;
+            }
+
+            #lore-text {
+                font-size: 12px;
+                padding: 15px;
+                max-height: 150px;
+            }
+
+            #create-form {
+                flex-direction: column;
+            }
+
+            #create-form input {
+                width: 100%;
             }
         }
 
-        @media (max-width: 500px) {
-            #stats {
-                grid-template-columns: 1fr;
+        @media (max-width: 400px) {
+            #bunker-stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 4px;
             }
 
-            #map-grid {
-                grid-template-columns: 1fr;
+            .bunker-stat {
+                padding: 4px 8px;
+            }
+
+            .bunker-stat .stat-value {
+                font-size: 13px;
+            }
+
+            #header {
+                flex-wrap: wrap;
+                gap: 4px;
+                justify-content: center;
+                text-align: center;
             }
 
             #modal-content {
@@ -541,15 +988,12 @@
             }
         }
 
-        /* ===== SCROLLBAR GLOBAL ===== */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 5px;
         }
-
         ::-webkit-scrollbar-track {
             background: #0a0a0a;
         }
-
         ::-webkit-scrollbar-thumb {
             background: #2a4a2a;
             border-radius: 4px;
@@ -558,164 +1002,190 @@
 </head>
 <body>
 
-    <!-- ===== JOGO ===== -->
+    <!-- ============================================================
+    JOGO
+    ============================================================ -->
     <div id="game">
 
         <!-- HEADER -->
         <div id="header">
             <div id="title">🌍 ECOSFERA <span>2200</span></div>
-            <div id="cycle-info">
-                <div id="cycle-display" class="day">☀️ DIA</div>
-                <div>Turnos: <span id="turn-counter">10</span></div>
+            <div id="player-name-display">👤 <span id="header-player-name">Sobrevivente</span></div>
+        </div>
+
+        <!-- ==========================================================
+        TELA INICIAL
+        ========================================================== -->
+        <div id="screen-start" class="screen active">
+            <div class="logo">ECOSFERA <span>2200</span></div>
+            <div class="subtitle">— O Último Refúgio da Humanidade —</div>
+
+            <div id="lore-text">
+                <p><span class="highlight">📜 ANO 2200</span></p>
+                <p>A humanidade pagou o preço por sua <span class="danger">ganância</span>.</p>
+                <p>O <span class="highlight">consumismo extremo</span> e a <span class="highlight">poluição desenfreada</span> transformaram o planeta em um deserto tóxico.</p>
+                <p>E então veio o <span class="danger">VÍRUS MORTAL</span>.</p>
+                <p>Nascido da própria poluição, o vírus se espalhou como fogo. <span class="danger">Bilhões</span> foram infectados, seus corpos <span class="highlight">mutando</span> em criaturas <span class="danger">selvagens e deformadas</span>.</p>
+                <p>Os poucos <span class="highlight-green">sobreviventes</span> fugiram para <span class="highlight-green">BUNKERS</span> subterrâneos.</p>
+                <p style="margin-top:10px;color:#888;">─────</p>
+                <p style="color:#666;font-size:12px;">Você é um dos últimos. Sua missão: <span class="highlight-green">sobreviver</span>.</p>
+            </div>
+
+            <div id="create-form">
+                <input type="text" id="input-name" placeholder="Digite seu nome..." maxlength="20" autofocus>
+                <button id="btn-start">▶ ENTRAR</button>
             </div>
         </div>
 
-        <!-- STATS -->
-        <div id="stats">
-            <div class="stat safe">
-                <span class="icon">🫧</span>
-                <div>
-                    <div class="label">Oxigênio</div>
-                    <div class="value" id="stat-oxygen">100</div>
+        <!-- ==========================================================
+        TELA DO BUNKER
+        ========================================================== -->
+        <div id="screen-bunker" class="screen">
+            <div id="bunker-header">
+                <div class="time-display">
+                    🕐 <span id="bunker-time">DIA</span> · Turno <span id="bunker-turn">10</span>/10
+                </div>
+                <div class="status">✅ Bunker: <span id="bunker-safety">SEGURO</span></div>
+            </div>
+
+            <div id="bunker-stats">
+                <div class="bunker-stat safe">
+                    <span class="stat-icon">🫧</span>
+                    <div class="stat-value" id="stat-oxygen">100</div>
+                    <div class="stat-label">Oxigênio</div>
+                </div>
+                <div class="bunker-stat safe">
+                    <span class="stat-icon">☣️</span>
+                    <div class="stat-value" id="stat-contamination">0%</div>
+                    <div class="stat-label">Contaminação</div>
+                </div>
+                <div class="bunker-stat safe">
+                    <span class="stat-icon">⚡</span>
+                    <div class="stat-value" id="stat-energy">100</div>
+                    <div class="stat-label">Energia</div>
+                </div>
+                <div class="bunker-stat safe">
+                    <span class="stat-icon">🍖</span>
+                    <div class="stat-value" id="stat-hunger">100%</div>
+                    <div class="stat-label">Fome</div>
                 </div>
             </div>
-            <div class="stat warning">
-                <span class="icon">☣️</span>
-                <div>
-                    <div class="label">Contaminação</div>
-                    <div class="value" id="stat-contamination">0%</div>
-                </div>
-            </div>
-            <div class="stat safe">
-                <span class="icon">⚡</span>
-                <div>
-                    <div class="label">Energia</div>
-                    <div class="value" id="stat-energy">50</div>
-                </div>
-            </div>
-            <div class="stat">
-                <span class="icon">🍖</span>
-                <div>
-                    <div class="label">Fome</div>
-                    <div class="value" id="stat-hunger">100%</div>
-                </div>
-            </div>
-            <div class="stat">
-                <span class="icon">💧</span>
-                <div>
-                    <div class="label">Sede</div>
-                    <div class="value" id="stat-thirst">100%</div>
-                </div>
-            </div>
-            <div class="stat">
-                <span class="icon">🛡️</span>
-                <div>
-                    <div class="label">Traje</div>
-                    <div class="value" id="stat-suit">100%</div>
-                </div>
+
+            <div id="bunker-actions">
+                <button class="bunker-btn surface" id="btn-surface">
+                    <span class="btn-icon">☢️</span>
+                    <span class="btn-label">SUPERFÍCIE</span>
+                    <span class="btn-desc">Explore o mundo devastado</span>
+                </button>
+                <button class="bunker-btn dormitory" id="btn-dormitory">
+                    <span class="btn-icon">🛏️</span>
+                    <span class="btn-label">DORMITÓRIO</span>
+                    <span class="btn-desc">Durma e recupere energias</span>
+                </button>
+                <button class="bunker-btn machine" id="btn-machine">
+                    <span class="btn-icon">⚙️</span>
+                    <span class="btn-label">MÁQUINA</span>
+                    <span class="btn-desc">Verifique o status da máquina</span>
+                </button>
             </div>
         </div>
 
-        <!-- MAIN -->
-        <div id="main">
+        <!-- ==========================================================
+        TELA DA SUPERFÍCIE (NARRATIVA)
+        ========================================================== -->
+        <div id="screen-surface" class="screen">
+            <div id="surface-header">
+                <div class="location">☢️ <span id="surface-zone">Zona de Risco</span></div>
+                <div class="danger-level" id="surface-danger">⚠️ PERIGO: 30%</div>
+            </div>
 
-            <!-- COLUNA ESQUERDA - BUNKER -->
-            <div id="bunker-panel">
-                <h3>🏚️ BUNKER</h3>
-                <button class="bunker-action" id="btn-purify-water">
-                    💧 Purificar Água <span class="cost">(gasta 2 Energia)</span>
-                </button>
-                <button class="bunker-action" id="btn-process-biomass">
-                    🌱 Processar Biomassa <span class="cost">(gasta 1 Energia)</span>
-                </button>
-                <button class="bunker-action" id="btn-repair-suit">
-                    🔧 Reparar Traje <span class="cost">(gasta 3 Sucata)</span>
-                </button>
-                <button class="bunker-action" id="btn-upgrade-machine">
-                    ⚙️ Melhorar Máquina <span class="cost">(gasta 5 Sucata + 3 Plástico)</span>
-                </button>
-                <button class="bunker-action" id="btn-rest">
-                    💤 Descansar <span class="cost">(recupera 10% de tudo)</span>
-                </button>
-                <div style="margin-top:12px;padding:10px;background:#0a0a0a;border-radius:6px;border:1px solid #1a2a1a;">
-                    <div style="font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1px;">Máquina de Carbono</div>
-                    <div style="font-size:20px;color:#4aff8a;" id="machine-status">🟢 ATIVA</div>
-                    <div style="font-size:11px;color:#888;">Produz: <span id="machine-production">2</span> Oxigênio/turno</div>
-                    <div style="font-size:11px;color:#888;">Nível: <span id="machine-level">1</span></div>
+            <div id="surface-status">
+                <div class="surface-stat">
+                    <div class="stat-label">Turno</div>
+                    <div class="stat-value" id="surface-turn">1/10</div>
+                </div>
+                <div class="surface-stat">
+                    <div class="stat-label">Oxigênio</div>
+                    <div class="stat-value" id="surface-oxygen">100</div>
+                </div>
+                <div class="surface-stat">
+                    <div class="stat-label">Contaminação</div>
+                    <div class="stat-value" id="surface-contamination">0%</div>
+                </div>
+                <div class="surface-stat">
+                    <div class="stat-label">Energia</div>
+                    <div class="stat-value" id="surface-energy">100</div>
                 </div>
             </div>
 
-            <!-- COLUNA CENTRAL - MAPA -->
-            <div id="map-panel">
-                <h3>🗺️ SUPERFÍCIE</h3>
-                <div id="map-grid">
-                    <div class="map-location current" data-location="bunker">
-                        <span class="loc-icon">🏚️</span>
-                        <span class="loc-name">BUNKER</span>
-                        <span class="loc-resources">(seguro)</span>
-                    </div>
-                    <div class="map-location" data-location="lixao">
-                        <span class="loc-icon">🗑️</span>
-                        <span class="loc-name">LIXÃO</span>
-                        <span class="loc-resources">Sucata + Plástico</span>
-                    </div>
-                    <div class="map-location" data-location="rio">
-                        <span class="loc-icon">🌊</span>
-                        <span class="loc-name">RIO POLUÍDO</span>
-                        <span class="loc-resources">Água + Biomassa</span>
-                    </div>
-                    <div class="map-location" data-location="fabrica">
-                        <span class="loc-icon">🏭</span>
-                        <span class="loc-name">FÁBRICA</span>
-                        <span class="loc-resources">Sucata + Peças Raras</span>
-                    </div>
-                    <div class="map-location" data-location="cemit">
-                        <span class="loc-icon">🚗</span>
-                        <span class="loc-name">CEMITÉRIO</span>
-                        <span class="loc-resources">Metal + Combustível</span>
-                    </div>
-                    <div class="map-location" data-location="bunker2">
-                        <span class="loc-icon">🔒</span>
-                        <span class="loc-name">BUNKER SECRETO</span>
-                        <span class="loc-resources">🔒 BLOQUEADO</span>
-                    </div>
-                </div>
+            <div id="surface-narrative">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </div>
 
-                <!-- LOG -->
-                <div id="log">
-                    <div class="log-entry"><span class="time">[SISTEMA]</span> Bem-vindo à Ecosfera 2200.</div>
-                    <div class="log-entry"><span class="time">[SISTEMA]</span> Sobreviva. Purifique. Descubra a verdade.</div>
-                    <div class="log-entry"><span class="time">[SISTEMA]</span> Use o mapa para explorar a superfície.</div>
-                </div>
+        <!-- ==========================================================
+        TELA DE COMBATE
+        ========================================================== -->
+        <div id="screen-combat" class="screen">
+            <div id="combat-header">
+                <div class="enemy-name" id="combat-enemy-name">👾 MUTANTE</div>
+                <div class="enemy-hp">❤️ <span id="combat-enemy-hp">100</span>/<span id="combat-enemy-maxhp">100</span></div>
+            </div>
 
-                <!-- AÇÕES -->
-                <div id="actions">
-                    <button id="btn-explore">🔍 EXPLORAR</button>
-                    <button id="btn-end-turn">⏭️ PASSAR TURNO</button>
-                    <button id="btn-return">🏠 VOLTAR</button>
+            <div id="combat-status">
+                <div class="combatant player">
+                    <div class="name">🗿 <span id="combat-player-name">Você</span></div>
+                    <div class="hp-bar"><div class="hp-fill" id="combat-player-hp-fill" style="width:100%"></div></div>
+                    <div class="hp-text">❤️ <span id="combat-player-hp">100</span>/100</div>
+                </div>
+                <div class="combatant">
+                    <div class="name">👾 <span id="combat-enemy-name2">Mutante</span></div>
+                    <div class="hp-bar"><div class="hp-fill enemy" id="combat-enemy-hp-fill" style="width:100%"></div></div>
+                    <div class="hp-text">❤️ <span id="combat-enemy-hp2">100</span>/<span id="combat-enemy-maxhp2">100</span></div>
                 </div>
             </div>
 
-            <!-- COLUNA DIREITA - INVENTÁRIO -->
-            <div id="inventory-panel">
-                <h3>🎒 INVENTÁRIO</h3>
-                <div id="inventory-list">
-                    <div class="inv-empty">Nenhum item. Explore para coletar recursos.</div>
-                </div>
-                <div style="margin-top:12px;padding:10px;background:#0a0a0a;border-radius:6px;border:1px solid #1a2a1a;">
-                    <div style="font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1px;">Local Atual</div>
-                    <div style="font-size:14px;color:#4aff8a;" id="current-location-display">🏚️ BUNKER</div>
-                    <div style="font-size:11px;color:#888;" id="location-status">🔒 Seguro</div>
-                </div>
+            <div id="combat-log">
+                <!-- Preenchido via JavaScript -->
             </div>
 
-        </div><!-- /main -->
+            <div id="combat-actions">
+                <button class="attack" id="combat-attack">
+                    ⚔️ ATACAR
+                    <span class="sub">10-20 de dano · 40% de esquiva</span>
+                </button>
+                <button class="defense" id="combat-defense">
+                    🛡️ DEFENSIVA
+                    <span class="sub">70% esquiva · 8-12 de dano</span>
+                </button>
+                <button class="flee" id="combat-flee">
+                    🏃 RECUAR
+                    <span class="sub">30% de fugir · se falhar, é atacado</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ==========================================================
+        TELA DA MÁQUINA
+        ========================================================== -->
+        <div id="screen-machine" class="screen">
+            <div class="machine-icon">⚙️</div>
+            <div class="machine-title">MÁQUINA DE CARBONO</div>
+            <div class="machine-status">🟢 OPERACIONAL</div>
+            <div class="machine-battery" id="machine-battery-display">🔋 100%</div>
+            <div class="machine-desc">Bateria: <span id="machine-battery-text">100%</span></div>
+            <div class="machine-desc" style="margin-top:4px;">Produz <span id="machine-production-display">2</span> Oxigênio/turno</div>
+            <button id="btn-machine-back">← VOLTAR</button>
+        </div>
+
     </div><!-- /game -->
 
-    <!-- ===== MODAL ===== -->
+    <!-- ============================================================
+    MODAL
+    ============================================================ -->
     <div id="modal">
         <div id="modal-content">
-            <h2 id="modal-title">⚠️ EVENTO</h2>
+            <h2 id="modal-title">⚠️ AVISO</h2>
             <p id="modal-text">Conteúdo do evento...</p>
             <div class="modal-actions">
                 <button id="modal-btn-ok">OK</button>
@@ -724,717 +1194,1008 @@
         </div>
     </div>
 
-    <!-- ===== JAVASCRIPT ===== -->
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
     <script>
         // ============================================================
-        //  ECOSFERA 2200 - v0.0
-        //  Todas as mecânicas discutidas implementadas
+        //  ECOSFERA 2200 - v2.0
+        //  Superfície Narrativa + Sistema de Combate
         // ============================================================
 
         // ===== ESTADO DO JOGO =====
-        const GameState = {
-            // Ciclo
-            cycle: 'day', // 'day' | 'night'
+        const Game = {
+            playerName: '',
+            cycle: 'day',
             turn: 10,
             maxTurn: 10,
 
-            // Recursos
             resources: {
                 oxygen: 100,
                 contamination: 0,
-                energy: 50,
+                energy: 100,
                 hunger: 100,
-                thirst: 100,
-                suit: 100,
-                // Inventário
-                scrap: 0,
-                plastic: 0,
-                water: 0,
-                biomass: 0,
-                rare_parts: 0,
-                mutant_bodies: 0,
-                purified_water: 0,
-                processed_food: 0,
             },
 
-            // Máquina
             machine: {
-                level: 1,
-                active: true,
+                battery: 100,
                 production: 2,
+                active: true,
             },
 
-            // Localização
-            currentLocation: 'bunker',
-            locations: {
-                bunker: { name: 'BUNKER', unlocked: true, resources: [], danger: 0 },
-                lixao: { name: 'LIXÃO', unlocked: true, resources: ['scrap', 'plastic'], danger: 15 },
-                rio: { name: 'RIO POLUÍDO', unlocked: true, resources: ['water', 'biomass'], danger: 20 },
-                fabrica: { name: 'FÁBRICA', unlocked: true, resources: ['scrap', 'rare_parts'], danger: 35 },
-                cemit: { name: 'CEMITÉRIO', unlocked: true, resources: ['scrap', 'plastic'], danger: 25 },
-                bunker2: { name: 'BUNKER SECRETO', unlocked: false, resources: ['rare_parts', 'mutant_bodies'], danger: 50 },
+            surface: {
+                turn: 1,
+                maxTurns: 10,
+                danger: 30,
+                currentLocation: '',
+                narrative: [],
+                isExploring: false,
+                inCombat: false,
+                explored: false,
             },
 
-            // Mutantes no local atual
-            mutants: 0,
-            mutantTypes: ['Rastejador', 'Triturador', 'Sibila', 'Colosso'],
+            combat: {
+                active: false,
+                enemy: null,
+                playerHP: 100,
+                maxPlayerHP: 100,
+                enemyHP: 0,
+                maxEnemyHP: 0,
+                turn: 0,
+                isPlayerTurn: true,
+                log: [],
+                inProgress: false,
+            },
 
-            // Log
-            log: [],
-
-            // Game Over
             gameOver: false,
-
-            // Flag para evitar múltiplos eventos
+            currentScreen: 'start',
             eventLock: false,
         };
+
+        // ===== TIPOS DE MUTANTES =====
+        const MUTANT_TYPES = [
+            { name: 'Rastejador', hp: 100, damage: 10, emoji: '👾' },
+            { name: 'Triturador', hp: 120, damage: 15, emoji: '🔪' },
+            { name: 'Sibila', hp: 90, damage: 20, emoji: '👻' },
+            { name: 'Colosso', hp: 150, damage: 12, emoji: '💀' },
+            { name: 'Espectro', hp: 80, damage: 18, emoji: '🌀' },
+        ];
+
+        // ===== LOCAIS E NARRATIVAS =====
+        const LOCATIONS = [
+            { name: 'Lixão', emoji: '🗑️', desc: 'montanhas de lixo e sucata' },
+            { name: 'Rio Poluído', emoji: '🌊', desc: 'águas escuras e tóxicas' },
+            { name: 'Fábrica Abandonada', emoji: '🏭', desc: 'estruturas de metal corroídas' },
+            { name: 'Cemitério de Carros', emoji: '🚗', desc: 'ferrugem e restos de veículos' },
+            { name: 'Ruínas da Cidade', emoji: '🏚️', desc: 'prédios desmoronados' },
+        ];
 
         // ===== REFERÊNCIAS DOM =====
         const DOM = {};
 
         function cacheDOM() {
-            DOM.stats = {
-                oxygen: document.getElementById('stat-oxygen'),
-                contamination: document.getElementById('stat-contamination'),
-                energy: document.getElementById('stat-energy'),
-                hunger: document.getElementById('stat-hunger'),
-                thirst: document.getElementById('stat-thirst'),
-                suit: document.getElementById('stat-suit'),
+            DOM.screens = {
+                start: document.getElementById('screen-start'),
+                bunker: document.getElementById('screen-bunker'),
+                surface: document.getElementById('screen-surface'),
+                combat: document.getElementById('screen-combat'),
+                machine: document.getElementById('screen-machine'),
             };
-            DOM.turnCounter = document.getElementById('turn-counter');
-            DOM.cycleDisplay = document.getElementById('cycle-display');
-            DOM.log = document.getElementById('log');
-            DOM.inventoryList = document.getElementById('inventory-list');
-            DOM.currentLocationDisplay = document.getElementById('current-location-display');
-            DOM.locationStatus = document.getElementById('location-status');
-            DOM.machineStatus = document.getElementById('machine-status');
-            DOM.machineProduction = document.getElementById('machine-production');
-            DOM.machineLevel = document.getElementById('machine-level');
 
-            DOM.btnExplore = document.getElementById('btn-explore');
-            DOM.btnEndTurn = document.getElementById('btn-end-turn');
-            DOM.btnReturn = document.getElementById('btn-return');
-            DOM.btnPurifyWater = document.getElementById('btn-purify-water');
-            DOM.btnProcessBiomass = document.getElementById('btn-process-biomass');
-            DOM.btnRepairSuit = document.getElementById('btn-repair-suit');
-            DOM.btnUpgradeMachine = document.getElementById('btn-upgrade-machine');
-            DOM.btnRest = document.getElementById('btn-rest');
+            DOM.header = { playerName: document.getElementById('header-player-name') };
 
-            DOM.mapLocations = document.querySelectorAll('.map-location');
+            DOM.bunker = {
+                time: document.getElementById('bunker-time'),
+                turn: document.getElementById('bunker-turn'),
+                safety: document.getElementById('bunker-safety'),
+                stats: {
+                    oxygen: document.getElementById('stat-oxygen'),
+                    contamination: document.getElementById('stat-contamination'),
+                    energy: document.getElementById('stat-energy'),
+                    hunger: document.getElementById('stat-hunger'),
+                },
+                btnSurface: document.getElementById('btn-surface'),
+                btnDormitory: document.getElementById('btn-dormitory'),
+                btnMachine: document.getElementById('btn-machine'),
+            };
 
-            DOM.modal = document.getElementById('modal');
-            DOM.modalTitle = document.getElementById('modal-title');
-            DOM.modalText = document.getElementById('modal-text');
-            DOM.modalBtnOk = document.getElementById('modal-btn-ok');
-            DOM.modalBtnCancel = document.getElementById('modal-btn-cancel');
+            DOM.surface = {
+                zone: document.getElementById('surface-zone'),
+                danger: document.getElementById('surface-danger'),
+                turn: document.getElementById('surface-turn'),
+                oxygen: document.getElementById('surface-oxygen'),
+                contamination: document.getElementById('surface-contamination'),
+                energy: document.getElementById('surface-energy'),
+                narrative: document.getElementById('surface-narrative'),
+            };
+
+            DOM.combat = {
+                enemyName: document.getElementById('combat-enemy-name'),
+                enemyHP: document.getElementById('combat-enemy-hp'),
+                enemyMaxHP: document.getElementById('combat-enemy-maxhp'),
+                enemyHP2: document.getElementById('combat-enemy-hp2'),
+                enemyMaxHP2: document.getElementById('combat-enemy-maxhp2'),
+                enemyHPFill: document.getElementById('combat-enemy-hp-fill'),
+                playerName: document.getElementById('combat-player-name'),
+                playerHP: document.getElementById('combat-player-hp'),
+                playerHPFill: document.getElementById('combat-player-hp-fill'),
+                enemyName2: document.getElementById('combat-enemy-name2'),
+                log: document.getElementById('combat-log'),
+                btnAttack: document.getElementById('combat-attack'),
+                btnDefense: document.getElementById('combat-defense'),
+                btnFlee: document.getElementById('combat-flee'),
+            };
+
+            DOM.machine = {
+                battery: document.getElementById('machine-battery-display'),
+                batteryText: document.getElementById('machine-battery-text'),
+                production: document.getElementById('machine-production-display'),
+                btnBack: document.getElementById('btn-machine-back'),
+            };
+
+            DOM.start = {
+                input: document.getElementById('input-name'),
+                btn: document.getElementById('btn-start'),
+            };
+
+            DOM.modal = {
+                overlay: document.getElementById('modal'),
+                title: document.getElementById('modal-title'),
+                text: document.getElementById('modal-text'),
+                btnOk: document.getElementById('modal-btn-ok'),
+                btnCancel: document.getElementById('modal-btn-cancel'),
+            };
         }
 
         // ===== FUNÇÕES AUXILIARES =====
+        function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
-        function clamp(value, min, max) {
-            return Math.max(min, Math.min(max, value));
-        }
+        function random(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-        function random(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
+        function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-        function pickRandom(arr) {
-            return arr[Math.floor(Math.random() * arr.length)];
-        }
+        function chance(pct) { return random(0, 100) < pct; }
 
-        // ===== LOG =====
-
-        function addLog(message, type = 'normal') {
-            const entry = {
-                time: `[T${GameState.maxTurn - GameState.turn + 1}]`,
-                message: message,
-                type: type,
-            };
-            GameState.log.unshift(entry);
-            renderLog();
-        }
-
-        function renderLog() {
-            DOM.log.innerHTML = GameState.log.slice(0, 50).map(entry => {
-                let colorClass = '';
-                if (entry.type === 'danger') colorClass = 'danger';
-                else if (entry.type === 'success') colorClass = 'success';
-                else if (entry.type === 'highlight') colorClass = 'highlight';
-                return `<div class="log-entry"><span class="time">${entry.time}</span> <span class="${colorClass}">${entry.message}</span></div>`;
-            }).join('');
-        }
-
-        // ===== RENDERIZAÇÃO =====
-
-        function renderStats() {
-            const r = GameState.resources;
-            DOM.stats.oxygen.textContent = Math.floor(r.oxygen);
-            DOM.stats.contamination.textContent = Math.floor(r.contamination) + '%';
-            DOM.stats.energy.textContent = Math.floor(r.energy);
-            DOM.stats.hunger.textContent = Math.floor(r.hunger) + '%';
-            DOM.stats.thirst.textContent = Math.floor(r.thirst) + '%';
-            DOM.stats.suit.textContent = Math.floor(r.suit) + '%';
-
-            // Cores dinâmicas
-            DOM.stats.oxygen.parentElement.parentElement.className = 'stat ' + (r.oxygen > 30 ? 'safe' : 'danger');
-            DOM.stats.contamination.parentElement.parentElement.className = 'stat ' + (r.contamination < 50 ? 'safe' : (r
-                .contamination < 75 ? 'warning' : 'danger'));
-            DOM.stats.hunger.parentElement.parentElement.className = 'stat ' + (r.hunger > 30 ? 'safe' : 'danger');
-            DOM.stats.thirst.parentElement.parentElement.className = 'stat ' + (r.thirst > 30 ? 'safe' : 'danger');
-            DOM.stats.suit.parentElement.parentElement.className = 'stat ' + (r.suit > 30 ? 'safe' : 'danger');
-        }
-
-        function renderTurn() {
-            DOM.turnCounter.textContent = GameState.turn;
-            const isDay = GameState.cycle === 'day';
-            DOM.cycleDisplay.textContent = isDay ? '☀️ DIA' : '🌙 NOITE';
-            DOM.cycleDisplay.className = isDay ? 'day' : 'night';
-        }
-
-        function renderInventory() {
-            const r = GameState.resources;
-            const items = [
-                { key: 'scrap', label: '🪚 Sucata', qty: r.scrap },
-                { key: 'plastic', label: '🧴 Plástico', qty: r.plastic },
-                { key: 'water', label: '💧 Água Poluída', qty: r.water },
-                { key: 'biomass', label: '🌱 Biomassa', qty: r.biomass },
-                { key: 'rare_parts', label: '⚙️ Peças Raras', qty: r.rare_parts },
-                { key: 'mutant_bodies', label: '🧬 Corpos Mutantes', qty: r.mutant_bodies },
-                { key: 'purified_water', label: '💧💎 Água Purificada', qty: r.purified_water },
-                { key: 'processed_food', label: '🍖 Comida Processada', qty: r.processed_food },
-            ];
-
-            const hasItems = items.some(i => i.qty > 0);
-            if (!hasItems) {
-                DOM.inventoryList.innerHTML = `<div class="inv-empty">Nenhum item. Explore para coletar recursos.</div>`;
-                return;
-            }
-
-            DOM.inventoryList.innerHTML = items
-                .filter(i => i.qty > 0)
-                .map(i => `<div class="inv-item"><span class="item-name">${i.label}</span><span class="qty">${i.qty}</span></div>`)
-                .join('');
-        }
-
-        function renderLocation() {
-            const loc = GameState.locations[GameState.currentLocation];
-            DOM.currentLocationDisplay.textContent = `📍 ${loc.name}`;
-            const isBunker = GameState.currentLocation === 'bunker';
-            DOM.locationStatus.textContent = isBunker ? '🔒 Seguro' : `⚠️ Perigo: ${loc.danger}%`;
-            DOM.locationStatus.style.color = isBunker ? '#4aff8a' : '#ff6a33';
-
-            // Atualizar mapa
-            DOM.mapLocations.forEach(el => {
-                const locId = el.dataset.location;
-                el.classList.remove('current', 'has-mutants');
-                if (locId === GameState.currentLocation) el.classList.add('current');
-                if (locId !== 'bunker' && GameState.mutants > 0 && locId === GameState.currentLocation) {
-                    el.classList.add('has-mutants');
-                }
-                if (!GameState.locations[locId].unlocked) {
-                    el.classList.add('locked');
-                } else {
-                    el.classList.remove('locked');
-                }
+        // ===== GERENCIAMENTO DE TELAS =====
+        function showScreen(name) {
+            Object.keys(DOM.screens).forEach(key => {
+                DOM.screens[key].classList.toggle('active', key === name);
             });
-        }
-
-        function renderMachine() {
-            DOM.machineStatus.textContent = GameState.machine.active ? '🟢 ATIVA' : '🔴 INATIVA';
-            DOM.machineStatus.style.color = GameState.machine.active ? '#4aff8a' : '#ff4444';
-            DOM.machineProduction.textContent = GameState.machine.production;
-            DOM.machineLevel.textContent = GameState.machine.level;
-        }
-
-        function renderAll() {
-            renderStats();
-            renderTurn();
-            renderInventory();
-            renderLocation();
-            renderMachine();
-            updateButtons();
-        }
-
-        // ===== BOTÕES =====
-
-        function updateButtons() {
-            const r = GameState.resources;
-            const isBunker = GameState.currentLocation === 'bunker';
-            const hasTurn = GameState.turn > 0;
-            const notGameOver = !GameState.gameOver;
-
-            DOM.btnExplore.disabled = !hasTurn || isBunker || GameState.gameOver || GameState.eventLock;
-            DOM.btnEndTurn.disabled = !hasTurn || GameState.gameOver || GameState.eventLock;
-            DOM.btnReturn.disabled = isBunker || GameState.gameOver || GameState.eventLock;
-
-            DOM.btnPurifyWater.disabled = !isBunker || r.water < 2 || r.energy < 2 || GameState.gameOver || GameState
-            .eventLock;
-            DOM.btnProcessBiomass.disabled = !isBunker || r.biomass < 1 || r.energy < 1 || GameState.gameOver || GameState
-                .eventLock;
-            DOM.btnRepairSuit.disabled = !isBunker || r.scrap < 3 || r.suit >= 100 || GameState.gameOver || GameState
-                .eventLock;
-            DOM.btnUpgradeMachine.disabled = !isBunker || r.scrap < 5 || r.plastic < 3 || GameState.gameOver || GameState
-                .eventLock;
-            DOM.btnRest.disabled = !isBunker || GameState.gameOver || GameState.eventLock;
-        }
-
-        // ===== AÇÕES DO BUNKER =====
-
-        function actionPurifyWater() {
-            if (GameState.eventLock) return;
-            const r = GameState.resources;
-            if (r.water < 2) { showModal('Água Insuficiente', 'Você precisa de 2 Água Poluída para purificar.', 'warning'); return; }
-            if (r.energy < 2) { showModal('Energia Insuficiente', 'Você precisa de 2 Energia.', 'warning'); return; }
-
-            r.water -= 2;
-            r.energy -= 2;
-            r.purified_water += 1;
-            addLog('💧 Purificou 2 Água Poluída em 1 Água Purificada.', 'success');
-            GameState.turn -= 1;
-            checkTurnEnd();
-            renderAll();
-        }
-
-        function actionProcessBiomass() {
-            if (GameState.eventLock) return;
-            const r = GameState.resources;
-            if (r.biomass < 1) { showModal('Biomassa Insuficiente', 'Você precisa de 1 Biomassa.', 'warning'); return; }
-            if (r.energy < 1) { showModal('Energia Insuficiente', 'Você precisa de 1 Energia.', 'warning'); return; }
-
-            r.biomass -= 1;
-            r.energy -= 1;
-            r.processed_food += 1;
-            addLog('🌱 Processou Biomassa em Comida.', 'success');
-            GameState.turn -= 1;
-            checkTurnEnd();
-            renderAll();
-        }
-
-        function actionRepairSuit() {
-            if (GameState.eventLock) return;
-            const r = GameState.resources;
-            if (r.scrap < 3) { showModal('Sucata Insuficiente', 'Você precisa de 3 Sucata.', 'warning'); return; }
-            if (r.suit >= 100) { showModal('Traje Intacto', 'Seu traje já está em perfeito estado.', 'warning'); return; }
-
-            r.scrap -= 3;
-            r.suit = Math.min(100, r.suit + 30);
-            addLog('🔧 Reparou o traje (+30%).', 'success');
-            GameState.turn -= 1;
-            checkTurnEnd();
-            renderAll();
-        }
-
-        function actionUpgradeMachine() {
-            if (GameState.eventLock) return;
-            const r = GameState.resources;
-            if (r.scrap < 5) { showModal('Sucata Insuficiente', 'Você precisa de 5 Sucata.', 'warning'); return; }
-            if (r.plastic < 3) { showModal('Plástico Insuficiente', 'Você precisa de 3 Plástico.', 'warning'); return; }
-
-            r.scrap -= 5;
-            r.plastic -= 3;
-            GameState.machine.level += 1;
-            GameState.machine.production = Math.floor(GameState.machine.level * 1.5) + 1;
-            addLog(`⚙️ Máquina melhorada para Nível ${GameState.machine.level}! Produz ${GameState.machine.production} Oxigênio/turno.`, 'highlight');
-            GameState.turn -= 1;
-            checkTurnEnd();
-            renderAll();
-        }
-
-        function actionRest() {
-            if (GameState.eventLock) return;
-            const r = GameState.resources;
-            r.contamination = Math.max(0, r.contamination - 15);
-            r.hunger = Math.min(100, r.hunger + 10);
-            r.thirst = Math.min(100, r.thirst + 10);
-            r.suit = Math.min(100, r.suit + 5);
-            r.energy = Math.min(100, r.energy + 5);
-            addLog('💤 Descansou. Recuperou 15% de contaminação e 10% de fome/sede.', 'success');
-            GameState.turn -= 1;
-            checkTurnEnd();
-            renderAll();
-        }
-
-        // ===== EXPLORAÇÃO =====
-
-        function actionExplore() {
-            if (GameState.eventLock) return;
-            if (GameState.currentLocation === 'bunker') {
-                showModal('No Bunker', 'Você já está no bunker. Selecione um local no mapa para explorar.', 'warning');
-                return;
-            }
-            if (GameState.turn <= 0) {
-                showModal('Sem Turnos', 'Você não tem turnos restantes. Passe o turno ou espere a noite.', 'warning');
-                return;
-            }
-
-            const loc = GameState.locations[GameState.currentLocation];
-            if (!loc.unlocked) {
-                showModal('Local Bloqueado', 'Este local ainda não foi desbloqueado.', 'warning');
-                return;
-            }
-
-            // Consome turno
-            GameState.turn -= 1;
-
-            // Verifica mutantes
-            const mutantChance = GameState.cycle === 'night' ? loc.danger * 2 : loc.danger;
-            const hasMutant = random(0, 100) < mutantChance;
-
-            if (hasMutant) {
-                // Encontro com mutante!
-                const mutantType = pickRandom(GameState.mutantTypes);
-                GameState.mutants += 1;
-                addLog(`⚠️ Encontrou um ${mutantType} em ${loc.name}!`, 'danger');
-
-                // Tenta fugir ou lutar?
-                const fleeChance = GameState.cycle === 'day' ? 60 : 30;
-                if (random(0, 100) < fleeChance) {
-                    addLog(`🏃 Conseguiu fugir do ${mutantType}!`, 'highlight');
-                    // Perde um pouco de oxigênio e energia
-                    GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 5);
-                    GameState.resources.energy = Math.max(0, GameState.resources.energy - 2);
-                } else {
-                    // Combate! (simplificado)
-                    const fightWin = random(0, 100) < (GameState.resources.suit / 2);
-                    if (fightWin) {
-                        GameState.resources.mutant_bodies += 1;
-                        GameState.resources.biomass += 2;
-                        addLog(`⚔️ Derrotou o ${mutantType}! Coletou 1 Corpo e 2 Biomassa.`, 'success');
-                        GameState.resources.suit = Math.max(0, GameState.resources.suit - 10);
-                        GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 10);
-                    } else {
-                        addLog(`💀 Foi ferido pelo ${mutantType}! Perdeu oxigênio e danificou o traje.`, 'danger');
-                        GameState.resources.suit = Math.max(0, GameState.resources.suit - 25);
-                        GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 15);
-                        GameState.resources.contamination = Math.min(100, GameState.resources.contamination + 10);
-                    }
-                }
-            } else {
-                // Coleta recursos
-                const resources = loc.resources;
-                if (resources.length > 0) {
-                    const collected = [];
-                    resources.forEach(res => {
-                        const amount = GameState.cycle === 'day' ? random(1, 3) : random(0, 2);
-                        if (amount > 0) {
-                            GameState.resources[res] += amount;
-                            collected.push(`${amount} ${res}`);
-                        }
-                    });
-                    if (collected.length > 0) {
-                        addLog(`📦 Coletou: ${collected.join(', ')} em ${loc.name}.`, 'success');
-                    } else {
-                        addLog(`🔍 Não encontrou nada útil em ${loc.name}.`, 'normal');
-                    }
-                } else {
-                    addLog(`🔍 Explorou ${loc.name} mas não encontrou recursos.`, 'normal');
-                }
-            }
-
-            // Consome recursos por turno
-            GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 2);
-            GameState.resources.hunger = Math.max(0, GameState.resources.hunger - 3);
-            GameState.resources.thirst = Math.max(0, GameState.resources.thirst - 3);
-            GameState.resources.contamination = Math.min(100, GameState.resources.contamination + 2);
-
-            // Verifica morte
-            checkDeath();
-
-            renderAll();
-            checkTurnEnd();
-        }
-
-        // ===== PASSAR TURNO =====
-
-        function actionEndTurn() {
-            if (GameState.eventLock) return;
-            if (GameState.turn <= 0) {
-                // Mudar ciclo
-                if (GameState.cycle === 'day') {
-                    GameState.cycle = 'night';
-                    addLog('🌙 A noite caiu. Mutantes estão mais agressivos.', 'danger');
-                } else {
-                    GameState.cycle = 'day';
-                    addLog('☀️ O dia amanheceu. A superfície está mais calma.', 'success');
-                }
-                GameState.turn = GameState.maxTurn;
-
-                // Máquina produz oxigênio
-                if (GameState.machine.active) {
-                    const produced = GameState.machine.production;
-                    GameState.resources.oxygen = Math.min(100, GameState.resources.oxygen + produced);
-                    addLog(`🫧 Máquina produziu ${produced} Oxigênio.`, 'highlight');
-                }
-
-                // Evento aleatório noturno
-                if (GameState.cycle === 'night' && random(0, 100) < 30) {
-                    triggerNightEvent();
-                }
-
-                renderAll();
-                return;
-            }
-
-            // Passar um turno sem fazer nada
-            GameState.turn -= 1;
-            GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 1);
-            GameState.resources.hunger = Math.max(0, GameState.resources.hunger - 2);
-            GameState.resources.thirst = Math.max(0, GameState.resources.thirst - 2);
-            if (GameState.currentLocation !== 'bunker') {
-                GameState.resources.contamination = Math.min(100, GameState.resources.contamination + 3);
-            }
-            addLog(`⏭️ Passou um turno. (${GameState.turn} restantes)`, 'normal');
-            checkDeath();
-            renderAll();
-            checkTurnEnd();
-        }
-
-        // ===== VOLTAR AO BUNKER =====
-
-        function actionReturn() {
-            if (GameState.eventLock) return;
-            if (GameState.currentLocation === 'bunker') {
-                showModal('Já no Bunker', 'Você já está no bunker.', 'warning');
-                return;
-            }
-
-            // Gasta turno para voltar
-            GameState.turn -= 1;
-            GameState.currentLocation = 'bunker';
-            GameState.mutants = 0;
-            addLog('🏠 Retornou ao bunker em segurança.', 'success');
-
-            // Recupera um pouco
-            GameState.resources.oxygen = Math.min(100, GameState.resources.oxygen + 5);
-            GameState.resources.contamination = Math.max(0, GameState.resources.contamination - 5);
-
-            renderAll();
-            checkTurnEnd();
-        }
-
-        // ===== EVENTOS =====
-
-        function triggerNightEvent() {
-            const events = [
-                {
-                    title: '🌪️ Tempestade Tóxica!',
-                    text: 'Uma tempestade de poluição varre a superfície. O oxigênio cai drasticamente!',
-                    effect: () => {
-                        GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 20);
-                        GameState.resources.contamination = Math.min(100, GameState.resources.contamination + 15);
-                        GameState.resources.suit = Math.max(0, GameState.resources.suit - 10);
-                        addLog('🌪️ Tempestade tóxica atingiu o bunker!', 'danger');
-                    }
-                },
-                {
-                    title: '📡 Sinal de Rádio',
-                    text: 'Você capta um sinal de outro sobrevivente! Ele pede ajuda em troca de recursos.',
-                    effect: () => {
-                        const reward = random(2, 5);
-                        GameState.resources.scrap += reward;
-                        GameState.resources.plastic += random(1, 3);
-                        addLog(`📡 Respondeu ao sinal. Ganhou ${reward} Sucata e Plástico.`, 'highlight');
-                    }
-                },
-                {
-                    title: '🧬 Mutação no Bunker!',
-                    text: 'Um mutante conseguiu infiltrar-se no bunker! Você precisa lidar com ele.',
-                    effect: () => {
-                        if (random(0, 100) < 50) {
-                            GameState.resources.mutant_bodies += 1;
-                            addLog('⚔️ Matou o invasor! Coletou 1 Corpo Mutante.', 'success');
-                        } else {
-                            GameState.resources.suit = Math.max(0, GameState.resources.suit - 15);
-                            GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 10);
-                            addLog('💥 O mutante danificou o bunker antes de ser expulso!', 'danger');
-                        }
-                    }
-                },
-                {
-                    title: '💀 Horda de Mutantes!',
-                    text: 'Uma horda está se aproximando do bunker! Você precisa se preparar.',
-                    effect: () => {
-                        if (GameState.resources.energy > 10) {
-                            GameState.resources.energy -= 10;
-                            addLog('🛡️ Usou energia para reforçar as defesas. A horda passou. (-10 Energia)', 'highlight');
-                        } else {
-                            GameState.resources.suit = Math.max(0, GameState.resources.suit - 20);
-                            GameState.resources.oxygen = Math.max(0, GameState.resources.oxygen - 15);
-                            addLog('💀 A horda invadiu! Perdeu oxigênio e danificou o traje.', 'danger');
-                        }
-                    }
-                },
-            ];
-
-            const event = pickRandom(events);
-            showModal(event.title, event.text, 'event', () => {
-                event.effect();
-                renderAll();
-            });
+            Game.currentScreen = name;
         }
 
         // ===== MODAL =====
+        function showModal(title, text, onOk = null, onCancel = null) {
+            Game.eventLock = true;
+            DOM.modal.title.textContent = title;
+            DOM.modal.text.textContent = text;
+            DOM.modal.overlay.classList.add('active');
 
-        function showModal(title, text, type = 'info', onOk = null) {
-            GameState.eventLock = true;
-            DOM.modalTitle.textContent = title;
-            DOM.modalText.textContent = text;
-            DOM.modal.classList.add('active');
-
-            DOM.modalBtnOk.onclick = () => {
-                DOM.modal.classList.remove('active');
-                GameState.eventLock = false;
+            DOM.modal.btnOk.onclick = () => {
+                DOM.modal.overlay.classList.remove('active');
+                Game.eventLock = false;
                 if (onOk) onOk();
                 renderAll();
             };
 
-            DOM.modalBtnCancel.style.display = 'none';
-            if (type === 'warning') {
-                DOM.modalBtnOk.textContent = 'OK';
-            } else if (type === 'event') {
-                DOM.modalBtnOk.textContent = 'CONTINUAR';
+            DOM.modal.btnCancel.style.display = onCancel ? 'inline-block' : 'none';
+            DOM.modal.btnCancel.onclick = () => {
+                DOM.modal.overlay.classList.remove('active');
+                Game.eventLock = false;
+                if (onCancel) onCancel();
+                renderAll();
+            };
+        }
+
+        // ===== RENDERIZAÇÃO =====
+        function renderAll() {
+            renderHeader();
+            renderBunker();
+            renderSurface();
+            renderMachine();
+        }
+
+        function renderHeader() {
+            DOM.header.playerName.textContent = Game.playerName || 'Sobrevivente';
+        }
+
+        function renderBunker() {
+            const r = Game.resources;
+            const stats = DOM.bunker.stats;
+
+            stats.oxygen.textContent = Math.floor(r.oxygen);
+            stats.contamination.textContent = Math.floor(r.contamination) + '%';
+            stats.energy.textContent = Math.floor(r.energy);
+            stats.hunger.textContent = Math.floor(r.hunger) + '%';
+
+            stats.oxygen.parentElement.className = 'bunker-stat ' + (r.oxygen > 30 ? 'safe' : 'danger');
+            stats.contamination.parentElement.className = 'bunker-stat ' + (r.contamination < 50 ? 'safe' : (r
+                .contamination < 75 ? 'warning' : 'danger'));
+            stats.energy.parentElement.className = 'bunker-stat ' + (r.energy > 20 ? 'safe' : 'danger');
+            stats.hunger.parentElement.className = 'bunker-stat ' + (r.hunger > 30 ? 'safe' : 'danger');
+
+            DOM.bunker.time.textContent = Game.cycle === 'day' ? '☀️ DIA' : '🌙 NOITE';
+            DOM.bunker.time.className = Game.cycle === 'day' ? 'day' : 'night';
+            DOM.bunker.turn.textContent = Game.turn;
+
+            DOM.bunker.safety.textContent = Game.cycle === 'day' ? 'SEGURO' : '⚠️ PERIGO!';
+            DOM.bunker.safety.style.color = Game.cycle === 'day' ? '#4aff8a' : '#ff4444';
+
+            DOM.bunker.btnSurface.disabled = Game.gameOver || Game.eventLock;
+            DOM.bunker.btnDormitory.disabled = Game.cycle === 'day' || Game.gameOver || Game.eventLock;
+            DOM.bunker.btnMachine.disabled = Game.gameOver || Game.eventLock;
+
+            DOM.bunker.btnDormitory.querySelector('.btn-desc').textContent =
+                Game.cycle === 'day' ? '🔒 Apenas à noite' : 'Durma e recupere energias';
+        }
+
+        function renderSurface() {
+            const s = Game.surface;
+            const r = Game.resources;
+
+            DOM.surface.zone.textContent = s.currentLocation || 'Zona de Risco';
+            DOM.surface.danger.textContent = `⚠️ PERIGO: ${s.danger}%`;
+            DOM.surface.danger.className = 'danger-level ' + (s.danger < 40 ? 'safe' : '');
+
+            DOM.surface.turn.textContent = `${s.turn}/${s.maxTurns}`;
+            DOM.surface.oxygen.textContent = Math.floor(r.oxygen);
+            DOM.surface.contamination.textContent = Math.floor(r.contamination) + '%';
+            DOM.surface.energy.textContent = Math.floor(r.energy);
+
+            renderNarrative();
+        }
+
+        function renderNarrative() {
+            const container = DOM.surface.narrative;
+            const s = Game.surface;
+
+            if (s.narrative.length === 0 && !s.isExploring) {
+                container.innerHTML = `
+                    <div class="narrative-text" style="border-color:#666;color:#666;text-align:center;padding:30px;">
+                        🌫️ A superfície está em silêncio...
+                        <br><span style="font-size:12px;color:#444;">Use as opções abaixo para explorar</span>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            s.narrative.forEach((entry, idx) => {
+                if (entry.type === 'text') {
+                    html += `<div class="narrative-text">${entry.content}</div>`;
+                } else if (entry.type === 'options') {
+                    html += `<div class="narrative-options">`;
+                    entry.options.forEach((opt, oidx) => {
+                        const cls = opt.class || '';
+                        html += `
+                            <button class="${cls}" data-opt="${idx}" data-optidx="${oidx}">
+                                <span class="opt-icon">${opt.icon || '➡️'}</span>
+                                ${opt.label}
+                            </button>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+            });
+
+            container.innerHTML = html;
+
+            // Bind dos botões
+            container.querySelectorAll('.narrative-options button').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const entryIdx = parseInt(this.dataset.opt);
+                    const optIdx = parseInt(this.dataset.optidx);
+                    handleNarrativeChoice(entryIdx, optIdx);
+                });
+            });
+
+            // Scroll para o final
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function renderMachine() {
+            DOM.machine.battery.textContent = `🔋 ${Math.floor(Game.machine.battery)}%`;
+            DOM.machine.batteryText.textContent = Math.floor(Game.machine.battery) + '%';
+            DOM.machine.production.textContent = Game.machine.production;
+        }
+
+        // ============================================================
+        //  NARRATIVA DA SUPERFÍCIE
+        // ============================================================
+
+        function startSurfaceExploration() {
+            if (Game.cycle === 'night') {
+                showModal('🌙 Noite Perigosa',
+                    'A noite é muito perigosa! Espere o dia amanhecer para explorar.');
+                return;
+            }
+
+            if (Game.resources.oxygen < 20) {
+                showModal('⚠️ Oxigênio Baixo',
+                    'Seu oxigênio está muito baixo. Recarregue no bunker.');
+                return;
+            }
+
+            // Resetar superfície
+            Game.surface.turn = 1;
+            Game.surface.maxTurns = 10;
+            Game.surface.danger = Game.cycle === 'day' ? random(20, 40) : random(50, 80);
+            Game.surface.narrative = [];
+            Game.surface.isExploring = false;
+            Game.surface.inCombat = false;
+
+            // Escolhe um local aleatório
+            const loc = pick(LOCATIONS);
+            Game.surface.currentLocation = `${loc.emoji} ${loc.name}`;
+
+            // Consome 1 turno do bunker
+            Game.turn -= 1;
+
+            showScreen('surface');
+            renderAll();
+
+            // Inicia narrativa
+            generateNarrativeScene();
+        }
+
+        function generateNarrativeScene() {
+            const s = Game.surface;
+            const r = Game.resources;
+
+            // Verifica se acabaram os turnos
+            if (s.turn > s.maxTurns) {
+                endSurfaceExpedition('⏳ Fim da Expedição',
+                    'Seus turnos na superfície acabaram. Você precisa voltar ao bunker.');
+                return;
+            }
+
+            // Verifica morte
+            if (checkDeath()) return;
+
+            // Gera evento aleatório
+            const eventType = random(0, 100);
+
+            // Limpa narrativa anterior (mantém apenas o último texto se houver)
+            s.narrative = [];
+
+            if (eventType < 40) {
+                // Evento de exploração - encontrar recursos
+                generateResourceEvent();
+            } else if (eventType < 70) {
+                // Evento de mutante
+                generateMutantEvent();
+            } else if (eventType < 85) {
+                // Evento de local interessante
+                generateLocationEvent();
             } else {
-                DOM.modalBtnOk.textContent = 'OK';
+                // Evento de perigo (tempestade, armadilha)
+                generateDangerEvent();
+            }
+
+            // Consome recursos por turno
+            r.oxygen = Math.max(0, r.oxygen - 2);
+            r.hunger = Math.max(0, r.hunger - 2);
+            r.contamination = Math.min(100, r.contamination + 2);
+
+            renderAll();
+        }
+
+        // ===== EVENTO: RECURSOS =====
+        function generateResourceEvent() {
+            const resources = [
+                { icon: '🪚', name: 'Sucata', effect: () => { Game.resources.energy = Math.min(100, Game.resources
+                            .energy + 10);
+                        Game.resources.oxygen = Math.min(100, Game.resources.oxygen + 5); } },
+                { icon: '🧴', name: 'Plástico', effect: () => { Game.resources.energy = Math.min(100, Game.resources
+                            .energy + 8); } },
+                { icon: '💧', name: 'Água Poluída', effect: () => { Game.resources.contamination = Math.min(100, Game
+                            .resources.contamination + 5);
+                        Game.resources.hunger = Math.min(100, Game.resources.hunger + 5); } },
+                { icon: '🌱', name: 'Biomassa', effect: () => { Game.resources.hunger = Math.min(100, Game.resources
+                            .hunger + 15); } },
+                { icon: '⚙️', name: 'Peças Raras', effect: () => { Game.resources.energy = Math.min(100, Game
+                            .resources.energy + 15);
+                        Game.resources.oxygen = Math.min(100, Game.resources.oxygen + 10); } },
+            ];
+
+            const res = pick(resources);
+            const loc = pick(LOCATIONS);
+
+            Game.surface.narrative.push({
+                type: 'text',
+                content: `📍 <span class="highlight">Turno ${Game.surface.turn}</span><br>
+                          Você chega em <span class="highlight">${Game.surface.currentLocation}</span> e encontra <span class="success">${res.icon} ${res.name}</span>!`
+            });
+
+            Game.surface.narrative.push({
+                type: 'options',
+                options: [
+                    { icon: '✅', label: `Pegar ${res.name}`, class: 'success',
+                    action: () => { res.effect();
+                            showModal('✅ Coletado!', `Você coletou ${res.name}.`); } },
+                    { icon: '⏭️', label: 'Ignorar e seguir', class: '', action: () => { showModal('⏭️ Ignorado',
+                                'Você deixou o item para trás.'); } },
+                ]
+            });
+
+            Game.surface.turn += 1;
+        }
+
+        // ===== EVENTO: MUTANTE =====
+        function generateMutantEvent() {
+            const mutant = pick(MUTANT_TYPES);
+            const loc = pick(LOCATIONS);
+
+            Game.surface.narrative.push({
+                type: 'text',
+                content: `📍 <span class="highlight">Turno ${Game.surface.turn}</span><br>
+                          ${mutant.emoji} <span class="danger">UM MUTANTE APARECEU!</span><br>
+                          Um <span class="danger">${mutant.name}</span> surgiu das sombras em ${Game.surface.currentLocation}!<br>
+                          <span style="font-size:12px;color:#666;">HP: ${mutant.hp} · Dano: ${mutant.damage}</span>`
+            });
+
+            Game.surface.narrative.push({
+                type: 'options',
+                options: [
+                    { icon: '⚔️', label: 'Batalhar!', class: 'danger', action: () => { startCombat(mutant); } },
+                    { icon: '🏃', label: 'Fugir (50%)', class: 'warning', action: () => { tryFlee(mutant); } },
+                    { icon: '🕵️', label: 'Esconder-se (50%)', class: '', action: () => { tryHide(mutant); } },
+                ]
+            });
+
+            Game.surface.turn += 1;
+        }
+
+        // ===== EVENTO: LOCAL INTERESSANTE =====
+        function generateLocationEvent() {
+            const loc = pick(LOCATIONS);
+            const finds = [
+                'um mapa antigo mostrando rotas de suprimentos',
+                'um rádio que ainda funciona',
+                'um diário de um sobrevivente',
+                'uma caixa de ferramentas',
+                'um gerador portátil',
+            ];
+
+            const find = pick(finds);
+
+            Game.surface.narrative.push({
+                type: 'text',
+                content: `📍 <span class="highlight">Turno ${Game.surface.turn}</span><br>
+                          Você explora <span class="highlight">${Game.surface.currentLocation}</span> e encontra <span class="info">${find}</span>.`
+            });
+
+            Game.surface.narrative.push({
+                type: 'options',
+                options: [
+                    { icon: '🔍', label: 'Investigar', class: 'success', action: () => {
+                            Game.resources.energy = Math.min(100, Game.resources.energy + 5);
+                            Game.resources.oxygen = Math.min(100, Game.resources.oxygen + 5);
+                            showModal('🔍 Investigação', 'Você encontrou algo útil! +5 Energia, +5 Oxigênio.');
+                        } },
+                    { icon: '⏭️', label: 'Seguir em frente', class: '', action: () => { showModal('⏭️ Seguindo',
+                                'Você decide continuar explorando.'); } },
+                ]
+            });
+
+            Game.surface.turn += 1;
+        }
+
+        // ===== EVENTO: PERIGO =====
+        function generateDangerEvent() {
+            const dangers = [
+                { icon: '🌪️', name: 'Tempestade Tóxica', effect: () => {
+                        Game.resources.contamination = Math.min(100, Game.resources.contamination + 20);
+                        Game.resources.oxygen = Math.max(0, Game.resources.oxygen - 10);
+                    } },
+                { icon: '💀', name: 'Armadilha de Sucata', effect: () => {
+                        Game.resources.oxygen = Math.max(0, Game.resources.oxygen - 15);
+                        Game.resources.energy = Math.max(0, Game.resources.energy - 10);
+                    } },
+                { icon: '☢️', name: 'Vazamento Químico', effect: () => {
+                        Game.resources.contamination = Math.min(100, Game.resources.contamination + 25);
+                        Game.resources.hunger = Math.max(0, Game.resources.hunger - 10);
+                    } },
+            ];
+
+            const danger = pick(dangers);
+
+            Game.surface.narrative.push({
+                type: 'text',
+                content: `📍 <span class="highlight">Turno ${Game.surface.turn}</span><br>
+                          ${danger.icon} <span class="danger">PERIGO!</span><br>
+                          Uma <span class="danger">${danger.name}</span> atinge a área!`
+            });
+
+            Game.surface.narrative.push({
+                type: 'options',
+                options: [
+                    { icon: '🛡️', label: 'Se proteger', class: 'warning', action: () => {
+                            if (chance(50)) {
+                                showModal('🛡️ Protegido!', 'Você conseguiu se proteger do perigo!');
+                            } else {
+                                danger.effect();
+                                showModal('💥 Atingido!', 'O perigo te pegou! Perdeu recursos.');
+                                checkDeath();
+                            }
+                        } },
+                    { icon: '🏃', label: 'Correr', class: 'danger', action: () => {
+                            if (chance(40)) {
+                                showModal('🏃 Fuga!', 'Você escapou do perigo!');
+                            } else {
+                                danger.effect();
+                                danger.effect();
+                                showModal('💥 Duplo Atingido!', 'O perigo te atingiu duas vezes!');
+                                checkDeath();
+                            }
+                        } },
+                ]
+            });
+
+            Game.surface.turn += 1;
+        }
+
+        // ===== AÇÕES DO MUTANTE (Fugir / Esconder) =====
+        function tryFlee(mutant) {
+            if (chance(50)) {
+                showModal('🏃 Fuga!', 'Você conseguiu fugir do mutante!');
+                Game.surface.turn += 0; // Já foi incrementado
+                setTimeout(() => { generateNarrativeScene(); }, 500);
+            } else {
+                showModal('💥 Falha!', 'O mutante te alcançou! Você sofreu dano.');
+                Game.resources.oxygen = Math.max(0, Game.resources.oxygen - mutant.damage);
+                Game.resources.contamination = Math.min(100, Game.resources.contamination + 5);
+                checkDeath();
+                setTimeout(() => { generateNarrativeScene(); }, 500);
             }
         }
 
-        // ===== CHECAGENS =====
+        function tryHide(mutant) {
+            if (chance(50)) {
+                showModal('🕵️ Escondido!', 'Você se escondeu com sucesso! O mutante passou reto.');
+                Game.surface.turn += 0;
+                setTimeout(() => { generateNarrativeScene(); }, 500);
+            } else {
+                showModal('💥 Descoberto!', 'O mutante te encontrou! Você sofreu dano.');
+                Game.resources.oxygen = Math.max(0, Game.resources.oxygen - mutant.damage);
+                Game.resources.contamination = Math.min(100, Game.resources.contamination + 10);
+                checkDeath();
+                setTimeout(() => { generateNarrativeScene(); }, 500);
+            }
+        }
+
+        // ============================================================
+        //  SISTEMA DE COMBATE
+        // ============================================================
+
+        function startCombat(mutant) {
+            Game.combat.active = true;
+            Game.combat.enemy = mutant;
+            Game.combat.playerHP = 100;
+            Game.combat.maxPlayerHP = 100;
+            Game.combat.enemyHP = mutant.hp;
+            Game.combat.maxEnemyHP = mutant.hp;
+            Game.combat.turn = 0;
+            Game.combat.isPlayerTurn = true;
+            Game.combat.log = [];
+            Game.combat.inProgress = false;
+
+            showScreen('combat');
+            renderCombat();
+            updateCombatButtons(true);
+
+            addCombatLog(`⚔️ COMBATE INICIADO contra ${mutant.emoji} ${mutant.name}!`);
+            addCombatLog(`💪 ${mutant.name} tem ${mutant.hp} HP e causa ${mutant.damage} de dano.`);
+            addCombatLog('🎯 Escolha sua ação:');
+        }
+
+        function renderCombat() {
+            const c = Game.combat;
+            const enemy = c.enemy;
+
+            DOM.combat.enemyName.textContent = `${enemy.emoji} ${enemy.name}`;
+            DOM.combat.enemyName2.textContent = enemy.name;
+
+            DOM.combat.enemyHP.textContent = Math.floor(c.enemyHP);
+            DOM.combat.enemyMaxHP.textContent = c.maxEnemyHP;
+            DOM.combat.enemyHP2.textContent = Math.floor(c.enemyHP);
+            DOM.combat.enemyMaxHP2.textContent = c.maxEnemyHP;
+
+            const enemyPct = (c.enemyHP / c.maxEnemyHP) * 100;
+            DOM.combat.enemyHPFill.style.width = Math.max(0, enemyPct) + '%';
+
+            DOM.combat.playerName.textContent = Game.playerName;
+            DOM.combat.playerHP.textContent = Math.floor(c.playerHP);
+            const playerPct = (c.playerHP / c.maxPlayerHP) * 100;
+            DOM.combat.playerHPFill.style.width = Math.max(0, playerPct) + '%';
+
+            // Log
+            DOM.combat.log.innerHTML = c.log.map(entry =>
+                `<div class="combat-log-entry">${entry}</div>`
+            ).join('');
+            DOM.combat.log.scrollTop = DOM.combat.log.scrollHeight;
+        }
+
+        function addCombatLog(msg) {
+            Game.combat.log.push(msg);
+            renderCombat();
+        }
+
+        function updateCombatButtons(enabled) {
+            DOM.combat.btnAttack.disabled = !enabled || Game.gameOver;
+            DOM.combat.btnDefense.disabled = !enabled || Game.gameOver;
+            DOM.combat.btnFlee.disabled = !enabled || Game.gameOver;
+        }
+
+        // ===== AÇÕES DE COMBATE =====
+
+        function combatAttack() {
+            if (Game.combat.inProgress || !Game.combat.isPlayerTurn) return;
+            Game.combat.inProgress = true;
+            updateCombatButtons(false);
+
+            const c = Game.combat;
+            const enemy = c.enemy;
+
+            // Ataque do jogador
+            if (chance(40)) {
+                addCombatLog(`🔄 ${enemy.name} esquivou do seu ataque!`);
+            } else {
+                const damage = random(10, 20);
+                c.enemyHP = Math.max(0, c.enemyHP - damage);
+                addCombatLog(`⚔️ Você causou <span class="damage">${damage}</span> de dano em ${enemy.name}!`);
+                renderCombat();
+
+                // Verifica se inimigo morreu
+                if (c.enemyHP <= 0) {
+                    endCombat(true);
+                    return;
+                }
+            }
+
+            // Turno do inimigo
+            setTimeout(() => {
+                enemyTurn();
+            }, 600);
+        }
+
+        function combatDefense() {
+            if (Game.combat.inProgress || !Game.combat.isPlayerTurn) return;
+            Game.combat.inProgress = true;
+            updateCombatButtons(false);
+
+            const c = Game.combat;
+            const enemy = c.enemy;
+
+            addCombatLog(`🛡️ Você entrou em posição defensiva!`);
+
+            // Turno do inimigo com defesa
+            setTimeout(() => {
+                // Inimigo ataca com defesa
+                if (chance(70)) {
+                    addCombatLog(`🌀 Você esquivou do ataque de ${enemy.name}!`);
+                } else {
+                    const damage = random(8, 12);
+                    c.playerHP = Math.max(0, c.playerHP - damage);
+                    addCombatLog(`💥 ${enemy.name} causou <span class="damage">${damage}</span> de dano!`);
+                    renderCombat();
+
+                    if (c.playerHP <= 0) {
+                        endCombat(false);
+                        return;
+                    }
+                }
+
+                c.isPlayerTurn = true;
+                c.inProgress = false;
+                updateCombatButtons(true);
+                addCombatLog('🎯 Sua vez:');
+                renderCombat();
+            }, 600);
+        }
+
+        function combatFlee() {
+            if (Game.combat.inProgress || !Game.combat.isPlayerTurn) return;
+            Game.combat.inProgress = true;
+            updateCombatButtons(false);
+
+            const c = Game.combat;
+            const enemy = c.enemy;
+
+            if (chance(30)) {
+                addCombatLog(`🏃 <span class="flee">Você conseguiu fugir!</span>`);
+                setTimeout(() => {
+                    endCombat(false, true);
+                }, 500);
+            } else {
+                addCombatLog(`💥 Falha ao fugir! ${enemy.name} te atacou!`);
+                const damage = random(10, 20);
+                c.playerHP = Math.max(0, c.playerHP - damage);
+                renderCombat();
+
+                if (c.playerHP <= 0) {
+                    endCombat(false);
+                    return;
+                }
+
+                c.isPlayerTurn = true;
+                c.inProgress = false;
+                updateCombatButtons(true);
+                addCombatLog('🎯 Sua vez:');
+                renderCombat();
+            }
+        }
+
+        function enemyTurn() {
+            const c = Game.combat;
+            const enemy = c.enemy;
+
+            // Inimigo ataca
+            const damage = random(10, 20);
+            c.playerHP = Math.max(0, c.playerHP - damage);
+            addCombatLog(`💥 ${enemy.name} causou <span class="damage">${damage}</span> de dano!`);
+            renderCombat();
+
+            if (c.playerHP <= 0) {
+                endCombat(false);
+                return;
+            }
+
+            c.isPlayerTurn = true;
+            c.inProgress = false;
+            updateCombatButtons(true);
+            addCombatLog('🎯 Sua vez:');
+            renderCombat();
+        }
+
+        function endCombat(victory, fled = false) {
+            const c = Game.combat;
+            c.active = false;
+            c.inProgress = false;
+            updateCombatButtons(false);
+
+            if (fled) {
+                showModal('🏃 Fuga Bem-Sucedida',
+                    'Você escapou do combate! Volte ao bunker para se recuperar.',
+                    () => {
+                        showScreen('bunker');
+                        renderAll();
+                    });
+                return;
+            }
+
+            if (victory) {
+                // Recompensas
+                const reward = random(5, 15);
+                Game.resources.energy = Math.min(100, Game.resources.energy + reward);
+                Game.resources.hunger = Math.min(100, Game.resources.hunger + 5);
+                Game.resources.oxygen = Math.min(100, Game.resources.oxygen + 10);
+
+                showModal('⚔️ VITÓRIA!',
+                    `Você derrotou ${c.enemy.emoji} ${c.enemy.name}!\n\n` +
+                    `🏆 Recompensas:\n` +
+                    `⚡ +${reward} Energia\n` +
+                    `🍖 +5 Fome\n` +
+                    `🫧 +10 Oxigênio`,
+                    () => {
+                        // Voltar para a superfície
+                        Game.surface.narrative = [];
+                        Game.surface.isExploring = false;
+                        showScreen('surface');
+                        Game.surface.turn += 1;
+                        // Continua a exploração
+                        setTimeout(() => {
+                            if (Game.surface.turn <= Game.surface.maxTurns) {
+                                generateNarrativeScene();
+                            } else {
+                                endSurfaceExpedition('⏳ Fim da Expedição',
+                                    'Seus turnos acabaram. Volte ao bunker.');
+                            }
+                        }, 300);
+                    });
+            } else {
+                showModal('💀 DERROTA!',
+                    `${c.enemy.emoji} ${c.enemy.name} te derrotou!\n\n` +
+                    `Você perdeu recursos e precisa se recuperar no bunker.`,
+                    () => {
+                        Game.resources.oxygen = Math.max(0, Game.resources.oxygen - 20);
+                        Game.resources.contamination = Math.min(100, Game.resources.contamination + 15);
+                        Game.resources.energy = Math.max(0, Game.resources.energy - 10);
+                        checkDeath();
+                        showScreen('bunker');
+                        renderAll();
+                    });
+            }
+        }
+
+        // ===== FIM DA EXPEDIÇÃO =====
+        function endSurfaceExpedition(title, msg) {
+            showModal(title, msg, () => {
+                showScreen('bunker');
+                renderAll();
+            });
+        }
+
+        // ============================================================
+        //  AÇÕES DO BUNKER
+        // ============================================================
+
+        function goToSurface() {
+            if (Game.cycle === 'night') {
+                showModal('🌙 Noite Perigosa',
+                    'A noite é muito perigosa! Espere o dia amanhecer.');
+                return;
+            }
+            if (Game.resources.oxygen < 20) {
+                showModal('⚠️ Oxigênio Baixo',
+                    'Seu oxigênio está muito baixo para uma expedição.');
+                return;
+            }
+            startSurfaceExploration();
+        }
+
+        function actionSleep() {
+            if (Game.cycle === 'day') {
+                showModal('☀️ Ainda é Dia',
+                    'Você só pode dormir durante a noite.');
+                return;
+            }
+
+            const r = Game.resources;
+            r.energy = Math.min(100, r.energy + 30);
+            r.hunger = Math.min(100, r.hunger + 15);
+            r.contamination = Math.max(0, r.contamination - 10);
+            r.oxygen = Math.min(100, r.oxygen + 10);
+
+            if (Game.machine.active) {
+                r.oxygen = Math.min(100, r.oxygen + Game.machine.production);
+            }
+
+            Game.cycle = 'day';
+            Game.turn = 10;
+
+            showModal('🛏️ Bom Descanso',
+                `Você dormiu profundamente.\n\n⚡ +30 Energia\n🍖 +15 Fome\n☣️ -10 Contaminação\n🫧 +${10 + Game.machine.production} Oxigênio`);
+            renderAll();
+        }
+
+        function goToMachine() {
+            showScreen('machine');
+            renderMachine();
+        }
+
+        // ============================================================
+        //  CHECAGENS
+        // ============================================================
 
         function checkDeath() {
-            const r = GameState.resources;
+            const r = Game.resources;
             if (r.oxygen <= 0) {
-                GameState.gameOver = true;
-                showModal('💀 FALHA CRÍTICA - SEM OXIGÊNIO', 'Você ficou sem oxigênio. A Ecosfera 2200 reivindicou mais uma vida...', 'warning');
+                Game.gameOver = true;
+                showModal('💀 FALHA CRÍTICA - SEM OXIGÊNIO',
+                    'Você ficou sem oxigênio. A Ecosfera reivindicou mais uma vida...');
                 return true;
             }
             if (r.hunger <= 0) {
-                GameState.gameOver = true;
-                showModal('💀 FALHA CRÍTICA - FOME', 'Você morreu de fome. A superfície não perdoa os fracos.', 'warning');
-                return true;
-            }
-            if (r.thirst <= 0) {
-                GameState.gameOver = true;
-                showModal('💀 FALHA CRÍTICA - SEDE', 'A desidratação levou você. A água é vida, e ela é escassa.', 'warning');
-                return true;
-            }
-            if (r.suit <= 0) {
-                GameState.gameOver = true;
-                showModal('💀 FALHA CRÍTICA - TRAJE DESTRUÍDO', 'Seu traje se despedaçou. A contaminação te consumiu.', 'warning');
+                Game.gameOver = true;
+                showModal('💀 FALHA CRÍTICA - FOME',
+                    'A fome consumiu você. A superfície não perdoa.');
                 return true;
             }
             if (r.contamination >= 100) {
-                GameState.gameOver = true;
-                showModal('💀 FALHA CRÍTICA - CONTAMINAÇÃO TOTAL', 'A poluição tomou conta do seu corpo. Você se tornou parte do problema.', 'warning');
+                Game.gameOver = true;
+                showModal('💀 FALHA CRÍTICA - CONTAMINAÇÃO',
+                    'A poluição tomou conta do seu corpo.');
                 return true;
             }
             return false;
         }
 
-        function checkTurnEnd() {
-            if (GameState.turn <= 0 && !GameState.gameOver) {
-                // Mudar ciclo automaticamente
-                if (GameState.cycle === 'day') {
-                    GameState.cycle = 'night';
-                    addLog('🌙 A noite caiu. Mutantes estão mais agressivos.', 'danger');
-                } else {
-                    GameState.cycle = 'day';
-                    addLog('☀️ O dia amanheceu. A superfície está mais calma.', 'success');
-                }
-                GameState.turn = GameState.maxTurn;
+        // ============================================================
+        //  MANIPULAÇÃO DE ESCOLHAS NARRATIVAS
+        // ============================================================
 
-                // Máquina produz oxigênio
-                if (GameState.machine.active) {
-                    const produced = GameState.machine.production;
-                    GameState.resources.oxygen = Math.min(100, GameState.resources.oxygen + produced);
-                    addLog(`🫧 Máquina produziu ${produced} Oxigênio.`, 'highlight');
-                }
+        function handleNarrativeChoice(entryIdx, optIdx) {
+            if (Game.eventLock) return;
+            const s = Game.surface;
+            const entry = s.narrative[entryIdx];
+            if (!entry || entry.type !== 'options') return;
+            const opt = entry.options[optIdx];
+            if (!opt) return;
 
-                // Evento aleatório
-                if (GameState.cycle === 'night' && random(0, 100) < 30) {
-                    triggerNightEvent();
-                }
+            // Executa a ação
+            if (opt.action) {
+                Game.eventLock = true;
+                opt.action();
 
-                renderAll();
+                // Remove a opção para evitar re-cliques
+                setTimeout(() => {
+                    Game.eventLock = false;
+                    // Remove as opções da narrativa
+                    s.narrative = s.narrative.filter(e => e.type !== 'options' || e !== entry);
+
+                    // Verifica se ainda tem turnos
+                    if (s.turn <= s.maxTurns && !Game.combat.active && !Game.gameOver) {
+                        // Continua a narrativa
+                        setTimeout(() => {
+                            if (Game.currentScreen === 'surface') {
+                                generateNarrativeScene();
+                            }
+                        }, 500);
+                    } else if (s.turn > s.maxTurns && !Game.combat.active) {
+                        endSurfaceExpedition('⏳ Fim da Expedição',
+                            'Seus turnos na superfície acabaram.');
+                    }
+                    renderAll();
+                }, 300);
             }
         }
 
-        // ===== CLIQUE NO MAPA =====
+        // ============================================================
+        //  CONFIGURAÇÃO DE EVENTOS
+        // ============================================================
 
-        function setupMapClicks() {
-            DOM.mapLocations.forEach(el => {
-                el.addEventListener('click', function() {
-                    if (GameState.eventLock) return;
-                    const locId = this.dataset.location;
-                    if (!GameState.locations[locId].unlocked) {
-                        showModal('🔒 Local Bloqueado', 'Este local ainda não foi desbloqueado. Continue explorando para encontrar pistas.', 'warning');
-                        return;
-                    }
-                    if (locId === GameState.currentLocation) {
-                        showModal('📍 Mesmo Local', 'Você já está aqui.', 'warning');
-                        return;
-                    }
-                    if (GameState.turn <= 0) {
-                        showModal('⏳ Sem Turnos', 'Você não tem turnos restantes. Aguarde a próxima fase.', 'warning');
-                        return;
-                    }
-
-                    GameState.currentLocation = locId;
-                    GameState.mutants = random(0, 2);
-                    addLog(`🚶 Movendo para ${GameState.locations[locId].name}...`, 'normal');
-                    renderAll();
-                });
+        function setupEvents() {
+            // Início
+            DOM.start.btn.addEventListener('click', startGame);
+            DOM.start.input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') startGame();
             });
+
+            // Bunker
+            DOM.bunker.btnSurface.addEventListener('click', goToSurface);
+            DOM.bunker.btnDormitory.addEventListener('click', actionSleep);
+            DOM.bunker.btnMachine.addEventListener('click', goToMachine);
+
+            // Máquina
+            DOM.machine.btnBack.addEventListener('click', () => {
+                showScreen('bunker');
+                renderAll();
+            });
+
+            // Combate
+            DOM.combat.btnAttack.addEventListener('click', combatAttack);
+            DOM.combat.btnDefense.addEventListener('click', combatDefense);
+            DOM.combat.btnFlee.addEventListener('click', combatFlee);
         }
 
-        // ===== INICIALIZAÇÃO =====
+        function startGame() {
+            const name = DOM.start.input.value.trim();
+            if (!name) {
+                showModal('⚠️ Atenção', 'Por favor, digite o nome do seu personagem.');
+                return;
+            }
+
+            Game.playerName = name;
+            showScreen('bunker');
+            renderAll();
+
+            showModal('🌍 Bem-vindo, ' + name + '!',
+                'Você acordou no bunker. O mundo lá fora está devastado.\n\n' +
+                '☀️ Durante o DIA: explore a superfície\n' +
+                '🌙 Durante a NOITE: durma no dormitório\n\n' +
+                '⚔️ Na superfície, você encontrará eventos e mutantes.\n' +
+                '🧠 Escolha sabiamente suas ações!\n\n' +
+                'Boa sorte, sobrevivente.');
+        }
+
+        // ============================================================
+        //  INICIALIZAÇÃO
+        // ============================================================
 
         function init() {
             cacheDOM();
-
-            // Adicionar logs iniciais
-            addLog('🌍 ECOSFERA 2200 - Sistema iniciado.', 'highlight');
-            addLog('📖 "Sobreviva. Purifique. Descubra a verdade."', 'highlight');
-            addLog('💡 Dica: Explore durante o dia, se esconda à noite.', 'normal');
-
-            // Configurar eventos
-            DOM.btnExplore.addEventListener('click', actionExplore);
-            DOM.btnEndTurn.addEventListener('click', actionEndTurn);
-            DOM.btnReturn.addEventListener('click', actionReturn);
-            DOM.btnPurifyWater.addEventListener('click', actionPurifyWater);
-            DOM.btnProcessBiomass.addEventListener('click', actionProcessBiomass);
-            DOM.btnRepairSuit.addEventListener('click', actionRepairSuit);
-            DOM.btnUpgradeMachine.addEventListener('click', actionUpgradeMachine);
-            DOM.btnRest.addEventListener('click', actionRest);
-
-            setupMapClicks();
-
-            // Renderizar tudo
+            setupEvents();
             renderAll();
+            DOM.start.input.focus();
 
-            // Mostrar mensagem de boas-vindas
-            setTimeout(() => {
-                showModal(
-                    '🌍 ECOSFERA 2200',
-                    'Bem-vindo ao último refúgio da humanidade.\n\nO mundo está poluído. Mutantes vagam pela superfície.\nSua missão: sobreviver, purificar o ar e descobrir a verdade sobre o que aconteceu.\n\n☀️ Durante o DIA (10 turnos): Explore, colete recursos.\n🌙 Durante a NOITE (10 turnos): Fique no bunker, se esconda.\n\nBoa sorte, sobrevivente.',
-                    'info'
-                );
-            }, 500);
-
-            console.log('🌍 ECOSFERA 2200 - v0.0 carregada com sucesso!');
-            console.log('Todas as mecânicas implementadas:');
-            console.log(' - Ciclo Dia/Noite (10 turnos cada)');
-            console.log(' - Exploração com coleta de recursos');
-            console.log(' - Combate e fuga de mutantes');
-            console.log(' - Gestão do bunker (purificação, processamento, reparos)');
-            console.log(' - Máquina de carbono com upgrades');
-            console.log(' - Sistema de contaminação');
-            console.log(' - Eventos aleatórios noturnos');
-            console.log(' - Sistema de fome/sede/oxigênio/traje');
-            console.log(' - Múltiplas localizações para explorar');
+            console.log('🌍 ECOSFERA 2200 - v2.0');
+            console.log('📖 Sistema de Narrativa Interativa na Superfície');
+            console.log('⚔️ Sistema de Combate por Turnos');
+            console.log('🎯 Escolhas com consequências');
+            console.log('🧬 5 tipos de mutantes com estatísticas diferentes');
         }
 
-        // Iniciar quando a página carregar
         document.addEventListener('DOMContentLoaded', init);
     </script>
 
