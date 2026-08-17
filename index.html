@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ecosfera 2200 - v2.0</title>
+    <title>Ecosfera 2200 - v3.0</title>
     <style>
         /* ============================================================
            RESET E ESTILOS GLOBAIS
@@ -383,7 +383,7 @@
         }
 
         /* ============================================================
-           TELA DA SUPERFÍCIE (NARRATIVA)
+           TELA DA SUPERFÍCIE
            ============================================================ */
         #screen-surface {
             gap: 12px;
@@ -457,6 +457,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            min-height: 200px;
         }
 
         #surface-narrative::-webkit-scrollbar {
@@ -491,6 +492,9 @@
         }
         .narrative-text .info {
             color: #4488ff;
+        }
+        .narrative-text .location-name {
+            color: #ff8844;
         }
 
         .narrative-options {
@@ -558,6 +562,15 @@
 
         .narrative-options button.warning:hover:not(:disabled) {
             background: #1a1a0a;
+        }
+
+        .narrative-options button.info {
+            border-color: #4488ff;
+            color: #4488ff;
+        }
+
+        .narrative-options button.info:hover:not(:disabled) {
+            background: #0a0a1a;
         }
 
         /* ============================================================
@@ -1091,18 +1104,18 @@
         </div>
 
         <!-- ==========================================================
-        TELA DA SUPERFÍCIE (NARRATIVA)
+        TELA DA SUPERFÍCIE
         ========================================================== -->
         <div id="screen-surface" class="screen">
             <div id="surface-header">
-                <div class="location">☢️ <span id="surface-zone">Zona de Risco</span></div>
+                <div class="location">☢️ <span id="surface-location">Nova Prospekt</span></div>
                 <div class="danger-level" id="surface-danger">⚠️ PERIGO: 30%</div>
             </div>
 
             <div id="surface-status">
                 <div class="surface-stat">
                     <div class="stat-label">Turno</div>
-                    <div class="stat-value" id="surface-turn">1/10</div>
+                    <div class="stat-value" id="surface-turn">0/10</div>
                 </div>
                 <div class="surface-stat">
                     <div class="stat-label">Oxigênio</div>
@@ -1199,8 +1212,8 @@
     ============================================================ -->
     <script>
         // ============================================================
-        //  ECOSFERA 2200 - v2.0
-        //  Superfície Narrativa + Sistema de Combate
+        //  ECOSFERA 2200 - v3.0
+        //  77 Cenários na Superfície
         // ============================================================
 
         // ===== ESTADO DO JOGO =====
@@ -1215,6 +1228,12 @@
                 contamination: 0,
                 energy: 100,
                 hunger: 100,
+                scrap: 0,
+                plastic: 0,
+                water: 0,
+                biomass: 0,
+                rare_parts: 0,
+                medicine: 0,
             },
 
             machine: {
@@ -1224,14 +1243,13 @@
             },
 
             surface: {
-                turn: 1,
+                turn: 0,
                 maxTurns: 10,
                 danger: 30,
-                currentLocation: '',
-                narrative: [],
-                isExploring: false,
+                currentLocation: 'Nova Prospekt',
+                currentScenario: null,
+                scenarioHistory: [],
                 inCombat: false,
-                explored: false,
             },
 
             combat: {
@@ -1261,16 +1279,1434 @@
             { name: 'Espectro', hp: 80, damage: 18, emoji: '🌀' },
         ];
 
-        // ===== LOCAIS E NARRATIVAS =====
-        const LOCATIONS = [
-            { name: 'Lixão', emoji: '🗑️', desc: 'montanhas de lixo e sucata' },
-            { name: 'Rio Poluído', emoji: '🌊', desc: 'águas escuras e tóxicas' },
-            { name: 'Fábrica Abandonada', emoji: '🏭', desc: 'estruturas de metal corroídas' },
-            { name: 'Cemitério de Carros', emoji: '🚗', desc: 'ferrugem e restos de veículos' },
-            { name: 'Ruínas da Cidade', emoji: '🏚️', desc: 'prédios desmoronados' },
-        ];
+        // ============================================================
+        //  TODOS OS CENÁRIOS (77)
+        // ============================================================
 
-        // ===== REFERÊNCIAS DOM =====
+        const SCENARIOS = {
+
+            // ===== TURNO 0 - INÍCIO (SEMPRE IGUAL) =====
+            'start': {
+                id: 'start',
+                location: 'Nova Prospekt',
+                turn: 0,
+                text: 'Você está em <span class="location-name">Nova Prospekt</span>, uma cidade devastada. O céu está cinza, os prédios estão desmoronando e o silêncio é quebrado apenas pelo vento. Você precisa decidir para onde ir.',
+                options: [
+                    { id: 'predio_entrada', icon: '🏚️', label: 'Explorar um PRÉDIO abandonado', class: '' },
+                    { id: 'metro_entrada', icon: '🚇', label: 'Ir para o METRÔ', class: '' },
+                    { id: 'rua_inicio', icon: '🛣️', label: 'Seguir a RUA', class: '' },
+                    { id: 'ponte_inicio', icon: '🌉', label: 'Atravessar a GRANDE PONTE', class: '' },
+                ]
+            },
+
+            // ==========================================================
+            // ROTA 1: PRÉDIO ABANDONADO
+            // ==========================================================
+
+            'predio_entrada': {
+                id: 'predio_entrada',
+                location: 'Nova Prospekt - Prédio Abandonado',
+                turn: 1,
+                text: 'Você entra no prédio. O lobby está destruído, com vidros quebrados e móveis virados. Há três caminhos à sua frente.',
+                options: [
+                    { id: 'predio_escadaria', icon: '🪜', label: 'Escadaria (subir)', class: '' },
+                    { id: 'predio_elevador', icon: '🛗', label: 'Elevador (quebrado, mas talvez funcione)', class: '' },
+                    { id: 'predio_corredor', icon: '🚪', label: 'Corredor do térreo (lojas e escritórios)', class: '' },
+                ]
+            },
+
+            'predio_escadaria': {
+                id: 'predio_escadaria',
+                location: 'Nova Prospekt - Escadaria',
+                turn: 1,
+                text: 'Os degraus estão cobertos de entulho. Você precisa subir com cuidado. O que fazer?',
+                options: [
+                    { id: 'predio_andar2', icon: '⬆️', label: 'Tentar subir (risco de queda)', class: 'danger' },
+                    { id: 'predio_voltar_lobby', icon: '🔙', label: 'Procurar outro caminho', class: '' },
+                    { id: 'predio_voltar_lobby', icon: '🔙', label: 'Voltar ao lobby', class: '' },
+                ]
+            },
+
+            'predio_andar2': {
+                id: 'predio_andar2',
+                location: 'Nova Prospekt - Andar 2',
+                turn: 2,
+                text: 'Você chega ao segundo andar. As mesas estão reviradas e há papéis espalhados. O que fazer?',
+                options: [
+                    { id: 'predio_recursos', icon: '🔍', label: 'Revirar as mesas (recursos)', class: 'success' },
+                    { id: 'predio_recursos2', icon: '🔍', label: 'Verificar as gavetas (recursos)', class: 'success' },
+                    { id: 'predio_andar3', icon: '⬆️', label: 'Ir para o próximo andar', class: '' },
+                    { id: 'predio_voltar_lobby', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'predio_andar3': {
+                id: 'predio_andar3',
+                location: 'Nova Prospekt - Andar 3',
+                turn: 3,
+                text: 'Um <span class="danger">mutante</span> está no corredor! Ele parece estar comendo algo. O que fazer?',
+                options: [
+                    { id: 'combate_rastejador', icon: '⚔️', label: 'Batalhar', class: 'danger' },
+                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
+                    { id: 'fuga', icon: '🕵️', label: 'Esconder-se', class: '' },
+                    { id: 'predio_andar2', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'predio_andar4': {
+                id: 'predio_andar4',
+                location: 'Nova Prospekt - Andar 4',
+                turn: 4,
+                text: 'Uma sala com uma mesa grande. Há um cofre aberto e objetos no chão. O que fazer?',
+                options: [
+                    { id: 'predio_recursos', icon: '🔍', label: 'Pegar os objetos (recursos)', class: 'success' },
+                    { id: 'predio_recursos_raros', icon: '💎', label: 'Verificar o cofre (recursos raros)', class: 'success' },
+                    { id: 'predio_terraco', icon: '⬆️', label: 'Ir para o próximo andar', class: '' },
+                    { id: 'predio_andar3', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'predio_terraco': {
+                id: 'predio_terraco',
+                location: 'Nova Prospekt - Terraço',
+                turn: 5,
+                text: 'Você chega ao terraço. A vista da cidade é assustadora. Há um heliporto abandonado.',
+                options: [
+                    { id: 'predio_recursos', icon: '🔍', label: 'Explorar o heliporto (recursos)', class: 'success' },
+                    { id: 'predio_recursos2', icon: '🔍', label: 'Procurar por itens (recursos)', class: 'success' },
+                    { id: 'predio_sinal_radio', icon: '📻', label: 'Usar o rádio (evento)', class: 'info' },
+                    { id: 'predio_andar4', icon: '🔙', label: 'Descer', class: '' },
+                ]
+            },
+
+            'predio_corredor': {
+                id: 'predio_corredor',
+                location: 'Nova Prospekt - Corredor do Térreo',
+                turn: 1,
+                text: 'O corredor do térreo tem várias lojas e escritórios. O que fazer?',
+                options: [
+                    { id: 'predio_loja', icon: '🏪', label: 'Loja de Conveniência', class: '' },
+                    { id: 'predio_escritorio', icon: '📋', label: 'Escritório de Advogados', class: '' },
+                    { id: 'predio_sala_espera', icon: '🪑', label: 'Sala de Espera', class: '' },
+                    { id: 'predio_voltar_lobby', icon: '🔙', label: 'Voltar ao lobby', class: '' },
+                ]
+            },
+
+            'predio_loja': {
+                id: 'predio_loja',
+                location: 'Nova Prospekt - Loja de Conveniência',
+                turn: 2,
+                text: 'As prateleiras estão caídas, mas ainda há coisas. O que fazer?',
+                options: [
+                    { id: 'predio_recursos', icon: '🔍', label: 'Revirar as prateleiras (recursos)', class: 'success' },
+                    { id: 'predio_recursos2', icon: '🔍', label: 'Verificar o estoque (recursos)', class: 'success' },
+                    { id: 'predio_recursos_comida', icon: '🍖', label: 'Procurar comida (recursos)', class: 'success' },
+                    { id: 'predio_corredor', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'predio_escritorio': {
+                id: 'predio_escritorio',
+                location: 'Nova Prospekt - Escritório de Advogados',
+                turn: 2,
+                text: 'Há pastas e documentos espalhados. O que fazer?',
+                options: [
+                    { id: 'predio_informacao', icon: '📖', label: 'Revirar as pastas (informação)', class: 'info' },
+                    { id: 'predio_recursos2', icon: '🔍', label: 'Pegar objetos (recursos)', class: 'success' },
+                    { id: 'predio_recursos_raros', icon: '💎', label: 'Procurar por cofres (recursos)', class: 'success' },
+                    { id: 'predio_corredor', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'predio_sala_espera': {
+                id: 'predio_sala_espera',
+                location: 'Nova Prospekt - Sala de Espera',
+                turn: 2,
+                text: 'Um <span class="danger">mutante</span> está dormindo na sala de espera. Ele não te viu.',
+                options: [
+                    { id: 'fuga', icon: '🕵️', label: 'Passar silenciosamente', class: '' },
+                    { id: 'combate_rastejador', icon: '⚔️', label: 'Atacar primeiro (vantagem)', class: 'danger' },
+                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
+                    { id: 'predio_corredor', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'predio_fim': {
+                id: 'predio_fim',
+                location: 'Nova Prospekt - Fim do Prédio',
+                turn: 3,
+                text: 'O corredor termina em uma porta trancada. Há uma janela quebrada.',
+                options: [
+                    { id: 'predio_recursos_ferramenta', icon: '🔧', label: 'Arrombar a porta (requer ferramenta)', class: 'warning' },
+                    { id: 'rua_inicio', icon: '🪟', label: 'Sair pela janela (para a rua)', class: '' },
+                    { id: 'predio_corredor', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'predio_recursos': {
+                id: 'predio_recursos',
+                location: 'Nova Prospekt - Prédio',
+                turn: 0,
+                text: 'Você encontrou recursos úteis! 🪚 Sucata e 🧴 Plástico.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.scrap += 2;
+                    Game.resources.plastic += 1;
+                    Game.resources.energy = Math.min(100, Game.resources.energy + 5);
+                    showModal('📦 Recursos Coletados', 'Você encontrou 2 Sucata e 1 Plástico! +5 Energia.');
+                }
+            },
+
+            'predio_recursos2': {
+                id: 'predio_recursos2',
+                location: 'Nova Prospekt - Prédio',
+                turn: 0,
+                text: 'Você encontrou mais recursos! 🧴 Plástico e ⚙️ Peças.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.plastic += 2;
+                    Game.resources.rare_parts += 1;
+                    Game.resources.energy = Math.min(100, Game.resources.energy + 3);
+                    showModal('📦 Recursos Coletados', 'Você encontrou 2 Plástico e 1 Peça Rara! +3 Energia.');
+                }
+            },
+
+            'predio_recursos_comida': {
+                id: 'predio_recursos_comida',
+                location: 'Nova Prospekt - Prédio',
+                turn: 0,
+                text: 'Você encontrou comida! 🍖 Biomassa.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.biomass += 2;
+                    Game.resources.hunger = Math.min(100, Game.resources.hunger + 10);
+                    showModal('🍖 Comida Encontrada', 'Você encontrou 2 Biomassa! +10 Fome.');
+                }
+            },
+
+            'predio_recursos_raros': {
+                id: 'predio_recursos_raros',
+                location: 'Nova Prospekt - Prédio',
+                turn: 0,
+                text: 'Você encontrou itens raros! 💎 Peças Raras.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.rare_parts += 2;
+                    Game.resources.energy = Math.min(100, Game.resources.energy + 10);
+                    showModal('💎 Itens Raros', 'Você encontrou 2 Peças Raras! +10 Energia.');
+                }
+            },
+
+            'predio_recursos_ferramenta': {
+                id: 'predio_recursos_ferramenta',
+                location: 'Nova Prospekt - Prédio',
+                turn: 0,
+                text: 'Você encontrou ferramentas! 🔧 Úteis para arrombar portas.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.scrap += 3;
+                    showModal('🔧 Ferramentas', 'Você encontrou 3 Sucata (ferramentas).');
+                }
+            },
+
+            'predio_informacao': {
+                id: 'predio_informacao',
+                location: 'Nova Prospekt - Prédio',
+                turn: 0,
+                text: 'Você encontrou documentos com informações sobre a cidade.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Ler', class: 'info' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    showModal('📖 Informação', 'Você descobre que Revelon tem um hospital com suprimentos médicos.');
+                }
+            },
+
+            'predio_sinal_radio': {
+                id: 'predio_sinal_radio',
+                location: 'Nova Prospekt - Prédio',
+                turn: 0,
+                text: 'Você capta um sinal de rádio! Alguém está pedindo ajuda.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '📡', label: 'Responder ao sinal', class: 'info' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Ignorar', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.energy = Math.min(100, Game.resources.energy + 5);
+                    showModal('📡 Sinal de Rádio', 'Você respondeu ao sinal e recebeu coordenadas. +5 Energia.');
+                }
+            },
+
+            'predio_voltar_lobby': {
+                id: 'predio_voltar_lobby',
+                location: 'Nova Prospekt - Lobby',
+                turn: 0,
+                text: 'Você voltou ao lobby do prédio.',
+                options: [
+                    { id: 'predio_entrada', icon: '🔙', label: 'Escolher outro caminho', class: '' },
+                    { id: 'start', icon: '🚪', label: 'Sair do prédio', class: '' },
+                ]
+            },
+
+            // ==========================================================
+            // ROTA 2: METRO
+            // ==========================================================
+
+            'metro_entrada': {
+                id: 'metro_entrada',
+                location: 'Nova Prospekt - Metrô',
+                turn: 1,
+                text: 'Você desce as escadas do metrô. As luzes piscam e há um cheiro forte de mofo e química. A bilheteria está destruída.',
+                options: [
+                    { id: 'metro_plataforma_leste', icon: '🚉', label: 'Plataforma Leste (trem parado)', class: '' },
+                    { id: 'metro_plataforma_oeste', icon: '🚉', label: 'Plataforma Oeste (túnel escuro)', class: '' },
+                    { id: 'metro_sala_controle', icon: '🖥️', label: 'Sala de Controle (computadores)', class: '' },
+                    { id: 'metro_tunel_manutencao', icon: '🔧', label: 'Túnel de Manutenção (perigoso)', class: '' },
+                ]
+            },
+
+            'metro_plataforma_leste': {
+                id: 'metro_plataforma_leste',
+                location: 'Nova Prospekt - Plataforma Leste',
+                turn: 2,
+                text: 'Um trem parado. As portas estão abertas. Alguns vagões estão cheios de bagagens.',
+                options: [
+                    { id: 'metro_vagao_bagagens', icon: '🧳', label: 'Revirar as bagagens (recursos)', class: 'success' },
+                    { id: 'metro_vagao_comida', icon: '🍖', label: 'Vagão 2 - Comida', class: '' },
+                    { id: 'metro_vagao_mutante', icon: '👾', label: 'Vagão 3 - Mutante', class: 'danger' },
+                    { id: 'metro_plataforma_oeste', icon: '🚉', label: 'Ir para a outra plataforma', class: '' },
+                ]
+            },
+
+            'metro_vagao_bagagens': {
+                id: 'metro_vagao_bagagens',
+                location: 'Nova Prospekt - Vagão de Bagagens',
+                turn: 3,
+                text: 'Malas e mochilas estão empilhadas. Alguém parece ter guardado coisas aqui.',
+                options: [
+                    { id: 'metro_recursos', icon: '✅', label: 'Revirar as malas (recursos)', class: 'success' },
+                    { id: 'metro_recursos2', icon: '✅', label: 'Pegar mochilas (recursos)', class: 'success' },
+                    { id: 'metro_plataforma_leste', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'metro_vagao_comida': {
+                id: 'metro_vagao_comida',
+                location: 'Nova Prospekt - Vagão Restaurante',
+                turn: 3,
+                text: 'Você encontra um vagão-restaurante com latas e alimentos.',
+                options: [
+                    { id: 'metro_recursos_comida', icon: '🍖', label: 'Pegar comida (recursos)', class: 'success' },
+                    { id: 'metro_recursos2', icon: '🔍', label: 'Procurar por itens melhores', class: 'success' },
+                    { id: 'metro_plataforma_leste', icon: '🔙', label: 'Sair do vagão', class: '' },
+                ]
+            },
+
+            'metro_vagao_mutante': {
+                id: 'metro_vagao_mutante',
+                location: 'Nova Prospekt - Vagão 3',
+                turn: 3,
+                text: 'Um <span class="danger">mutante</span> está no vagão seguinte. Ele está rasgando os bancos.',
+                options: [
+                    { id: 'combate_rastejador', icon: '⚔️', label: 'Batalhar', class: 'danger' },
+                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
+                    { id: 'fuga', icon: '🕵️', label: 'Passar por outro vagão', class: '' },
+                    { id: 'metro_plataforma_leste', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'metro_plataforma_oeste': {
+                id: 'metro_plataforma_oeste',
+                location: 'Nova Prospekt - Plataforma Oeste',
+                turn: 2,
+                text: 'O túnel é escuro e úmido. Há água no chão. Você ouve algo se arrastando.',
+                options: [
+                    { id: 'metro_tunel_escuro', icon: '🚇', label: 'Seguir pelo túnel (perigo)', class: 'danger' },
+                    { id: 'metro_recursos_lanterna', icon: '🔦', label: 'Usar lanterna (se tiver)', class: 'info' },
+                    { id: 'metro_entrada', icon: '🔙', label: 'Voltar para a plataforma', class: '' },
+                ]
+            },
+
+            'metro_tunel_escuro': {
+                id: 'metro_tunel_escuro',
+                location: 'Nova Prospekt - Túnel Escuro',
+                turn: 3,
+                text: 'Duas criaturas estão no túnel. Elas não te viram ainda.',
+                options: [
+                    { id: 'fuga', icon: '🕵️', label: 'Passar escondido (risco)', class: '' },
+                    { id: 'combate_rastejador', icon: '⚔️', label: 'Atacar (combate)', class: 'danger' },
+                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
+                    { id: 'metro_plataforma_oeste', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'metro_saida_tunel': {
+                id: 'metro_saida_tunel',
+                location: 'Nova Prospekt - Saída do Túnel',
+                turn: 4,
+                text: 'O túnel termina em uma saída de emergência. Você chega em outra parte da cidade.',
+                options: [
+                    { id: 'rua_inicio', icon: '🚪', label: 'Sair (nova área)', class: '' },
+                    { id: 'metro_plataforma_oeste', icon: '🔙', label: 'Voltar para o metrô', class: '' },
+                ]
+            },
+
+            'metro_sala_controle': {
+                id: 'metro_sala_controle',
+                location: 'Nova Prospekt - Sala de Controle',
+                turn: 2,
+                text: 'A sala de controle está cheia de monitores. Alguns ainda funcionam.',
+                options: [
+                    { id: 'metro_informacao', icon: '🖥️', label: 'Verificar os monitores (informação)', class: 'info' },
+                    { id: 'metro_recursos_mapa', icon: '🗺️', label: 'Procurar por mapas (informação)', class: 'info' },
+                    { id: 'metro_recursos2', icon: '🔍', label: 'Pegar objetos (recursos)', class: 'success' },
+                    { id: 'metro_entrada', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'metro_saida': {
+                id: 'metro_saida',
+                location: 'Nova Prospekt - Saída do Metrô',
+                turn: 2,
+                text: 'Você encontra uma saída do metrô que leva à superfície.',
+                options: [
+                    { id: 'rua_inicio', icon: '🚪', label: 'Sair para a rua', class: '' },
+                    { id: 'metro_entrada', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'metro_recursos': {
+                id: 'metro_recursos',
+                location: 'Nova Prospekt - Metrô',
+                turn: 0,
+                text: 'Você encontrou recursos! 🪚 Sucata e 🔧 Ferramentas.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.scrap += 3;
+                    Game.resources.energy = Math.min(100, Game.resources.energy + 5);
+                    showModal('📦 Recursos', 'Você encontrou 3 Sucata! +5 Energia.');
+                }
+            },
+
+            'metro_recursos2': {
+                id: 'metro_recursos2',
+                location: 'Nova Prospekt - Metrô',
+                turn: 0,
+                text: 'Você encontrou mais recursos! 💎 Peças Raras.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.rare_parts += 1;
+                    showModal('💎 Peças Raras', 'Você encontrou 1 Peça Rara!');
+                }
+            },
+
+            'metro_recursos_comida': {
+                id: 'metro_recursos_comida',
+                location: 'Nova Prospekt - Metrô',
+                turn: 0,
+                text: 'Você encontrou comida! 🍖 Biomassa.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.biomass += 2;
+                    Game.resources.hunger = Math.min(100, Game.resources.hunger + 10);
+                    showModal('🍖 Comida', 'Você encontrou 2 Biomassa! +10 Fome.');
+                }
+            },
+
+            'metro_recursos_lanterna': {
+                id: 'metro_recursos_lanterna',
+                location: 'Nova Prospekt - Metrô',
+                turn: 0,
+                text: 'Você encontrou uma lanterna! 🔦 Útil para lugares escuros.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.scrap += 1;
+                    showModal('🔦 Lanterna', 'Você encontrou uma lanterna! (contabilizada como Sucata)');
+                }
+            },
+
+            'metro_recursos_mapa': {
+                id: 'metro_recursos_mapa',
+                location: 'Nova Prospekt - Metrô',
+                turn: 0,
+                text: 'Você encontrou um mapa da cidade! 🗺️',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'info' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    showModal('🗺️ Mapa', 'Você encontrou um mapa de Nova Prospekt e Revelon!');
+                }
+            },
+
+            'metro_informacao': {
+                id: 'metro_informacao',
+                location: 'Nova Prospekt - Metrô',
+                turn: 0,
+                text: 'Os monitores mostram informações sobre a cidade.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Ler', class: 'info' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    showModal('🖥️ Informação', 'Os monitores mostram que Revelon tem um hospital com suprimentos.');
+                }
+            },
+
+            // ==========================================================
+            // ROTA 3: SEGUIR A RUA
+            // ==========================================================
+
+            'rua_inicio': {
+                id: 'rua_inicio',
+                location: 'Nova Prospekt - Rua Principal',
+                turn: 1,
+                text: 'Você anda pela rua principal. Carros abandonados bloqueiam o caminho. Prédios residenciais e lojas ladeiam a via.',
+                options: [
+                    { id: 'rua_casa', icon: '🏠', label: 'Casa Abandonada (residencial)', class: '' },
+                    { id: 'rua_loja_carros', icon: '🚗', label: 'Loja de Carros (concessionária)', class: '' },
+                    { id: 'rua_esgoto', icon: '🕳️', label: 'Esgoto (boca de lobo)', class: 'danger' },
+                    { id: 'rua_residencial', icon: '🏢', label: 'Prédio Residencial (apartamentos)', class: '' },
+                    { id: 'rua_seguir_reto', icon: '🚶', label: 'Seguir reto (continuar a rua)', class: '' },
+                ]
+            },
+
+            'rua_casa': {
+                id: 'rua_casa',
+                location: 'Nova Prospekt - Casa Abandonada',
+                turn: 2,
+                text: 'Uma casa comum. A sala está bagunçada. Há uma televisão quebrada e móveis caídos.',
+                options: [
+                    { id: 'rua_casa_sala', icon: '🛋️', label: 'Revirar os móveis (recursos)', class: 'success' },
+                    { id: 'rua_casa_cozinha', icon: '🍳', label: 'Procurar na cozinha (recursos)', class: '' },
+                    { id: 'rua_casa_quarto', icon: '🛏️', label: 'Ir para o quarto', class: '' },
+                    { id: 'rua_casa_porao', icon: '🔽', label: 'Ir para o porão', class: '' },
+                    { id: 'rua_inicio', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'rua_casa_sala': {
+                id: 'rua_casa_sala',
+                location: 'Nova Prospekt - Sala de Estar',
+                turn: 3,
+                text: 'A sala está cheia de objetos. O que fazer?',
+                options: [
+                    { id: 'rua_recursos', icon: '✅', label: 'Revirar tudo (recursos)', class: 'success' },
+                    { id: 'rua_casa', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'rua_casa_cozinha': {
+                id: 'rua_casa_cozinha',
+                location: 'Nova Prospekt - Cozinha',
+                turn: 3,
+                text: 'A cozinha tem armários abertos. Há latas e pacotes no chão.',
+                options: [
+                    { id: 'rua_recursos_comida', icon: '🍖', label: 'Pegar comida (recursos)', class: 'success' },
+                    { id: 'rua_recursos2', icon: '🔍', label: 'Verificar a geladeira', class: 'success' },
+                    { id: 'rua_casa', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'rua_casa_quarto': {
+                id: 'rua_casa_quarto',
+                location: 'Nova Prospekt - Quarto',
+                turn: 3,
+                text: 'Um quarto com uma cama desfeita. Há um guarda-roupa e uma escrivaninha.',
+                options: [
+                    { id: 'rua_recursos2', icon: '🔍', label: 'Revirar o guarda-roupa', class: 'success' },
+                    { id: 'rua_recursos', icon: '🔍', label: 'Verificar a escrivaninha', class: 'success' },
+                    { id: 'rua_casa', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'rua_casa_porao': {
+                id: 'rua_casa_porao',
+                location: 'Nova Prospekt - Porão',
+                turn: 3,
+                text: 'O porão está escuro e úmido. Há caixas e objetos antigos.',
+                options: [
+                    { id: 'rua_recursos', icon: '📦', label: 'Explorar as caixas (recursos)', class: 'success' },
+                    { id: 'rua_recursos_ferramenta', icon: '🔧', label: 'Pegar ferramentas', class: 'success' },
+                    { id: 'rua_casa', icon: '🔙', label: 'Voltar', class: '' },
+                    { id: 'combate_rastejador', icon: '👾', label: 'Cuidado: pode ter mutantes', class: 'danger' },
+                ]
+            },
+
+            'rua_loja_carros': {
+                id: 'rua_loja_carros',
+                location: 'Nova Prospekt - Concessionária',
+                turn: 2,
+                text: 'A concessionária está cheia de carros novos e velhos. Alguns estão destruídos.',
+                options: [
+                    { id: 'rua_recursos', icon: '🔍', label: 'Revirar os carros (recursos)', class: 'success' },
+                    { id: 'rua_recursos2', icon: '🔍', label: 'Verificar o escritório', class: 'success' },
+                    { id: 'rua_recursos_pecas', icon: '⚙️', label: 'Procurar peças (recursos)', class: 'success' },
+                    { id: 'rua_inicio', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'rua_recursos_pecas': {
+                id: 'rua_recursos_pecas',
+                location: 'Nova Prospekt - Oficina',
+                turn: 3,
+                text: 'A oficina tem ferramentas e peças de carro.',
+                options: [
+                    { id: 'rua_recursos_ferramenta', icon: '🔧', label: 'Pegar ferramentas', class: 'success' },
+                    { id: 'rua_recursos_raros', icon: '💎', label: 'Procurar peças raras', class: 'success' },
+                    { id: 'rua_loja_carros', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'rua_esgoto': {
+                id: 'rua_esgoto',
+                location: 'Nova Prospekt - Esgoto',
+                turn: 2,
+                text: 'Você desce pelo esgoto. O cheiro é horrível. Há água e lodo por toda parte.',
+                options: [
+                    { id: 'rua_esgoto_explorar', icon: '🔍', label: 'Explorar o esgoto (recursos)', class: '' },
+                    { id: 'rua_esgoto_saida', icon: '🚪', label: 'Procurar saídas', class: '' },
+                    { id: 'rua_inicio', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'rua_esgoto_explorar': {
+                id: 'rua_esgoto_explorar',
+                location: 'Nova Prospekt - Túnel de Esgoto',
+                turn: 3,
+                text: 'Há <span class="danger">criaturas mutantes</span> no esgoto. Elas estão se alimentando de lixo.',
+                options: [
+                    { id: 'fuga', icon: '🕵️', label: 'Passar escondido (risco)', class: '' },
+                    { id: 'combate_rastejador', icon: '⚔️', label: 'Lutar (combate)', class: 'danger' },
+                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
+                    { id: 'rua_esgoto', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'rua_esgoto_saida': {
+                id: 'rua_esgoto_saida',
+                location: 'Nova Prospekt - Saída do Esgoto',
+                turn: 3,
+                text: 'O esgoto leva a um rio poluído.',
+                options: [
+                    { id: 'rua_rio', icon: '🌊', label: 'Seguir o rio (nova área)', class: '' },
+                    { id: 'rua_inicio', icon: '🔙', label: 'Voltar para a rua', class: '' },
+                ]
+            },
+
+            'rua_rio': {
+                id: 'rua_rio',
+                location: 'Nova Prospekt - Rio Poluído',
+                turn: 4,
+                text: 'O rio está cheio de lixo e água escura. Há uma margem estreita.',
+                options: [
+                    { id: 'rua_recursos', icon: '🔍', label: 'Explorar a margem (recursos)', class: 'success' },
+                    { id: 'rua_recursos2', icon: '🔍', label: 'Procurar restos de naufrágios', class: 'success' },
+                    { id: 'rua_esgoto_saida', icon: '🔙', label: 'Voltar para o esgoto', class: '' },
+                ]
+            },
+
+            'rua_residencial': {
+                id: 'rua_residencial',
+                location: 'Nova Prospekt - Prédio Residencial',
+                turn: 2,
+                text: 'O hall do prédio tem elevadores quebrados e uma escada.',
+                options: [
+                    { id: 'rua_residencial_andar', icon: '⬆️', label: 'Subir a escada (apartamentos)', class: '' },
+                    { id: 'rua_recursos2', icon: '🔍', label: 'Verificar a portaria (recursos)', class: 'success' },
+                    { id: 'rua_residencial_garagem', icon: '🔽', label: 'Ir para o subsolo (garagem)', class: '' },
+                    { id: 'rua_inicio', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'rua_residencial_andar': {
+                id: 'rua_residencial_andar',
+                location: 'Nova Prospekt - Apartamento 101',
+                turn: 3,
+                text: 'Um apartamento no primeiro andar. Parece que alguém viveu aqui recentemente.',
+                options: [
+                    { id: 'rua_recursos', icon: '🔍', label: 'Revirar o apartamento', class: 'success' },
+                    { id: 'rua_recursos_comida', icon: '🍖', label: 'Procurar comida', class: 'success' },
+                    { id: 'rua_residencial', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'rua_residencial_garagem': {
+                id: 'rua_residencial_garagem',
+                location: 'Nova Prospekt - Garagem',
+                turn: 3,
+                text: 'A garagem está cheia de carros abandonados.',
+                options: [
+                    { id: 'rua_recursos', icon: '🔍', label: 'Revirar os carros (recursos)', class: 'success' },
+                    { id: 'rua_recursos_pecas', icon: '⚙️', label: 'Procurar peças', class: 'success' },
+                    { id: 'rua_residencial', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'rua_seguir_reto': {
+                id: 'rua_seguir_reto',
+                location: 'Nova Prospekt - Praça da Cidade',
+                turn: 2,
+                text: 'Você chega a uma praça central. Há uma estátua destruída e bancos quebrados.',
+                options: [
+                    { id: 'rua_recursos', icon: '🔍', label: 'Explorar a praça (recursos)', class: 'success' },
+                    { id: 'rua_informacao', icon: '📖', label: 'Procurar pistas (informação)', class: 'info' },
+                    { id: 'ponte_inicio', icon: '🌉', label: 'Seguir para a ponte', class: '' },
+                    { id: 'rua_inicio', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'rua_recursos': {
+                id: 'rua_recursos',
+                location: 'Nova Prospekt - Rua',
+                turn: 0,
+                text: 'Você encontrou recursos! 🪚 Sucata e 🧴 Plástico.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.scrap += 2;
+                    Game.resources.plastic += 1;
+                    Game.resources.energy = Math.min(100, Game.resources.energy + 5);
+                    showModal('📦 Recursos', 'Você encontrou 2 Sucata e 1 Plástico! +5 Energia.');
+                }
+            },
+
+            'rua_recursos2': {
+                id: 'rua_recursos2',
+                location: 'Nova Prospekt - Rua',
+                turn: 0,
+                text: 'Você encontrou mais recursos! 🧴 Plástico e 💧 Água.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.plastic += 1;
+                    Game.resources.water += 2;
+                    showModal('💧 Recursos', 'Você encontrou 1 Plástico e 2 Água Poluída.');
+                }
+            },
+
+            'rua_recursos_comida': {
+                id: 'rua_recursos_comida',
+                location: 'Nova Prospekt - Rua',
+                turn: 0,
+                text: 'Você encontrou comida! 🍖 Biomassa.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.biomass += 2;
+                    Game.resources.hunger = Math.min(100, Game.resources.hunger + 10);
+                    showModal('🍖 Comida', 'Você encontrou 2 Biomassa! +10 Fome.');
+                }
+            },
+
+            'rua_recursos_ferramenta': {
+                id: 'rua_recursos_ferramenta',
+                location: 'Nova Prospekt - Rua',
+                turn: 0,
+                text: 'Você encontrou ferramentas! 🔧',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.scrap += 3;
+                    showModal('🔧 Ferramentas', 'Você encontrou 3 Sucata (ferramentas).');
+                }
+            },
+
+            'rua_recursos_raros': {
+                id: 'rua_recursos_raros',
+                location: 'Nova Prospekt - Rua',
+                turn: 0,
+                text: 'Você encontrou itens raros! 💎 Peças Raras.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.rare_parts += 2;
+                    Game.resources.energy = Math.min(100, Game.resources.energy + 10);
+                    showModal('💎 Itens Raros', 'Você encontrou 2 Peças Raras! +10 Energia.');
+                }
+            },
+
+            'rua_informacao': {
+                id: 'rua_informacao',
+                location: 'Nova Prospekt - Rua',
+                turn: 0,
+                text: 'Você encontrou informações sobre a cidade.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Ler', class: 'info' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    showModal('📖 Informação', 'Você descobre que a ponte leva a Revelon.');
+                }
+            },
+
+            // ==========================================================
+            // ROTA 4: PONTE
+            // ==========================================================
+
+            'ponte_inicio': {
+                id: 'ponte_inicio',
+                location: 'Nova Prospekt - Grande Ponte',
+                turn: 1,
+                text: 'A ponte se estende por quilômetros sobre o rio poluído. Há carros abandonados e você pode ver a outra cidade ao longe.',
+                options: [
+                    { id: 'ponte_atravessar', icon: '🚶', label: 'Atravessar a ponte (para Revelon)', class: '' },
+                    { id: 'ponte_carros', icon: '🚗', label: 'Explorar os carros na ponte', class: '' },
+                    { id: 'ponte_rio', icon: '🌊', label: 'Descer para o rio (perigoso)', class: 'danger' },
+                    { id: 'start', icon: '🔙', label: 'Voltar para Nova Prospekt', class: '' },
+                ]
+            },
+
+            'ponte_atravessar': {
+                id: 'ponte_atravessar',
+                location: 'Ponte - Meio',
+                turn: 2,
+                text: 'Você chega ao meio da ponte. A estrutura está enferrujada. Você ouve algo se movendo.',
+                options: [
+                    { id: 'ponte_chegada_revelon', icon: '🚶', label: 'Continuar atravessando', class: '' },
+                    { id: 'ponte_carros', icon: '🔍', label: 'Verificar o que está se movendo (perigo)', class: 'danger' },
+                    { id: 'ponte_recursos', icon: '🔍', label: 'Procurar objetos (recursos)', class: 'success' },
+                    { id: 'ponte_inicio', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'ponte_chegada_revelon': {
+                id: 'ponte_chegada_revelon',
+                location: 'Revelon - Chegada',
+                turn: 3,
+                text: 'Você finalmente chega ao outro lado. <span class="location-name">Revelon</span> está à sua frente. A cidade é maior que Nova Prospekt.',
+                options: [
+                    { id: 'revelon_entrada', icon: '🏙️', label: 'Entrar em Revelon', class: '' },
+                    { id: 'ponte_inicio', icon: '🔙', label: 'Voltar para Nova Prospekt', class: '' },
+                ]
+            },
+
+            'ponte_carros': {
+                id: 'ponte_carros',
+                location: 'Ponte - Carros Abandonados',
+                turn: 2,
+                text: 'Há muitos carros na ponte. Alguns estão com portas abertas.',
+                options: [
+                    { id: 'ponte_recursos', icon: '🔍', label: 'Revirar os carros (recursos)', class: 'success' },
+                    { id: 'ponte_recursos_combustivel', icon: '🛢️', label: 'Pegar combustível', class: 'success' },
+                    { id: 'ponte_atravessar', icon: '🔙', label: 'Ignorar e seguir', class: '' },
+                ]
+            },
+
+            'ponte_recursos': {
+                id: 'ponte_recursos',
+                location: 'Ponte - Carros',
+                turn: 0,
+                text: 'Você encontrou recursos nos carros! 🪚 Sucata e 🔧 Ferramentas.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.scrap += 3;
+                    Game.resources.energy = Math.min(100, Game.resources.energy + 5);
+                    showModal('📦 Recursos', 'Você encontrou 3 Sucata! +5 Energia.');
+                }
+            },
+
+            'ponte_recursos_combustivel': {
+                id: 'ponte_recursos_combustivel',
+                location: 'Ponte - Carros',
+                turn: 0,
+                text: 'Você encontrou combustível! 🛢️',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.energy = Math.min(100, Game.resources.energy + 15);
+                    showModal('🛢️ Combustível', 'Você encontrou combustível! +15 Energia.');
+                }
+            },
+
+            'ponte_rio': {
+                id: 'ponte_rio',
+                location: 'Ponte - Rio Poluído',
+                turn: 2,
+                text: 'O rio está cheio de lixo e água escura. Há uma margem estreita.',
+                options: [
+                    { id: 'ponte_recursos', icon: '🔍', label: 'Explorar a margem (recursos)', class: 'success' },
+                    { id: 'ponte_recursos2', icon: '🔍', label: 'Procurar restos de naufrágios', class: 'success' },
+                    { id: 'ponte_inicio', icon: '🔙', label: 'Voltar para a ponte', class: '' },
+                ]
+            },
+
+            'ponte_recursos2': {
+                id: 'ponte_recursos2',
+                location: 'Ponte - Naufrágio',
+                turn: 0,
+                text: 'Um barco naufragado está na margem.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Revirar o barco (recursos)', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Ignorar', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.scrap += 2;
+                    Game.resources.rare_parts += 1;
+                    showModal('🚢 Naufrágio', 'Você encontrou 2 Sucata e 1 Peça Rara!');
+                }
+            },
+
+            // ==========================================================
+            // REVELON
+            // ==========================================================
+
+            'revelon_entrada': {
+                id: 'revelon_entrada',
+                location: 'Revelon',
+                turn: 3,
+                text: 'Bem-vindo a <span class="location-name">Revelon</span>. A cidade é maior que Nova Prospekt. Há prédios altos e uma atmosfera mais densa.',
+                options: [
+                    { id: 'revelon_shopping', icon: '🛍️', label: 'Centro Comercial (shopping)', class: '' },
+                    { id: 'revelon_trem', icon: '🚆', label: 'Estação de Trem', class: '' },
+                    { id: 'revelon_hospital', icon: '🏥', label: 'Hospital Abandonado', class: '' },
+                    { id: 'revelon_industrial', icon: '🏭', label: 'Parque Industrial', class: '' },
+                    { id: 'revelon_residencial', icon: '🏘️', label: 'Bairro Residencial', class: '' },
+                    { id: 'ponte_inicio', icon: '🔙', label: 'Voltar para Nova Prospekt', class: '' },
+                ]
+            },
+
+            'revelon_shopping': {
+                id: 'revelon_shopping',
+                location: 'Revelon - Shopping',
+                turn: 4,
+                text: 'O shopping está destruído. Lojas saqueadas e vitrines quebradas.',
+                options: [
+                    { id: 'revelon_shopping_lojas', icon: '🛍️', label: 'Explorar as lojas (recursos)', class: 'success' },
+                    { id: 'revelon_shopping_cinema', icon: '🎬', label: 'Ir para o cinema (evento)', class: '' },
+                    { id: 'revelon_shopping_comida', icon: '🍽️', label: 'Praça de alimentação', class: '' },
+                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'revelon_shopping_lojas': {
+                id: 'revelon_shopping_lojas',
+                location: 'Revelon - Loja de Eletrônicos',
+                turn: 5,
+                text: 'Uma loja de eletrônicos. Itens espalhados.',
+                options: [
+                    { id: 'revelon_recursos_eletronicos', icon: '💻', label: 'Pegar eletrônicos', class: 'success' },
+                    { id: 'revelon_recursos_bateria', icon: '🔋', label: 'Procurar baterias', class: 'success' },
+                    { id: 'revelon_shopping', icon: '🔙', label: 'Ignorar', class: '' },
+                ]
+            },
+
+            'revelon_shopping_comida': {
+                id: 'revelon_shopping_comida',
+                location: 'Revelon - Praça de Alimentação',
+                turn: 5,
+                text: 'Restaurantes abandonados. Comida estragada.',
+                options: [
+                    { id: 'revelon_recursos_comida', icon: '🍖', label: 'Procurar comida', class: 'success' },
+                    { id: 'revelon_recursos2', icon: '🔍', label: 'Verificar cozinhas', class: 'success' },
+                    { id: 'revelon_shopping', icon: '🔙', label: 'Ignorar', class: '' },
+                ]
+            },
+
+            'revelon_shopping_cinema': {
+                id: 'revelon_shopping_cinema',
+                location: 'Revelon - Cinema',
+                turn: 5,
+                text: 'Um <span class="danger">mutante</span> está no cinema assistindo a tela quebrada.',
+                options: [
+                    { id: 'fuga', icon: '🕵️', label: 'Passar silenciosamente', class: '' },
+                    { id: 'combate_rastejador', icon: '⚔️', label: 'Atacar', class: 'danger' },
+                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
+                    { id: 'revelon_shopping', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'revelon_trem': {
+                id: 'revelon_trem',
+                location: 'Revelon - Estação de Trem',
+                turn: 4,
+                text: 'A estação está vazia. Há um trem parado.',
+                options: [
+                    { id: 'revelon_trem_vagoes', icon: '🚆', label: 'Explorar o trem (recursos)', class: 'success' },
+                    { id: 'revelon_recursos2', icon: '🔍', label: 'Verificar a sala de espera', class: 'success' },
+                    { id: 'revelon_recursos_mapa', icon: '🗺️', label: 'Procurar por mapas', class: 'info' },
+                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'revelon_trem_vagoes': {
+                id: 'revelon_trem_vagoes',
+                location: 'Revelon - Trem',
+                turn: 5,
+                text: 'O trem tem vários vagões. O que fazer?',
+                options: [
+                    { id: 'revelon_recursos', icon: '🔍', label: 'Explorar vagões', class: 'success' },
+                    { id: 'revelon_recursos2', icon: '🔍', label: 'Procurar por passageiros', class: '' },
+                    { id: 'revelon_recursos_raros', icon: '💎', label: 'Ir para a cabine', class: 'success' },
+                    { id: 'revelon_trem', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'revelon_hospital': {
+                id: 'revelon_hospital',
+                location: 'Revelon - Hospital',
+                turn: 4,
+                text: 'O hospital está destruído. Há macas e equipamentos quebrados.',
+                options: [
+                    { id: 'revelon_hospital_recepcao', icon: '🏥', label: 'Explorar a recepção', class: '' },
+                    { id: 'revelon_hospital_emergencia', icon: '🚑', label: 'Pronto-Socorro', class: '' },
+                    { id: 'revelon_hospital_laboratorio', icon: '🔬', label: 'Laboratório', class: '' },
+                    { id: 'revelon_hospital_isolamento', icon: '⚠️', label: 'Ala de Isolamento (perigo)', class: 'danger' },
+                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'revelon_hospital_recepcao': {
+                id: 'revelon_hospital_recepcao',
+                location: 'Revelon - Recepção',
+                turn: 5,
+                text: 'A recepção está destruída. Há papéis e objetos.',
+                options: [
+                    { id: 'revelon_recursos2', icon: '🔍', label: 'Revirar tudo (recursos)', class: 'success' },
+                    { id: 'revelon_recursos_medicina', icon: '💊', label: 'Procurar remédios', class: 'success' },
+                    { id: 'revelon_hospital', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'revelon_hospital_emergencia': {
+                id: 'revelon_hospital_emergencia',
+                location: 'Revelon - Pronto-Socorro',
+                turn: 5,
+                text: 'Há kits médicos e remédios.',
+                options: [
+                    { id: 'revelon_recursos_medicina', icon: '💊', label: 'Pegar kits médicos', class: 'success' },
+                    { id: 'revelon_recursos_medicina2', icon: '💊', label: 'Pegar remédios', class: 'success' },
+                    { id: 'revelon_hospital', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'revelon_hospital_laboratorio': {
+                id: 'revelon_hospital_laboratorio',
+                location: 'Revelon - Laboratório',
+                turn: 5,
+                text: 'O laboratório tem equipamentos científicos.',
+                options: [
+                    { id: 'revelon_recursos_eletronicos', icon: '🔬', label: 'Pegar equipamentos', class: 'success' },
+                    { id: 'revelon_informacao', icon: '📖', label: 'Procurar amostras', class: 'info' },
+                    { id: 'revelon_hospital', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'revelon_hospital_isolamento': {
+                id: 'revelon_hospital_isolamento',
+                location: 'Revelon - Ala de Isolamento',
+                turn: 5,
+                text: 'Mutantes estão na ala de isolamento. Eles estão presos.',
+                options: [
+                    { id: 'fuga', icon: '🕵️', label: 'Passar em silêncio', class: '' },
+                    { id: 'revelon_informacao', icon: '🔍', label: 'Estudar os mutantes', class: 'info' },
+                    { id: 'revelon_hospital', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'revelon_recursos_medicina': {
+                id: 'revelon_recursos_medicina',
+                location: 'Revelon - Hospital',
+                turn: 0,
+                text: 'Você encontrou medicamentos! 💊',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.medicine = (Game.resources.medicine || 0) + 3;
+                    Game.resources.contamination = Math.max(0, Game.resources.contamination - 10);
+                    showModal('💊 Medicamentos', 'Você encontrou 3 Medicamentos! -10 Contaminação.');
+                }
+            },
+
+            'revelon_recursos_medicina2': {
+                id: 'revelon_recursos_medicina2',
+                location: 'Revelon - Hospital',
+                turn: 0,
+                text: 'Você encontrou mais medicamentos! 💊',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.medicine = (Game.resources.medicine || 0) + 2;
+                    showModal('💊 Medicamentos', 'Você encontrou 2 Medicamentos!');
+                }
+            },
+
+            'revelon_industrial': {
+                id: 'revelon_industrial',
+                location: 'Revelon - Parque Industrial',
+                turn: 4,
+                text: 'Uma fábrica abandonada. Máquinas enferrujadas.',
+                options: [
+                    { id: 'revelon_industrial_fabrica', icon: '🏭', label: 'Explorar a fábrica', class: '' },
+                    { id: 'revelon_industrial_deposito', icon: '🛢️', label: 'Depósito de Produtos Químicos', class: 'danger' },
+                    { id: 'revelon_recursos_pecas', icon: '⚙️', label: 'Procurar peças', class: 'success' },
+                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'revelon_industrial_fabrica': {
+                id: 'revelon_industrial_fabrica',
+                location: 'Revelon - Fábrica',
+                turn: 5,
+                text: 'A fábrica está cheia de máquinas e sucata.',
+                options: [
+                    { id: 'revelon_recursos', icon: '🔍', label: 'Explorar a fábrica (recursos)', class: 'success' },
+                    { id: 'revelon_recursos_pecas', icon: '⚙️', label: 'Procurar peças', class: 'success' },
+                    { id: 'revelon_recursos2', icon: '🔍', label: 'Ir para o escritório', class: 'success' },
+                    { id: 'revelon_industrial', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'revelon_industrial_deposito': {
+                id: 'revelon_industrial_deposito',
+                location: 'Revelon - Depósito Químico',
+                turn: 5,
+                text: 'Há barris de produtos químicos. Muito perigoso!',
+                options: [
+                    { id: 'revelon_recursos_quimicos', icon: '🧪', label: 'Pegar produtos (risco)', class: 'danger' },
+                    { id: 'revelon_industrial', icon: '🔙', label: 'Ignorar', class: '' },
+                ]
+            },
+
+            'revelon_recursos_quimicos': {
+                id: 'revelon_recursos_quimicos',
+                location: 'Revelon - Depósito',
+                turn: 0,
+                text: 'Você pegou produtos químicos! ⚠️ Risco de contaminação.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'danger' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    if (chance(50)) {
+                        Game.resources.contamination = Math.min(100, Game.resources.contamination + 15);
+                        showModal('⚠️ Contaminação', 'Você se contaminou com produtos químicos! +15% Contaminação.');
+                    } else {
+                        Game.resources.rare_parts += 2;
+                        showModal('🧪 Produtos Químicos', 'Você encontrou 2 Peças Raras!');
+                    }
+                }
+            },
+
+            'revelon_residencial': {
+                id: 'revelon_residencial',
+                location: 'Revelon - Bairro Residencial',
+                turn: 4,
+                text: 'Casas abandonadas. Ruas vazias.',
+                options: [
+                    { id: 'revelon_residencial_casas', icon: '🏠', label: 'Explorar casas (recursos)', class: 'success' },
+                    { id: 'revelon_residencial_escola', icon: '🏫', label: 'Escola Abandonada', class: '' },
+                    { id: 'revelon_residencial_igreja', icon: '⛪', label: 'Igreja', class: '' },
+                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'revelon_residencial_casas': {
+                id: 'revelon_residencial_casas',
+                location: 'Revelon - Casas',
+                turn: 5,
+                text: 'Casas abandonadas. O que fazer?',
+                options: [
+                    { id: 'revelon_recursos', icon: '🔍', label: 'Explorar casas (recursos)', class: 'success' },
+                    { id: 'revelon_recursos_comida', icon: '🍖', label: 'Procurar por suprimentos', class: 'success' },
+                    { id: 'revelon_recursos2', icon: '🔽', label: 'Verificar porões', class: 'success' },
+                    { id: 'revelon_residencial', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'revelon_residencial_escola': {
+                id: 'revelon_residencial_escola',
+                location: 'Revelon - Escola',
+                turn: 5,
+                text: 'Uma escola abandonada. Salas de aula vazias.',
+                options: [
+                    { id: 'revelon_recursos2', icon: '🔍', label: 'Explorar salas de aula', class: 'success' },
+                    { id: 'revelon_recursos_mapa', icon: '📚', label: 'Procurar na biblioteca', class: 'info' },
+                    { id: 'revelon_recursos', icon: '🏀', label: 'Ir para o ginásio', class: 'success' },
+                    { id: 'revelon_residencial', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'revelon_recursos_mapa': {
+                id: 'revelon_recursos_mapa',
+                location: 'Revelon - Biblioteca',
+                turn: 0,
+                text: 'Livros espalhados. Há mapas e documentos.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar mapas', class: 'info' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    showModal('🗺️ Mapas', 'Você encontrou mapas detalhados de Revelon!');
+                }
+            },
+
+            'revelon_residencial_igreja': {
+                id: 'revelon_residencial_igreja',
+                location: 'Revelon - Igreja',
+                turn: 5,
+                text: 'Uma igreja abandonada. O silêncio é pesado.',
+                options: [
+                    { id: 'revelon_recursos', icon: '🔍', label: 'Explorar (recursos)', class: 'success' },
+                    { id: 'revelon_informacao', icon: '📖', label: 'Procurar abrigo', class: 'info' },
+                    { id: 'revelon_residencial', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'revelon_recursos': {
+                id: 'revelon_recursos',
+                location: 'Revelon',
+                turn: 0,
+                text: 'Você encontrou recursos! 🪚 Sucata e 🧴 Plástico.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.scrap += 3;
+                    Game.resources.plastic += 2;
+                    Game.resources.energy = Math.min(100, Game.resources.energy + 5);
+                    showModal('📦 Recursos', 'Você encontrou 3 Sucata e 2 Plástico! +5 Energia.');
+                }
+            },
+
+            'revelon_recursos2': {
+                id: 'revelon_recursos2',
+                location: 'Revelon',
+                turn: 0,
+                text: 'Você encontrou mais recursos! 💧 Água e 🍖 Biomassa.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.water += 2;
+                    Game.resources.biomass += 2;
+                    showModal('💧 Recursos', 'Você encontrou 2 Água e 2 Biomassa!');
+                }
+            },
+
+            'revelon_recursos_comida': {
+                id: 'revelon_recursos_comida',
+                location: 'Revelon',
+                turn: 0,
+                text: 'Você encontrou comida! 🍖 Biomassa.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.biomass += 3;
+                    Game.resources.hunger = Math.min(100, Game.resources.hunger + 15);
+                    showModal('🍖 Comida', 'Você encontrou 3 Biomassa! +15 Fome.');
+                }
+            },
+
+            'revelon_recursos_raros': {
+                id: 'revelon_recursos_raros',
+                location: 'Revelon',
+                turn: 0,
+                text: 'Você encontrou itens raros! 💎 Peças Raras.',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.rare_parts += 2;
+                    Game.resources.energy = Math.min(100, Game.resources.energy + 10);
+                    showModal('💎 Itens Raros', 'Você encontrou 2 Peças Raras! +10 Energia.');
+                }
+            },
+
+            'revelon_recursos_pecas': {
+                id: 'revelon_recursos_pecas',
+                location: 'Revelon',
+                turn: 0,
+                text: 'Você encontrou peças de máquinas! ⚙️',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.rare_parts += 3;
+                    showModal('⚙️ Peças', 'Você encontrou 3 Peças Raras!');
+                }
+            },
+
+            'revelon_recursos_eletronicos': {
+                id: 'revelon_recursos_eletronicos',
+                location: 'Revelon',
+                turn: 0,
+                text: 'Você encontrou eletrônicos! 💻',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.rare_parts += 2;
+                    Game.resources.energy = Math.min(100, Game.resources.energy + 5);
+                    showModal('💻 Eletrônicos', 'Você encontrou 2 Peças Raras (eletrônicos)! +5 Energia.');
+                }
+            },
+
+            'revelon_recursos_bateria': {
+                id: 'revelon_recursos_bateria',
+                location: 'Revelon',
+                turn: 0,
+                text: 'Você encontrou baterias! 🔋',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    Game.resources.energy = Math.min(100, Game.resources.energy + 20);
+                    showModal('🔋 Baterias', 'Você encontrou baterias! +20 Energia.');
+                }
+            },
+
+            'revelon_informacao': {
+                id: 'revelon_informacao',
+                location: 'Revelon',
+                turn: 0,
+                text: 'Você encontrou informações valiosas! 📖',
+                options: [
+                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Ler', class: 'info' },
+                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
+                ],
+                onEnter: () => {
+                    showModal('📖 Informação', 'Você descobre que há um bunker secreto em Revelon.');
+                }
+            },
+
+            // ==========================================================
+            // COMBATE (genérico)
+            // ==========================================================
+
+            'combate_rastejador': {
+                id: 'combate_rastejador',
+                location: 'Combate',
+                turn: 0,
+                text: '⚔️ COMBATE INICIADO!',
+                options: [],
+                isCombat: true,
+                combatEnemy: 'Rastejador'
+            },
+
+            'combate_triturador': {
+                id: 'combate_triturador',
+                location: 'Combate',
+                turn: 0,
+                text: '⚔️ COMBATE INICIADO!',
+                options: [],
+                isCombat: true,
+                combatEnemy: 'Triturador'
+            },
+
+            'combate_sibila': {
+                id: 'combate_sibila',
+                location: 'Combate',
+                turn: 0,
+                text: '⚔️ COMBATE INICIADO!',
+                options: [],
+                isCombat: true,
+                combatEnemy: 'Sibila'
+            },
+
+            'combate_colosso': {
+                id: 'combate_colosso',
+                location: 'Combate',
+                turn: 0,
+                text: '⚔️ COMBATE INICIADO!',
+                options: [],
+                isCombat: true,
+                combatEnemy: 'Colosso'
+            },
+
+            'combate_espectro': {
+                id: 'combate_espectro',
+                location: 'Combate',
+                turn: 0,
+                text: '⚔️ COMBATE INICIADO!',
+                options: [],
+                isCombat: true,
+                combatEnemy: 'Espectro'
+            },
+
+            // ==========================================================
+            // AÇÕES GENÉRICAS
+            // ==========================================================
+
+            'fuga': {
+                id: 'fuga',
+                location: 'Fuga',
+                turn: 0,
+                text: 'Você tentou fugir ou se esconder...',
+                options: [],
+                isFlee: true,
+            },
+
+            'voltar_para_onde_veio': {
+                id: 'voltar_para_onde_veio',
+                location: 'Voltar',
+                turn: 0,
+                text: 'Voltando...',
+                options: [],
+                isReturn: true,
+            },
+
+        };
+
+        // ============================================================
+        // REFERÊNCIAS DOM
+        // ============================================================
+
         const DOM = {};
 
         function cacheDOM() {
@@ -1300,7 +2736,7 @@
             };
 
             DOM.surface = {
-                zone: document.getElementById('surface-zone'),
+                location: document.getElementById('surface-location'),
                 danger: document.getElementById('surface-danger'),
                 turn: document.getElementById('surface-turn'),
                 oxygen: document.getElementById('surface-oxygen'),
@@ -1365,7 +2801,7 @@
         }
 
         // ===== MODAL =====
-        function showModal(title, text, onOk = null, onCancel = null) {
+        function showModal(title, text, onOk = null) {
             Game.eventLock = true;
             DOM.modal.title.textContent = title;
             DOM.modal.text.textContent = text;
@@ -1378,16 +2814,13 @@
                 renderAll();
             };
 
-            DOM.modal.btnCancel.style.display = onCancel ? 'inline-block' : 'none';
-            DOM.modal.btnCancel.onclick = () => {
-                DOM.modal.overlay.classList.remove('active');
-                Game.eventLock = false;
-                if (onCancel) onCancel();
-                renderAll();
-            };
+            DOM.modal.btnCancel.style.display = 'none';
         }
 
-        // ===== RENDERIZAÇÃO =====
+        // ============================================================
+        // RENDERIZAÇÃO
+        // ============================================================
+
         function renderAll() {
             renderHeader();
             renderBunker();
@@ -1433,7 +2866,7 @@
             const s = Game.surface;
             const r = Game.resources;
 
-            DOM.surface.zone.textContent = s.currentLocation || 'Zona de Risco';
+            DOM.surface.location.textContent = s.currentLocation || 'Nova Prospekt';
             DOM.surface.danger.textContent = `⚠️ PERIGO: ${s.danger}%`;
             DOM.surface.danger.className = 'danger-level ' + (s.danger < 40 ? 'safe' : '');
 
@@ -1449,7 +2882,7 @@
             const container = DOM.surface.narrative;
             const s = Game.surface;
 
-            if (s.narrative.length === 0 && !s.isExploring) {
+            if (!s.currentScenario || !SCENARIOS[s.currentScenario]) {
                 container.innerHTML = `
                     <div class="narrative-text" style="border-color:#666;color:#666;text-align:center;padding:30px;">
                         🌫️ A superfície está em silêncio...
@@ -1459,37 +2892,37 @@
                 return;
             }
 
+            const scenario = SCENARIOS[s.currentScenario];
             let html = '';
-            s.narrative.forEach((entry, idx) => {
-                if (entry.type === 'text') {
-                    html += `<div class="narrative-text">${entry.content}</div>`;
-                } else if (entry.type === 'options') {
-                    html += `<div class="narrative-options">`;
-                    entry.options.forEach((opt, oidx) => {
-                        const cls = opt.class || '';
-                        html += `
-                            <button class="${cls}" data-opt="${idx}" data-optidx="${oidx}">
-                                <span class="opt-icon">${opt.icon || '➡️'}</span>
-                                ${opt.label}
-                            </button>
-                        `;
-                    });
-                    html += `</div>`;
-                }
-            });
+
+            // Texto da narrativa
+            html += `<div class="narrative-text">${scenario.text}</div>`;
+
+            // Opções
+            if (scenario.options && scenario.options.length > 0) {
+                html += `<div class="narrative-options">`;
+                scenario.options.forEach(opt => {
+                    const cls = opt.class || '';
+                    html += `
+                        <button class="${cls}" data-optid="${opt.id}">
+                            <span class="opt-icon">${opt.icon || '➡️'}</span>
+                            ${opt.label}
+                        </button>
+                    `;
+                });
+                html += `</div>`;
+            }
 
             container.innerHTML = html;
 
             // Bind dos botões
             container.querySelectorAll('.narrative-options button').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const entryIdx = parseInt(this.dataset.opt);
-                    const optIdx = parseInt(this.dataset.optidx);
-                    handleNarrativeChoice(entryIdx, optIdx);
+                    const optId = this.dataset.optid;
+                    handleChoice(optId);
                 });
             });
 
-            // Scroll para o final
             container.scrollTop = container.scrollHeight;
         }
 
@@ -1500,294 +2933,8 @@
         }
 
         // ============================================================
-        //  NARRATIVA DA SUPERFÍCIE
+        // COMBATE
         // ============================================================
-
-        function startSurfaceExploration() {
-            if (Game.cycle === 'night') {
-                showModal('🌙 Noite Perigosa',
-                    'A noite é muito perigosa! Espere o dia amanhecer para explorar.');
-                return;
-            }
-
-            if (Game.resources.oxygen < 20) {
-                showModal('⚠️ Oxigênio Baixo',
-                    'Seu oxigênio está muito baixo. Recarregue no bunker.');
-                return;
-            }
-
-            // Resetar superfície
-            Game.surface.turn = 1;
-            Game.surface.maxTurns = 10;
-            Game.surface.danger = Game.cycle === 'day' ? random(20, 40) : random(50, 80);
-            Game.surface.narrative = [];
-            Game.surface.isExploring = false;
-            Game.surface.inCombat = false;
-
-            // Escolhe um local aleatório
-            const loc = pick(LOCATIONS);
-            Game.surface.currentLocation = `${loc.emoji} ${loc.name}`;
-
-            // Consome 1 turno do bunker
-            Game.turn -= 1;
-
-            showScreen('surface');
-            renderAll();
-
-            // Inicia narrativa
-            generateNarrativeScene();
-        }
-
-        function generateNarrativeScene() {
-            const s = Game.surface;
-            const r = Game.resources;
-
-            // Verifica se acabaram os turnos
-            if (s.turn > s.maxTurns) {
-                endSurfaceExpedition('⏳ Fim da Expedição',
-                    'Seus turnos na superfície acabaram. Você precisa voltar ao bunker.');
-                return;
-            }
-
-            // Verifica morte
-            if (checkDeath()) return;
-
-            // Gera evento aleatório
-            const eventType = random(0, 100);
-
-            // Limpa narrativa anterior (mantém apenas o último texto se houver)
-            s.narrative = [];
-
-            if (eventType < 40) {
-                // Evento de exploração - encontrar recursos
-                generateResourceEvent();
-            } else if (eventType < 70) {
-                // Evento de mutante
-                generateMutantEvent();
-            } else if (eventType < 85) {
-                // Evento de local interessante
-                generateLocationEvent();
-            } else {
-                // Evento de perigo (tempestade, armadilha)
-                generateDangerEvent();
-            }
-
-            // Consome recursos por turno
-            r.oxygen = Math.max(0, r.oxygen - 2);
-            r.hunger = Math.max(0, r.hunger - 2);
-            r.contamination = Math.min(100, r.contamination + 2);
-
-            renderAll();
-        }
-
-        // ===== EVENTO: RECURSOS =====
-        function generateResourceEvent() {
-            const resources = [
-                { icon: '🪚', name: 'Sucata', effect: () => { Game.resources.energy = Math.min(100, Game.resources
-                            .energy + 10);
-                        Game.resources.oxygen = Math.min(100, Game.resources.oxygen + 5); } },
-                { icon: '🧴', name: 'Plástico', effect: () => { Game.resources.energy = Math.min(100, Game.resources
-                            .energy + 8); } },
-                { icon: '💧', name: 'Água Poluída', effect: () => { Game.resources.contamination = Math.min(100, Game
-                            .resources.contamination + 5);
-                        Game.resources.hunger = Math.min(100, Game.resources.hunger + 5); } },
-                { icon: '🌱', name: 'Biomassa', effect: () => { Game.resources.hunger = Math.min(100, Game.resources
-                            .hunger + 15); } },
-                { icon: '⚙️', name: 'Peças Raras', effect: () => { Game.resources.energy = Math.min(100, Game
-                            .resources.energy + 15);
-                        Game.resources.oxygen = Math.min(100, Game.resources.oxygen + 10); } },
-            ];
-
-            const res = pick(resources);
-            const loc = pick(LOCATIONS);
-
-            Game.surface.narrative.push({
-                type: 'text',
-                content: `📍 <span class="highlight">Turno ${Game.surface.turn}</span><br>
-                          Você chega em <span class="highlight">${Game.surface.currentLocation}</span> e encontra <span class="success">${res.icon} ${res.name}</span>!`
-            });
-
-            Game.surface.narrative.push({
-                type: 'options',
-                options: [
-                    { icon: '✅', label: `Pegar ${res.name}`, class: 'success',
-                    action: () => { res.effect();
-                            showModal('✅ Coletado!', `Você coletou ${res.name}.`); } },
-                    { icon: '⏭️', label: 'Ignorar e seguir', class: '', action: () => { showModal('⏭️ Ignorado',
-                                'Você deixou o item para trás.'); } },
-                ]
-            });
-
-            Game.surface.turn += 1;
-        }
-
-        // ===== EVENTO: MUTANTE =====
-        function generateMutantEvent() {
-            const mutant = pick(MUTANT_TYPES);
-            const loc = pick(LOCATIONS);
-
-            Game.surface.narrative.push({
-                type: 'text',
-                content: `📍 <span class="highlight">Turno ${Game.surface.turn}</span><br>
-                          ${mutant.emoji} <span class="danger">UM MUTANTE APARECEU!</span><br>
-                          Um <span class="danger">${mutant.name}</span> surgiu das sombras em ${Game.surface.currentLocation}!<br>
-                          <span style="font-size:12px;color:#666;">HP: ${mutant.hp} · Dano: ${mutant.damage}</span>`
-            });
-
-            Game.surface.narrative.push({
-                type: 'options',
-                options: [
-                    { icon: '⚔️', label: 'Batalhar!', class: 'danger', action: () => { startCombat(mutant); } },
-                    { icon: '🏃', label: 'Fugir (50%)', class: 'warning', action: () => { tryFlee(mutant); } },
-                    { icon: '🕵️', label: 'Esconder-se (50%)', class: '', action: () => { tryHide(mutant); } },
-                ]
-            });
-
-            Game.surface.turn += 1;
-        }
-
-        // ===== EVENTO: LOCAL INTERESSANTE =====
-        function generateLocationEvent() {
-            const loc = pick(LOCATIONS);
-            const finds = [
-                'um mapa antigo mostrando rotas de suprimentos',
-                'um rádio que ainda funciona',
-                'um diário de um sobrevivente',
-                'uma caixa de ferramentas',
-                'um gerador portátil',
-            ];
-
-            const find = pick(finds);
-
-            Game.surface.narrative.push({
-                type: 'text',
-                content: `📍 <span class="highlight">Turno ${Game.surface.turn}</span><br>
-                          Você explora <span class="highlight">${Game.surface.currentLocation}</span> e encontra <span class="info">${find}</span>.`
-            });
-
-            Game.surface.narrative.push({
-                type: 'options',
-                options: [
-                    { icon: '🔍', label: 'Investigar', class: 'success', action: () => {
-                            Game.resources.energy = Math.min(100, Game.resources.energy + 5);
-                            Game.resources.oxygen = Math.min(100, Game.resources.oxygen + 5);
-                            showModal('🔍 Investigação', 'Você encontrou algo útil! +5 Energia, +5 Oxigênio.');
-                        } },
-                    { icon: '⏭️', label: 'Seguir em frente', class: '', action: () => { showModal('⏭️ Seguindo',
-                                'Você decide continuar explorando.'); } },
-                ]
-            });
-
-            Game.surface.turn += 1;
-        }
-
-        // ===== EVENTO: PERIGO =====
-        function generateDangerEvent() {
-            const dangers = [
-                { icon: '🌪️', name: 'Tempestade Tóxica', effect: () => {
-                        Game.resources.contamination = Math.min(100, Game.resources.contamination + 20);
-                        Game.resources.oxygen = Math.max(0, Game.resources.oxygen - 10);
-                    } },
-                { icon: '💀', name: 'Armadilha de Sucata', effect: () => {
-                        Game.resources.oxygen = Math.max(0, Game.resources.oxygen - 15);
-                        Game.resources.energy = Math.max(0, Game.resources.energy - 10);
-                    } },
-                { icon: '☢️', name: 'Vazamento Químico', effect: () => {
-                        Game.resources.contamination = Math.min(100, Game.resources.contamination + 25);
-                        Game.resources.hunger = Math.max(0, Game.resources.hunger - 10);
-                    } },
-            ];
-
-            const danger = pick(dangers);
-
-            Game.surface.narrative.push({
-                type: 'text',
-                content: `📍 <span class="highlight">Turno ${Game.surface.turn}</span><br>
-                          ${danger.icon} <span class="danger">PERIGO!</span><br>
-                          Uma <span class="danger">${danger.name}</span> atinge a área!`
-            });
-
-            Game.surface.narrative.push({
-                type: 'options',
-                options: [
-                    { icon: '🛡️', label: 'Se proteger', class: 'warning', action: () => {
-                            if (chance(50)) {
-                                showModal('🛡️ Protegido!', 'Você conseguiu se proteger do perigo!');
-                            } else {
-                                danger.effect();
-                                showModal('💥 Atingido!', 'O perigo te pegou! Perdeu recursos.');
-                                checkDeath();
-                            }
-                        } },
-                    { icon: '🏃', label: 'Correr', class: 'danger', action: () => {
-                            if (chance(40)) {
-                                showModal('🏃 Fuga!', 'Você escapou do perigo!');
-                            } else {
-                                danger.effect();
-                                danger.effect();
-                                showModal('💥 Duplo Atingido!', 'O perigo te atingiu duas vezes!');
-                                checkDeath();
-                            }
-                        } },
-                ]
-            });
-
-            Game.surface.turn += 1;
-        }
-
-        // ===== AÇÕES DO MUTANTE (Fugir / Esconder) =====
-        function tryFlee(mutant) {
-            if (chance(50)) {
-                showModal('🏃 Fuga!', 'Você conseguiu fugir do mutante!');
-                Game.surface.turn += 0; // Já foi incrementado
-                setTimeout(() => { generateNarrativeScene(); }, 500);
-            } else {
-                showModal('💥 Falha!', 'O mutante te alcançou! Você sofreu dano.');
-                Game.resources.oxygen = Math.max(0, Game.resources.oxygen - mutant.damage);
-                Game.resources.contamination = Math.min(100, Game.resources.contamination + 5);
-                checkDeath();
-                setTimeout(() => { generateNarrativeScene(); }, 500);
-            }
-        }
-
-        function tryHide(mutant) {
-            if (chance(50)) {
-                showModal('🕵️ Escondido!', 'Você se escondeu com sucesso! O mutante passou reto.');
-                Game.surface.turn += 0;
-                setTimeout(() => { generateNarrativeScene(); }, 500);
-            } else {
-                showModal('💥 Descoberto!', 'O mutante te encontrou! Você sofreu dano.');
-                Game.resources.oxygen = Math.max(0, Game.resources.oxygen - mutant.damage);
-                Game.resources.contamination = Math.min(100, Game.resources.contamination + 10);
-                checkDeath();
-                setTimeout(() => { generateNarrativeScene(); }, 500);
-            }
-        }
-
-        // ============================================================
-        //  SISTEMA DE COMBATE
-        // ============================================================
-
-        function startCombat(mutant) {
-            Game.combat.active = true;
-            Game.combat.enemy = mutant;
-            Game.combat.playerHP = 100;
-            Game.combat.maxPlayerHP = 100;
-            Game.combat.enemyHP = mutant.hp;
-            Game.combat.maxEnemyHP = mutant.hp;
-            Game.combat.turn = 0;
-            Game.combat.isPlayerTurn = true;
-            Game.combat.log = [];
-            Game.combat.inProgress = false;
-
-            showScreen('combat');
-            renderCombat();
-            updateCombatButtons(true);
-
-            addCombatLog(`⚔️ COMBATE INICIADO contra ${mutant.emoji} ${mutant.name}!`);
-            addCombatLog(`💪 ${mutant.name} tem ${mutant.hp} HP e causa ${mutant.damage} de dano.`);
-            addCombatLog('🎯 Escolha sua ação:');
-        }
 
         function renderCombat() {
             const c = Game.combat;
@@ -1809,16 +2956,12 @@
             const playerPct = (c.playerHP / c.maxPlayerHP) * 100;
             DOM.combat.playerHPFill.style.width = Math.max(0, playerPct) + '%';
 
-            // Log
             DOM.combat.log.innerHTML = c.log.map(entry =>
                 `<div class="combat-log-entry">${entry}</div>`
             ).join('');
             DOM.combat.log.scrollTop = DOM.combat.log.scrollHeight;
-        }
 
-        function addCombatLog(msg) {
-            Game.combat.log.push(msg);
-            renderCombat();
+            updateCombatButtons(!c.inProgress && c.isPlayerTurn && !Game.gameOver);
         }
 
         function updateCombatButtons(enabled) {
@@ -1827,7 +2970,32 @@
             DOM.combat.btnFlee.disabled = !enabled || Game.gameOver;
         }
 
-        // ===== AÇÕES DE COMBATE =====
+        function addCombatLog(msg) {
+            Game.combat.log.push(msg);
+            renderCombat();
+        }
+
+        function startCombat(enemyType) {
+            const enemy = MUTANT_TYPES.find(m => m.name === enemyType) || MUTANT_TYPES[0];
+
+            Game.combat.active = true;
+            Game.combat.enemy = enemy;
+            Game.combat.playerHP = 100;
+            Game.combat.maxPlayerHP = 100;
+            Game.combat.enemyHP = enemy.hp;
+            Game.combat.maxEnemyHP = enemy.hp;
+            Game.combat.turn = 0;
+            Game.combat.isPlayerTurn = true;
+            Game.combat.log = [];
+            Game.combat.inProgress = false;
+
+            showScreen('combat');
+            renderCombat();
+
+            addCombatLog(`⚔️ COMBATE INICIADO contra ${enemy.emoji} ${enemy.name}!`);
+            addCombatLog(`💪 ${enemy.name} tem ${enemy.hp} HP e causa ${enemy.damage} de dano.`);
+            addCombatLog('🎯 Escolha sua ação:');
+        }
 
         function combatAttack() {
             if (Game.combat.inProgress || !Game.combat.isPlayerTurn) return;
@@ -1837,7 +3005,6 @@
             const c = Game.combat;
             const enemy = c.enemy;
 
-            // Ataque do jogador
             if (chance(40)) {
                 addCombatLog(`🔄 ${enemy.name} esquivou do seu ataque!`);
             } else {
@@ -1846,14 +3013,12 @@
                 addCombatLog(`⚔️ Você causou <span class="damage">${damage}</span> de dano em ${enemy.name}!`);
                 renderCombat();
 
-                // Verifica se inimigo morreu
                 if (c.enemyHP <= 0) {
                     endCombat(true);
                     return;
                 }
             }
 
-            // Turno do inimigo
             setTimeout(() => {
                 enemyTurn();
             }, 600);
@@ -1869,9 +3034,7 @@
 
             addCombatLog(`🛡️ Você entrou em posição defensiva!`);
 
-            // Turno do inimigo com defesa
             setTimeout(() => {
-                // Inimigo ataca com defesa
                 if (chance(70)) {
                     addCombatLog(`🌀 Você esquivou do ataque de ${enemy.name}!`);
                 } else {
@@ -1930,7 +3093,6 @@
             const c = Game.combat;
             const enemy = c.enemy;
 
-            // Inimigo ataca
             const damage = random(10, 20);
             c.playerHP = Math.max(0, c.playerHP - damage);
             addCombatLog(`💥 ${enemy.name} causou <span class="damage">${damage}</span> de dano!`);
@@ -1956,7 +3118,79 @@
 
             if (fled) {
                 showModal('🏃 Fuga Bem-Sucedida',
-                    'Você escapou do combate! Volte ao bunker para se recuperar.',
+                    'Você escapou do combate!',
+                    () => {
+                        Game.surface.inCombat = false;
+                        showScreen('surface');
+                        renderAll();
+                        // Volta para o cenário anterior
+                        goToScenario('start');
+                    });
+                return;
+            }
+
+            if (victory) {
+                const reward = random(5, 15);
+                Game.resources.energy = Math.min(100, Game.resources.energy + reward);
+                Game.resources.hunger = Math.min(100, Game.resources.hunger + 5);
+                Game.resources.oxygen = Math.min(100, Game.resources.oxygen + 10);
+
+                showModal('⚔️ VITÓRIA!',
+                    `Você derrotou ${c.enemy.emoji} ${c.enemy.name}!\n\n🏆 +${reward} Energia\n🍖 +5 Fome\n🫧 +10 Oxigênio`,
+                    () => {
+                        Game.surface.inCombat = false;
+                        showScreen('surface');
+                        renderAll();
+                        goToScenario('start');
+                    });
+            } else {
+                Game.resources.oxygen = Math.max(0, Game.resources.oxygen - 20);
+                Game.resources.contamination = Math.min(100, Game.resources.contamination + 15);
+                Game.resources.energy = Math.max(0, Game.resources.energy - 10);
+
+                showModal('💀 DERROTA!',
+                    `${c.enemy.emoji} ${c.enemy.name} te derrotou!\n\nVocê perdeu recursos.`,
+                    () => {
+                        checkDeath();
+                        Game.surface.inCombat = false;
+                        showScreen('bunker');
+                        renderAll();
+                    });
+            }
+        }
+
+        // ============================================================
+        // LÓGICA DE NAVEGAÇÃO
+        // ============================================================
+
+        function handleChoice(optionId) {
+            if (Game.eventLock) return;
+
+            // Verifica se é combate
+            const currentScenario = Game.surface.currentScenario;
+            if (currentScenario && SCENARIOS[currentScenario] && SCENARIOS[currentScenario].isCombat) {
+                // Já está em combate
+                return;
+            }
+
+            // Verifica se é fuga
+            if (optionId === 'fuga') {
+                // Já foi tratado
+                return;
+            }
+
+            // Consome um turno
+            Game.surface.turn += 1;
+
+            // Consome recursos
+            Game.resources.oxygen = Math.max(0, Game.resources.oxygen - 2);
+            Game.resources.hunger = Math.max(0, Game.resources.hunger - 2);
+            Game.resources.contamination = Math.min(100, Game.resources.contamination + 2);
+
+            // Verifica se acabaram os turnos
+            if (Game.surface.turn > Game.surface.maxTurns) {
+                showModal('⏳ Fim da Expedição',
+                    'Seus turnos na superfície acabaram. Você precisa voltar ao bunker.',
                     () => {
                         showScreen('bunker');
                         renderAll();
@@ -1964,60 +3198,74 @@
                 return;
             }
 
-            if (victory) {
-                // Recompensas
-                const reward = random(5, 15);
-                Game.resources.energy = Math.min(100, Game.resources.energy + reward);
-                Game.resources.hunger = Math.min(100, Game.resources.hunger + 5);
-                Game.resources.oxygen = Math.min(100, Game.resources.oxygen + 10);
+            // Verifica morte
+            if (checkDeath()) return;
 
-                showModal('⚔️ VITÓRIA!',
-                    `Você derrotou ${c.enemy.emoji} ${c.enemy.name}!\n\n` +
-                    `🏆 Recompensas:\n` +
-                    `⚡ +${reward} Energia\n` +
-                    `🍖 +5 Fome\n` +
-                    `🫧 +10 Oxigênio`,
-                    () => {
-                        // Voltar para a superfície
-                        Game.surface.narrative = [];
-                        Game.surface.isExploring = false;
-                        showScreen('surface');
-                        Game.surface.turn += 1;
-                        // Continua a exploração
-                        setTimeout(() => {
-                            if (Game.surface.turn <= Game.surface.maxTurns) {
-                                generateNarrativeScene();
-                            } else {
-                                endSurfaceExpedition('⏳ Fim da Expedição',
-                                    'Seus turnos acabaram. Volte ao bunker.');
-                            }
-                        }, 300);
-                    });
+            // Verifica se é um cenário de combate
+            if (optionId.startsWith('combate_')) {
+                const enemyMap = {
+                    'combate_rastejador': 'Rastejador',
+                    'combate_triturador': 'Triturador',
+                    'combate_sibila': 'Sibila',
+                    'combate_colosso': 'Colosso',
+                    'combate_espectro': 'Espectro',
+                };
+                const enemyType = enemyMap[optionId] || 'Rastejador';
+                Game.surface.inCombat = true;
+                startCombat(enemyType);
+                return;
+            }
+
+            // Verifica se é um retorno
+            if (optionId === 'voltar_para_onde_veio') {
+                // Volta para o cenário anterior
+                const prevScenario = Game.surface.scenarioHistory.pop() || 'start';
+                goToScenario(prevScenario);
+                return;
+            }
+
+            // Verifica se o cenário existe
+            if (SCENARIOS[optionId]) {
+                // Salva o cenário atual no histórico
+                if (Game.surface.currentScenario) {
+                    Game.surface.scenarioHistory.push(Game.surface.currentScenario);
+                }
+                goToScenario(optionId);
             } else {
-                showModal('💀 DERROTA!',
-                    `${c.enemy.emoji} ${c.enemy.name} te derrotou!\n\n` +
-                    `Você perdeu recursos e precisa se recuperar no bunker.`,
+                // Se não encontrar, volta para o início
+                showModal('⚠️ Caminho Bloqueado',
+                    'Este caminho não está disponível no momento.',
                     () => {
-                        Game.resources.oxygen = Math.max(0, Game.resources.oxygen - 20);
-                        Game.resources.contamination = Math.min(100, Game.resources.contamination + 15);
-                        Game.resources.energy = Math.max(0, Game.resources.energy - 10);
-                        checkDeath();
-                        showScreen('bunker');
-                        renderAll();
+                        goToScenario('start');
                     });
             }
+
+            renderAll();
         }
 
-        // ===== FIM DA EXPEDIÇÃO =====
-        function endSurfaceExpedition(title, msg) {
-            showModal(title, msg, () => {
-                showScreen('bunker');
+        function goToScenario(scenarioId) {
+            const scenario = SCENARIOS[scenarioId];
+            if (!scenario) {
+                Game.surface.currentScenario = 'start';
+                Game.surface.currentLocation = 'Nova Prospekt';
                 renderAll();
-            });
+                return;
+            }
+
+            Game.surface.currentScenario = scenarioId;
+            Game.surface.currentLocation = scenario.location || 'Nova Prospekt';
+            Game.surface.danger = scenario.danger || 30;
+
+            // Executa onEnter se houver
+            if (scenario.onEnter) {
+                scenario.onEnter();
+            }
+
+            renderAll();
         }
 
         // ============================================================
-        //  AÇÕES DO BUNKER
+        // AÇÕES DO BUNKER
         // ============================================================
 
         function goToSurface() {
@@ -2026,12 +3274,30 @@
                     'A noite é muito perigosa! Espere o dia amanhecer.');
                 return;
             }
+
             if (Game.resources.oxygen < 20) {
                 showModal('⚠️ Oxigênio Baixo',
                     'Seu oxigênio está muito baixo para uma expedição.');
                 return;
             }
-            startSurfaceExploration();
+
+            // Resetar superfície
+            Game.surface.turn = 0;
+            Game.surface.maxTurns = 10;
+            Game.surface.danger = Game.cycle === 'day' ? random(20, 40) : random(50, 80);
+            Game.surface.currentLocation = 'Nova Prospekt';
+            Game.surface.scenarioHistory = [];
+            Game.surface.inCombat = false;
+
+            // Consome 1 turno do bunker
+            Game.turn -= 1;
+
+            showScreen('surface');
+
+            // Vai para o cenário inicial
+            goToScenario('start');
+
+            renderAll();
         }
 
         function actionSleep() {
@@ -2065,7 +3331,7 @@
         }
 
         // ============================================================
-        //  CHECAGENS
+        // CHECAGENS
         // ============================================================
 
         function checkDeath() {
@@ -2092,47 +3358,7 @@
         }
 
         // ============================================================
-        //  MANIPULAÇÃO DE ESCOLHAS NARRATIVAS
-        // ============================================================
-
-        function handleNarrativeChoice(entryIdx, optIdx) {
-            if (Game.eventLock) return;
-            const s = Game.surface;
-            const entry = s.narrative[entryIdx];
-            if (!entry || entry.type !== 'options') return;
-            const opt = entry.options[optIdx];
-            if (!opt) return;
-
-            // Executa a ação
-            if (opt.action) {
-                Game.eventLock = true;
-                opt.action();
-
-                // Remove a opção para evitar re-cliques
-                setTimeout(() => {
-                    Game.eventLock = false;
-                    // Remove as opções da narrativa
-                    s.narrative = s.narrative.filter(e => e.type !== 'options' || e !== entry);
-
-                    // Verifica se ainda tem turnos
-                    if (s.turn <= s.maxTurns && !Game.combat.active && !Game.gameOver) {
-                        // Continua a narrativa
-                        setTimeout(() => {
-                            if (Game.currentScreen === 'surface') {
-                                generateNarrativeScene();
-                            }
-                        }, 500);
-                    } else if (s.turn > s.maxTurns && !Game.combat.active) {
-                        endSurfaceExpedition('⏳ Fim da Expedição',
-                            'Seus turnos na superfície acabaram.');
-                    }
-                    renderAll();
-                }, 300);
-            }
-        }
-
-        // ============================================================
-        //  CONFIGURAÇÃO DE EVENTOS
+        // CONFIGURAÇÃO DE EVENTOS
         // ============================================================
 
         function setupEvents() {
@@ -2174,13 +3400,13 @@
                 'Você acordou no bunker. O mundo lá fora está devastado.\n\n' +
                 '☀️ Durante o DIA: explore a superfície\n' +
                 '🌙 Durante a NOITE: durma no dormitório\n\n' +
-                '⚔️ Na superfície, você encontrará eventos e mutantes.\n' +
-                '🧠 Escolha sabiamente suas ações!\n\n' +
+                '🗺️ Na superfície, explore prédios, metrô, ruas e a ponte!\n' +
+                '⚔️ Cuidado com os mutantes!\n\n' +
                 'Boa sorte, sobrevivente.');
         }
 
         // ============================================================
-        //  INICIALIZAÇÃO
+        // INICIALIZAÇÃO
         // ============================================================
 
         function init() {
@@ -2189,11 +3415,12 @@
             renderAll();
             DOM.start.input.focus();
 
-            console.log('🌍 ECOSFERA 2200 - v2.0');
-            console.log('📖 Sistema de Narrativa Interativa na Superfície');
+            console.log('🌍 ECOSFERA 2200 - v3.0');
+            console.log('📊 77 Cenários na Superfície');
+            console.log('📍 4 Rotas Principais: Prédio, Metrô, Rua, Ponte');
+            console.log('🏙️ 5 Áreas em Revelon');
             console.log('⚔️ Sistema de Combate por Turnos');
-            console.log('🎯 Escolhas com consequências');
-            console.log('🧬 5 tipos de mutantes com estatísticas diferentes');
+            console.log('🎯 5 tipos de mutantes');
         }
 
         document.addEventListener('DOMContentLoaded', init);
