@@ -3,3427 +3,1233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ecosfera 2200 - v3.1</title>
+    <title>🌍 ECOSFERA 2200 3D</title>
     <style>
-        /* ============================================================
-           RESET E ESTILOS GLOBAIS (Mantido igual à v3.0)
-           ============================================================ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Special+Elite&display=swap');
-
         body {
-            font-family: 'Share Tech Mono', monospace;
-            background: #0a0a0a;
-            color: #b0b0b0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-image:
-                radial-gradient(ellipse at 20% 50%, rgba(0, 255, 100, 0.03) 0%, transparent 70%),
-                radial-gradient(ellipse at 80% 50%, rgba(255, 100, 0, 0.03) 0%, transparent 70%);
-        }
-
-        #game {
-            width: 950px;
-            max-width: 98vw;
-            height: 700px;
-            max-height: 98vh;
-            background: #111111;
-            border: 2px solid #2a4a2a;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 0 60px rgba(0, 255, 100, 0.06), inset 0 0 60px rgba(0, 0, 0, 0.8);
-            position: relative;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #game::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background:
-                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.03) 2px, rgba(0, 0, 0, 0.03) 4px);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* ============================================================
-           HEADER
-           ============================================================ */
-        #header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 15px;
-            background: #1a1a1a;
-            border-bottom: 2px solid #2a4a2a;
-            border-radius: 8px 8px 0 0;
-            position: relative;
-            z-index: 1;
-            flex-shrink: 0;
-        }
-
-        #title {
-            font-size: 18px;
-            color: #4aff8a;
-            text-shadow: 0 0 20px rgba(74, 255, 138, 0.15);
-            letter-spacing: 3px;
-        }
-
-        #title span {
-            color: #ff6a33;
-        }
-
-        #player-name-display {
-            font-size: 13px;
-            color: #888;
-        }
-
-        #player-name-display span {
-            color: #ffcc44;
-        }
-
-        /* ============================================================
-           TELAS
-           ============================================================ */
-        .screen {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            position: relative;
-            z-index: 1;
-            padding: 12px 0;
-            overflow-y: auto;
-        }
-
-        .screen.active {
-            display: flex;
-        }
-
-        /* ============================================================
-           TELA INICIAL
-           ============================================================ */
-        #screen-start {
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-        }
-
-        #screen-start .logo {
-            font-size: 42px;
-            color: #4aff8a;
-            text-shadow: 0 0 40px rgba(74, 255, 138, 0.15);
-            letter-spacing: 6px;
-            margin-bottom: 10px;
-        }
-
-        #screen-start .logo span {
-            color: #ff6a33;
-        }
-
-        #screen-start .subtitle {
-            font-size: 14px;
-            color: #666;
-            letter-spacing: 4px;
-            margin-bottom: 25px;
-        }
-
-        #lore-text {
-            max-width: 600px;
-            background: #0d0d0d;
-            border: 1px solid #1a2a1a;
-            border-radius: 8px;
-            padding: 20px 25px;
-            margin: 0 auto 25px;
-            text-align: left;
-            font-size: 13px;
-            line-height: 1.8;
-            color: #aaa;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        #lore-text .highlight {
-            color: #ff6a33;
-        }
-        #lore-text .highlight-green {
-            color: #4aff8a;
-        }
-        #lore-text .danger {
-            color: #ff4444;
-        }
-
-        #lore-text::-webkit-scrollbar {
-            width: 4px;
-        }
-        #lore-text::-webkit-scrollbar-track {
             background: #0a0a0a;
+            font-family: 'Courier New', monospace;
         }
-        #lore-text::-webkit-scrollbar-thumb {
-            background: #2a4a2a;
-            border-radius: 4px;
-        }
-
-        #create-form {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        #create-form input {
-            padding: 12px 20px;
-            background: #0d0d0d;
-            border: 1px solid #2a3a2a;
-            border-radius: 6px;
-            color: #e0e0e0;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 14px;
-            width: 220px;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        #create-form input:focus {
-            border-color: #4aff8a;
-            box-shadow: 0 0 20px rgba(74, 255, 138, 0.05);
-        }
-
-        #create-form input::placeholder {
-            color: #444;
-        }
-
-        #create-form button {
-            padding: 12px 30px;
-            background: #1a2a1a;
-            border: 1px solid #4aff8a;
-            border-radius: 6px;
-            color: #4aff8a;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        #create-form button:hover {
-            background: #2a3a2a;
-            box-shadow: 0 0 30px rgba(74, 255, 138, 0.1);
-            transform: scale(1.02);
-        }
-
-        #create-form button:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* ============================================================
-           TELA DO BUNKER
-           ============================================================ */
-        #screen-bunker {
-            gap: 12px;
-        }
-
-        #bunker-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 15px;
-            background: #0d0d0d;
-            border: 1px solid #1a2a1a;
-            border-radius: 6px;
-            flex-shrink: 0;
-        }
-
-        #bunker-header .time-display {
-            font-size: 14px;
-            color: #888;
-        }
-
-        #bunker-header .time-display .day {
-            color: #ffcc44;
-        }
-        #bunker-header .time-display .night {
-            color: #4466ff;
-        }
-
-        #bunker-header .status {
-            font-size: 12px;
-            color: #4aff8a;
-        }
-
-        #bunker-stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
-        .bunker-stat {
-            background: #0d0d0d;
-            border: 1px solid #1a2a1a;
-            border-radius: 6px;
-            padding: 8px 12px;
-            text-align: center;
-        }
-
-        .bunker-stat .stat-icon {
-            font-size: 18px;
+        canvas {
             display: block;
         }
 
-        .bunker-stat .stat-value {
-            font-size: 16px;
-            color: #e0e0e0;
+        /* HUD */
+        #hud {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #2a4a2a;
+            border-radius: 12px;
+            padding: 15px 25px;
+            color: #b0b0b0;
+            font-size: 14px;
+            display: flex;
+            gap: 30px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            min-width: 500px;
+            justify-content: center;
+        }
+        #hud .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #hud .stat .icon {
+            font-size: 18px;
+        }
+        #hud .stat .value {
             font-weight: bold;
+            color: #4aff8a;
+            min-width: 30px;
         }
-
-        .bunker-stat .stat-label {
-            font-size: 9px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .bunker-stat.danger .stat-value {
+        #hud .stat .value.danger {
             color: #ff4444;
         }
-        .bunker-stat.warning .stat-value {
+        #hud .stat .value.warning {
             color: #ffaa44;
         }
-        .bunker-stat.safe .stat-value {
-            color: #4aff8a;
+
+        #crosshair {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 30px;
+            z-index: 50;
+            pointer-events: none;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
         }
 
-        #bunker-actions {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            flex: 1;
-            align-content: center;
-            padding: 10px 0;
-        }
-
-        .bunker-btn {
-            padding: 25px 15px;
-            background: #0d0d0d;
-            border: 1px solid #1a2a1a;
+        #ammo-display {
+            position: fixed;
+            bottom: 100px;
+            right: 50px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #ff8844;
             border-radius: 8px;
-            color: #b0b0b0;
-            font-family: 'Share Tech Mono', monospace;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .bunker-btn:hover:not(:disabled) {
-            background: #1a1a1a;
-            border-color: #2a4a2a;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-        }
-
-        .bunker-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .bunker-btn .btn-icon {
-            font-size: 32px;
-        }
-        .bunker-btn .btn-label {
-            font-size: 14px;
-            color: #ccc;
-            letter-spacing: 2px;
-        }
-        .bunker-btn .btn-desc {
-            font-size: 10px;
-            color: #666;
-        }
-
-        .bunker-btn.surface {
-            border-color: #2a4a3a;
-        }
-        .bunker-btn.surface:hover:not(:disabled) {
-            border-color: #4aff8a;
-        }
-
-        .bunker-btn.dormitory {
-            border-color: #3a2a4a;
-        }
-        .bunker-btn.dormitory:hover:not(:disabled) {
-            border-color: #8844ff;
-        }
-
-        .bunker-btn.machine {
-            border-color: #4a3a2a;
-        }
-        .bunker-btn.machine:hover:not(:disabled) {
-            border-color: #ff8844;
-        }
-
-        /* ============================================================
-           TELA DA SUPERFÍCIE
-           ============================================================ */
-        #screen-surface {
-            gap: 12px;
-        }
-
-        #surface-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 15px;
-            background: #0d0d0d;
-            border: 1px solid #1a2a1a;
-            border-radius: 6px;
-            flex-shrink: 0;
-        }
-
-        #surface-header .location {
-            font-size: 14px;
-            color: #ff6a33;
-        }
-
-        #surface-header .danger-level {
-            font-size: 12px;
-            padding: 4px 12px;
-            border-radius: 4px;
-            background: #1a0a0a;
-            border: 1px solid #ff4444;
-            color: #ff4444;
-        }
-
-        #surface-header .danger-level.safe {
-            border-color: #4aff8a;
-            color: #4aff8a;
-            background: #0a1a0a;
-        }
-
-        #surface-status {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
-        .surface-stat {
-            background: #0d0d0d;
-            border: 1px solid #1a2a1a;
-            border-radius: 6px;
-            padding: 6px 10px;
-            text-align: center;
-        }
-
-        .surface-stat .stat-label {
-            font-size: 9px;
-            color: #666;
-            text-transform: uppercase;
-        }
-
-        .surface-stat .stat-value {
-            font-size: 14px;
-            color: #e0e0e0;
-        }
-
-        /* Narrativa */
-        #surface-narrative {
-            flex: 1;
-            overflow-y: auto;
-            background: #0d0d0d;
-            border: 1px solid #1a2a1a;
-            border-radius: 6px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            min-height: 200px;
-        }
-
-        #surface-narrative::-webkit-scrollbar {
-            width: 4px;
-        }
-        #surface-narrative::-webkit-scrollbar-track {
-            background: #0a0a0a;
-        }
-        #surface-narrative::-webkit-scrollbar-thumb {
-            background: #2a4a2a;
-            border-radius: 4px;
-        }
-
-        .narrative-text {
-            font-size: 14px;
-            line-height: 1.8;
-            color: #ccc;
-            padding: 10px 15px;
-            background: #0a0a0a;
-            border-radius: 6px;
-            border-left: 3px solid #2a4a2a;
-        }
-
-        .narrative-text .highlight {
-            color: #ffcc44;
-        }
-        .narrative-text .danger {
-            color: #ff4444;
-        }
-        .narrative-text .success {
-            color: #4aff8a;
-        }
-        .narrative-text .info {
-            color: #4488ff;
-        }
-        .narrative-text .location-name {
+            padding: 10px 20px;
             color: #ff8844;
-        }
-        .narrative-text .explored {
-            color: #666;
-            font-style: italic;
-        }
-
-        .narrative-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 5px;
+            font-size: 20px;
+            z-index: 100;
+            font-family: 'Courier New', monospace;
         }
 
-        .narrative-options button {
-            padding: 12px 16px;
-            background: #1a1a1a;
-            border: 1px solid #2a3a2a;
-            border-radius: 6px;
-            color: #b0b0b0;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: left;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .narrative-options button:hover:not(:disabled) {
-            background: #2a2a2a;
-            border-color: #4aff8a;
-            color: #fff;
-            transform: scale(1.01);
-        }
-
-        .narrative-options button:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        .narrative-options button .opt-icon {
-            font-size: 18px;
-        }
-
-        .narrative-options button.danger {
-            border-color: #ff4444;
-            color: #ff4444;
-        }
-
-        .narrative-options button.danger:hover:not(:disabled) {
-            background: #1a0a0a;
-            border-color: #ff6666;
-        }
-
-        .narrative-options button.success {
-            border-color: #4aff8a;
+        #interact-hint {
+            position: fixed;
+            bottom: 200px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #4aff8a;
+            border-radius: 8px;
+            padding: 10px 20px;
             color: #4aff8a;
-        }
-
-        .narrative-options button.success:hover:not(:disabled) {
-            background: #0a1a0a;
-        }
-
-        .narrative-options button.warning {
-            border-color: #ffaa44;
-            color: #ffaa44;
-        }
-
-        .narrative-options button.warning:hover:not(:disabled) {
-            background: #1a1a0a;
-        }
-
-        .narrative-options button.info {
-            border-color: #4488ff;
-            color: #4488ff;
-        }
-
-        .narrative-options button.info:hover:not(:disabled) {
-            background: #0a0a1a;
-        }
-
-        .narrative-options button.explored {
-            border-color: #444;
-            color: #666;
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        /* ============================================================
-           TELA DE COMBATE
-           ============================================================ */
-        #screen-combat {
-            gap: 12px;
-            justify-content: center;
-        }
-
-        #combat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 15px;
-            background: #0d0d0d;
-            border: 1px solid #1a2a1a;
-            border-radius: 6px;
-            flex-shrink: 0;
-        }
-
-        #combat-header .enemy-name {
-            font-size: 18px;
-            color: #ff4444;
-        }
-
-        #combat-header .enemy-hp {
-            font-size: 14px;
-            color: #ffaa44;
-        }
-
-        #combat-status {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            flex-shrink: 0;
-        }
-
-        .combatant {
-            background: #0d0d0d;
-            border: 1px solid #1a2a1a;
-            border-radius: 6px;
-            padding: 12px 15px;
-            text-align: center;
-        }
-
-        .combatant .name {
-            font-size: 12px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .combatant .hp-bar {
-            width: 100%;
-            height: 12px;
-            background: #1a1a1a;
-            border-radius: 6px;
-            margin: 6px 0;
-            overflow: hidden;
-            border: 1px solid #2a2a2a;
-        }
-
-        .combatant .hp-fill {
-            height: 100%;
-            background: #4aff8a;
-            border-radius: 6px;
-            transition: width 0.5s;
-        }
-
-        .combatant .hp-fill.enemy {
-            background: #ff4444;
-        }
-
-        .combatant .hp-text {
-            font-size: 12px;
-            color: #aaa;
-        }
-
-        .combatant.player .hp-fill {
-            background: #4aff8a;
-        }
-
-        #combat-log {
-            flex: 1;
-            overflow-y: auto;
-            background: #0a0a0a;
-            border: 1px solid #1a1a1a;
-            border-radius: 6px;
-            padding: 12px 15px;
-            font-size: 12px;
-            line-height: 1.8;
-            color: #888;
-            min-height: 100px;
-            max-height: 200px;
-        }
-
-        #combat-log::-webkit-scrollbar {
-            width: 4px;
-        }
-        #combat-log::-webkit-scrollbar-track {
-            background: #0a0a0a;
-        }
-        #combat-log::-webkit-scrollbar-thumb {
-            background: #2a4a2a;
-            border-radius: 4px;
-        }
-
-        .combat-log-entry {
-            padding: 2px 0;
-            border-bottom: 1px solid #0d0d0d;
-        }
-
-        .combat-log-entry .damage {
-            color: #ff4444;
-        }
-        .combat-log-entry .heal {
-            color: #4aff8a;
-        }
-        .combat-log-entry .dodge {
-            color: #4488ff;
-        }
-        .combat-log-entry .flee {
-            color: #ffaa44;
-        }
-
-        #combat-actions {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            flex-shrink: 0;
-            padding-top: 8px;
-        }
-
-        #combat-actions button {
-            padding: 14px 12px;
-            background: #1a1a1a;
-            border: 1px solid #2a3a2a;
-            border-radius: 6px;
-            color: #b0b0b0;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-
-        #combat-actions button:hover:not(:disabled) {
-            background: #2a2a2a;
-            border-color: #4aff8a;
-            color: #fff;
-        }
-
-        #combat-actions button:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        #combat-actions button .sub {
-            font-size: 9px;
-            color: #666;
-            text-transform: none;
-        }
-
-        #combat-actions button.attack {
-            border-color: #ff4444;
-            color: #ff4444;
-        }
-        #combat-actions button.attack:hover:not(:disabled) {
-            background: #1a0a0a;
-            border-color: #ff6666;
-        }
-
-        #combat-actions button.defense {
-            border-color: #4488ff;
-            color: #4488ff;
-        }
-        #combat-actions button.defense:hover:not(:disabled) {
-            background: #0a0a1a;
-            border-color: #6688ff;
-        }
-
-        #combat-actions button.flee {
-            border-color: #ffaa44;
-            color: #ffaa44;
-        }
-        #combat-actions button.flee:hover:not(:disabled) {
-            background: #1a1a0a;
-            border-color: #ffcc44;
-        }
-
-        /* ============================================================
-           TELA DA MÁQUINA
-           ============================================================ */
-        #screen-machine {
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            text-align: center;
-        }
-
-        #screen-machine .machine-icon {
-            font-size: 72px;
-        }
-        #screen-machine .machine-title {
-            font-size: 22px;
-            color: #ff8844;
-            letter-spacing: 3px;
-        }
-        #screen-machine .machine-status {
             font-size: 16px;
-            color: #4aff8a;
-            padding: 10px 30px;
-            background: #0d0d0d;
-            border: 1px solid #1a2a1a;
-            border-radius: 6px;
-        }
-        #screen-machine .machine-battery {
-            font-size: 48px;
-            color: #ffcc44;
-        }
-        #screen-machine .machine-desc {
-            color: #666;
-            font-size: 12px;
-        }
-
-        #screen-machine button {
-            padding: 12px 40px;
-            background: #1a1a1a;
-            border: 1px solid #2a3a2a;
-            border-radius: 6px;
-            color: #b0b0b0;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
-        }
-
-        #screen-machine button:hover {
-            background: #2a2a2a;
-            border-color: #4aff8a;
-            color: #fff;
-        }
-
-        /* ============================================================
-           MODAL
-           ============================================================ */
-        #modal {
+            z-index: 100;
             display: none;
+            font-family: 'Courier New', monospace;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        #damage-overlay {
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 50%, rgba(255, 0, 0, 0.3));
+            pointer-events: none;
+            z-index: 40;
+            opacity: 0;
+            transition: opacity 0.1s;
+        }
+
+        #damage-overlay.active {
+            opacity: 1;
+        }
+
+        /* Tela Inicial */
+        #menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
             z-index: 1000;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
+            color: #b0b0b0;
+            font-family: 'Courier New', monospace;
         }
-
-        #modal.active {
-            display: flex;
-        }
-
-        #modal-content {
-            background: #1a1a1a;
-            border: 2px solid #2a4a2a;
-            border-radius: 12px;
-            padding: 30px 35px;
-            max-width: 450px;
-            width: 90%;
-            box-shadow: 0 0 80px rgba(0, 0, 0, 0.9);
-        }
-
-        #modal-content h2 {
+        #menu h1 {
+            font-size: 64px;
             color: #4aff8a;
-            text-align: center;
-            margin-bottom: 12px;
-            letter-spacing: 2px;
-            font-size: 20px;
+            text-shadow: 0 0 60px rgba(74, 255, 138, 0.2);
+            letter-spacing: 8px;
         }
-
-        #modal-content p {
-            color: #aaa;
-            line-height: 1.6;
-            font-size: 14px;
-            margin-bottom: 15px;
-            text-align: center;
+        #menu h1 span {
+            color: #ff6a33;
         }
-
-        #modal-content .modal-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
+        #menu .subtitle {
+            font-size: 18px;
+            color: #666;
+            letter-spacing: 4px;
             margin-top: 10px;
         }
-
-        #modal-content .modal-actions button {
-            padding: 10px 30px;
-            background: #1a2a1a;
-            border: 1px solid #2a4a2a;
-            border-radius: 6px;
-            color: #b0b0b0;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        #menu .lore {
+            max-width: 500px;
+            text-align: center;
+            margin: 30px 0;
+            line-height: 1.8;
+            color: #888;
+            font-size: 14px;
         }
-
-        #modal-content .modal-actions button:hover {
-            background: #2a3a2a;
-            border-color: #4aff8a;
-            color: #fff;
+        #menu .lore .highlight {
+            color: #ff6a33;
         }
-
-        #modal-content .modal-actions button.danger {
-            border-color: #ff4444;
+        #menu .lore .danger {
             color: #ff4444;
         }
-
-        #modal-content .modal-actions button.danger:hover {
-            background: #2a0a0a;
-            border-color: #ff6666;
-            color: #ff6666;
+        #menu button {
+            padding: 15px 50px;
+            background: transparent;
+            border: 2px solid #4aff8a;
+            border-radius: 8px;
+            color: #4aff8a;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+        #menu button:hover {
+            background: #4aff8a;
+            color: #0a0a0a;
+            box-shadow: 0 0 40px rgba(74, 255, 138, 0.2);
         }
 
-        /* ============================================================
-           RESPONSIVIDADE
-           ============================================================ */
-        @media (max-width: 700px) {
-            #game {
-                height: 100vh;
-                max-height: 100vh;
-                border-radius: 0;
-                padding: 12px;
-                border: none;
-            }
-
-            #bunker-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            #bunker-actions {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-
-            .bunker-btn {
-                padding: 15px;
-                flex-direction: row;
-                gap: 12px;
-            }
-
-            .bunker-btn .btn-icon {
-                font-size: 24px;
-            }
-
-            #surface-status {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .narrative-options {
-                grid-template-columns: 1fr;
-            }
-
-            #combat-actions {
-                grid-template-columns: 1fr;
-            }
-
-            #combat-status {
-                grid-template-columns: 1fr;
-            }
-
-            #title {
-                font-size: 14px;
-            }
-
-            #screen-start .logo {
-                font-size: 28px;
-            }
-
-            #lore-text {
-                font-size: 12px;
-                padding: 15px;
-                max-height: 150px;
-            }
-
-            #create-form {
-                flex-direction: column;
-            }
-
-            #create-form input {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 400px) {
-            #bunker-stats {
-                grid-template-columns: 1fr 1fr;
-                gap: 4px;
-            }
-
-            .bunker-stat {
-                padding: 4px 8px;
-            }
-
-            .bunker-stat .stat-value {
-                font-size: 13px;
-            }
-
-            #header {
-                flex-wrap: wrap;
-                gap: 4px;
-                justify-content: center;
-                text-align: center;
-            }
-
-            #modal-content {
-                padding: 20px;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0a0a0a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #2a4a2a;
+        #controls-hint {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #444;
+            font-size: 12px;
+            z-index: 100;
+            font-family: 'Courier New', monospace;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 15px;
             border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            #hud {
+                min-width: auto;
+                padding: 10px 15px;
+                gap: 15px;
+                font-size: 12px;
+                bottom: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            #menu h1 {
+                font-size: 32px;
+            }
+            #ammo-display {
+                bottom: 80px;
+                right: 20px;
+                font-size: 16px;
+                padding: 8px 15px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- ============================================================
-    JOGO (MESMA ESTRUTURA DA v3.0)
-    ============================================================ -->
-    <div id="game">
-
-        <!-- HEADER -->
-        <div id="header">
-            <div id="title">🌍 ECOSFERA <span>2200</span></div>
-            <div id="player-name-display">👤 <span id="header-player-name">Sobrevivente</span></div>
+    <!-- MENU INICIAL -->
+    <div id="menu">
+        <h1>🌍 ECOSFERA <span>2200</span></h1>
+        <div class="subtitle">— O Último Refúgio da Humanidade —</div>
+        <div class="lore">
+            <p><span class="highlight">📜 ANO 2200</span></p>
+            <p>A humanidade pagou o preço por sua <span class="danger">ganância</span>.</p>
+            <p>O consumismo e a poluição transformaram o planeta em um deserto tóxico.</p>
+            <p>O <span class="danger">VÍRUS MORTAL</span> espalhou-se como fogo.</p>
+            <p>Os sobreviventes fugiram para <span class="highlight">BUNKERS</span> subterrâneos.</p>
+            <p style="margin-top:10px;color:#666;">🗺️ Explore o mundo devastado em 3D</p>
+            <p style="color:#444;font-size:12px;">WASD · Mouse · E para interagir · Clique para atirar</p>
         </div>
-
-        <!-- TELA INICIAL -->
-        <div id="screen-start" class="screen active">
-            <div class="logo">ECOSFERA <span>2200</span></div>
-            <div class="subtitle">— O Último Refúgio da Humanidade —</div>
-            <div id="lore-text">
-                <p><span class="highlight">📜 ANO 2200</span></p>
-                <p>A humanidade pagou o preço por sua <span class="danger">ganância</span>.</p>
-                <p>O <span class="highlight">consumismo extremo</span> e a <span class="highlight">poluição desenfreada</span> transformaram o planeta em um deserto tóxico.</p>
-                <p>E então veio o <span class="danger">VÍRUS MORTAL</span>.</p>
-                <p>Nascido da própria poluição, o vírus se espalhou como fogo. <span class="danger">Bilhões</span> foram infectados, seus corpos <span class="highlight">mutando</span> em criaturas <span class="danger">selvagens e deformadas</span>.</p>
-                <p>Os poucos <span class="highlight-green">sobreviventes</span> fugiram para <span class="highlight-green">BUNKERS</span> subterrâneos.</p>
-                <p style="margin-top:10px;color:#888;">─────</p>
-                <p style="color:#666;font-size:12px;">Você é um dos últimos. Sua missão: <span class="highlight-green">sobreviver</span>.</p>
-            </div>
-            <div id="create-form">
-                <input type="text" id="input-name" placeholder="Digite seu nome..." maxlength="20" autofocus>
-                <button id="btn-start">▶ ENTRAR</button>
-            </div>
-        </div>
-
-        <!-- TELA DO BUNKER -->
-        <div id="screen-bunker" class="screen">
-            <div id="bunker-header">
-                <div class="time-display">
-                    🕐 <span id="bunker-time">DIA</span> · Turno <span id="bunker-turn">25</span>/25
-                </div>
-                <div class="status">✅ Bunker: <span id="bunker-safety">SEGURO</span></div>
-            </div>
-            <div id="bunker-stats">
-                <div class="bunker-stat safe">
-                    <span class="stat-icon">🫧</span>
-                    <div class="stat-value" id="stat-oxygen">100</div>
-                    <div class="stat-label">Oxigênio</div>
-                </div>
-                <div class="bunker-stat safe">
-                    <span class="stat-icon">☣️</span>
-                    <div class="stat-value" id="stat-contamination">0%</div>
-                    <div class="stat-label">Contaminação</div>
-                </div>
-                <div class="bunker-stat safe">
-                    <span class="stat-icon">⚡</span>
-                    <div class="stat-value" id="stat-energy">100</div>
-                    <div class="stat-label">Energia</div>
-                </div>
-                <div class="bunker-stat safe">
-                    <span class="stat-icon">🍖</span>
-                    <div class="stat-value" id="stat-hunger">100%</div>
-                    <div class="stat-label">Fome</div>
-                </div>
-            </div>
-            <div id="bunker-actions">
-                <button class="bunker-btn surface" id="btn-surface">
-                    <span class="btn-icon">☢️</span>
-                    <span class="btn-label">SUPERFÍCIE</span>
-                    <span class="btn-desc">Explore o mundo devastado</span>
-                </button>
-                <button class="bunker-btn dormitory" id="btn-dormitory">
-                    <span class="btn-icon">🛏️</span>
-                    <span class="btn-label">DORMITÓRIO</span>
-                    <span class="btn-desc">Durma e recupere energias</span>
-                </button>
-                <button class="bunker-btn machine" id="btn-machine">
-                    <span class="btn-icon">⚙️</span>
-                    <span class="btn-label">MÁQUINA</span>
-                    <span class="btn-desc">Verifique o status da máquina</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- TELA DA SUPERFÍCIE -->
-        <div id="screen-surface" class="screen">
-            <div id="surface-header">
-                <div class="location">☢️ <span id="surface-location">Nova Prospekt</span></div>
-                <div class="danger-level" id="surface-danger">⚠️ PERIGO: 30%</div>
-            </div>
-            <div id="surface-status">
-                <div class="surface-stat">
-                    <div class="stat-label">Turno</div>
-                    <div class="stat-value" id="surface-turn">0/25</div>
-                </div>
-                <div class="surface-stat">
-                    <div class="stat-label">Oxigênio</div>
-                    <div class="stat-value" id="surface-oxygen">100</div>
-                </div>
-                <div class="surface-stat">
-                    <div class="stat-label">Contaminação</div>
-                    <div class="stat-value" id="surface-contamination">0%</div>
-                </div>
-                <div class="surface-stat">
-                    <div class="stat-label">Energia</div>
-                    <div class="stat-value" id="surface-energy">100</div>
-                </div>
-            </div>
-            <div id="surface-narrative"></div>
-        </div>
-
-        <!-- TELA DE COMBATE -->
-        <div id="screen-combat" class="screen">
-            <div id="combat-header">
-                <div class="enemy-name" id="combat-enemy-name">👾 MUTANTE</div>
-                <div class="enemy-hp">❤️ <span id="combat-enemy-hp">100</span>/<span id="combat-enemy-maxhp">100</span></div>
-            </div>
-            <div id="combat-status">
-                <div class="combatant player">
-                    <div class="name">🗿 <span id="combat-player-name">Você</span></div>
-                    <div class="hp-bar"><div class="hp-fill" id="combat-player-hp-fill" style="width:100%"></div></div>
-                    <div class="hp-text">❤️ <span id="combat-player-hp">100</span>/100</div>
-                </div>
-                <div class="combatant">
-                    <div class="name">👾 <span id="combat-enemy-name2">Mutante</span></div>
-                    <div class="hp-bar"><div class="hp-fill enemy" id="combat-enemy-hp-fill" style="width:100%"></div></div>
-                    <div class="hp-text">❤️ <span id="combat-enemy-hp2">100</span>/<span id="combat-enemy-maxhp2">100</span></div>
-                </div>
-            </div>
-            <div id="combat-log"></div>
-            <div id="combat-actions">
-                <button class="attack" id="combat-attack">
-                    ⚔️ ATACAR
-                    <span class="sub">10-20 de dano · 40% de esquiva</span>
-                </button>
-                <button class="defense" id="combat-defense">
-                    🛡️ DEFENSIVA
-                    <span class="sub">70% esquiva · 8-12 de dano</span>
-                </button>
-                <button class="flee" id="combat-flee">
-                    🏃 RECUAR
-                    <span class="sub">30% de fugir · se falhar, é atacado</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- TELA DA MÁQUINA -->
-        <div id="screen-machine" class="screen">
-            <div class="machine-icon">⚙️</div>
-            <div class="machine-title">MÁQUINA DE CARBONO</div>
-            <div class="machine-status">🟢 OPERACIONAL</div>
-            <div class="machine-battery" id="machine-battery-display">🔋 100%</div>
-            <div class="machine-desc">Bateria: <span id="machine-battery-text">100%</span></div>
-            <div class="machine-desc" style="margin-top:4px;">Produz <span id="machine-production-display">2</span> Oxigênio/turno</div>
-            <button id="btn-machine-back">← VOLTAR</button>
-        </div>
-
+        <button id="startBtn">▶ ENTRAR</button>
     </div>
 
-    <!-- MODAL -->
-    <div id="modal">
-        <div id="modal-content">
-            <h2 id="modal-title">⚠️ AVISO</h2>
-            <p id="modal-text">Conteúdo do evento...</p>
-            <div class="modal-actions">
-                <button id="modal-btn-ok">OK</button>
-                <button id="modal-btn-cancel" class="danger" style="display:none;">Cancelar</button>
-            </div>
+    <!-- CROSSHAIR -->
+    <div id="crosshair">✚</div>
+
+    <!-- HUD -->
+    <div id="hud">
+        <div class="stat">
+            <span class="icon">🫧</span>
+            <span class="value" id="hud-oxygen">100</span>
+        </div>
+        <div class="stat">
+            <span class="icon">⚡</span>
+            <span class="value" id="hud-energy">100</span>
+        </div>
+        <div class="stat">
+            <span class="icon">🍖</span>
+            <span class="value" id="hud-hunger">100</span>
+        </div>
+        <div class="stat">
+            <span class="icon">☣️</span>
+            <span class="value" id="hud-contamination">0</span>
+        </div>
+        <div class="stat">
+            <span class="icon">❤️</span>
+            <span class="value" id="hud-health">100</span>
         </div>
     </div>
 
-    <!-- ============================================================
-    JAVASCRIPT - v3.1 COM SISTEMA ANTI-LOOP
-    ============================================================ -->
-    <script>
-        // ============================================================
-        //  ECOSFERA 2200 - v3.1
-        //  Sistema Anti-Loop + 25 Turnos
-        // ============================================================
-
-        // ===== ESTADO DO JOGO =====
-        const Game = {
-            playerName: '',
-            cycle: 'day',
-            turn: 25,
-            maxTurn: 25,
-
-            resources: {
-                oxygen: 100,
-                contamination: 0,
-                energy: 100,
-                hunger: 100,
-                scrap: 0,
-                plastic: 0,
-                water: 0,
-                biomass: 0,
-                rare_parts: 0,
-                medicine: 0,
-            },
-
-            machine: {
-                battery: 100,
-                production: 2,
-                active: true,
-            },
-
-            surface: {
-                turn: 0,
-                maxTurns: 25,
-                danger: 30,
-                currentLocation: 'Nova Prospekt',
-                currentScenario: null,
-                scenarioHistory: [],
-                visitedLocations: {}, // SISTEMA ANTI-LOOP: registra locais visitados
-                collectedResources: {}, // SISTEMA ANTI-LOOP: registra recursos já coletados
-                inCombat: false,
-                expeditionActive: false,
-            },
-
-            combat: {
-                active: false,
-                enemy: null,
-                playerHP: 100,
-                maxPlayerHP: 100,
-                enemyHP: 0,
-                maxEnemyHP: 0,
-                turn: 0,
-                isPlayerTurn: true,
-                log: [],
-                inProgress: false,
-            },
-
-            gameOver: false,
-            currentScreen: 'start',
-            eventLock: false,
-        };
-
-        // ===== TIPOS DE MUTANTES =====
-        const MUTANT_TYPES = [
-            { name: 'Rastejador', hp: 100, damage: 10, emoji: '👾' },
-            { name: 'Triturador', hp: 120, damage: 15, emoji: '🔪' },
-            { name: 'Sibila', hp: 90, damage: 20, emoji: '👻' },
-            { name: 'Colosso', hp: 150, damage: 12, emoji: '💀' },
-            { name: 'Espectro', hp: 80, damage: 18, emoji: '🌀' },
-        ];
-
-        // ===== SISTEMA ANTI-LOOP: Recursos por local =====
-        const LOCATION_RESOURCES = {
-            'predio_recursos': { scrap: 2, plastic: 1, energy: 5 },
-            'predio_recursos2': { plastic: 2, rare_parts: 1, energy: 3 },
-            'predio_recursos_comida': { biomass: 2, hunger: 10 },
-            'predio_recursos_raros': { rare_parts: 2, energy: 10 },
-            'predio_recursos_ferramenta': { scrap: 3 },
-            'metro_recursos': { scrap: 3, energy: 5 },
-            'metro_recursos2': { rare_parts: 1 },
-            'metro_recursos_comida': { biomass: 2, hunger: 10 },
-            'metro_recursos_lanterna': { scrap: 1 },
-            'rua_recursos': { scrap: 2, plastic: 1, energy: 5 },
-            'rua_recursos2': { plastic: 1, water: 2 },
-            'rua_recursos_comida': { biomass: 2, hunger: 10 },
-            'rua_recursos_ferramenta': { scrap: 3 },
-            'rua_recursos_raros': { rare_parts: 2, energy: 10 },
-            'ponte_recursos': { scrap: 3, energy: 5 },
-            'ponte_recursos_combustivel': { energy: 15 },
-            'ponte_recursos2': { scrap: 2, rare_parts: 1 },
-            'revelon_recursos': { scrap: 3, plastic: 2, energy: 5 },
-            'revelon_recursos2': { water: 2, biomass: 2 },
-            'revelon_recursos_comida': { biomass: 3, hunger: 15 },
-            'revelon_recursos_raros': { rare_parts: 2, energy: 10 },
-            'revelon_recursos_pecas': { rare_parts: 3 },
-            'revelon_recursos_eletronicos': { rare_parts: 2, energy: 5 },
-            'revelon_recursos_bateria': { energy: 20 },
-            'revelon_recursos_medicina': { medicine: 3, contamination: -10 },
-            'revelon_recursos_medicina2': { medicine: 2 },
-            'revelon_recursos_quimicos': { rare_parts: 2 },
-        };
-
-        // ===== SISTEMA ANTI-LOOP: Locais que levam para o mesmo lugar =====
-        const LOOP_PREVENTION = {
-            // Se você está em um local que só tem opções de volta, ele avança
-            'predio_voltar_lobby': { next: 'predio_entrada', force: true },
-            'metro_saida': { next: 'rua_inicio', force: true },
-            'rua_esgoto_saida': { next: 'rua_inicio', force: true },
-            'ponte_chegada_revelon': { next: 'revelon_entrada', force: true },
-        };
-
-        // ============================================================
-        // REFERÊNCIAS DOM (Mantido da v3.0)
-        // ============================================================
-
-        const DOM = {};
-
-        function cacheDOM() {
-            DOM.screens = {
-                start: document.getElementById('screen-start'),
-                bunker: document.getElementById('screen-bunker'),
-                surface: document.getElementById('screen-surface'),
-                combat: document.getElementById('screen-combat'),
-                machine: document.getElementById('screen-machine'),
-            };
-
-            DOM.header = { playerName: document.getElementById('header-player-name') };
-
-            DOM.bunker = {
-                time: document.getElementById('bunker-time'),
-                turn: document.getElementById('bunker-turn'),
-                safety: document.getElementById('bunker-safety'),
-                stats: {
-                    oxygen: document.getElementById('stat-oxygen'),
-                    contamination: document.getElementById('stat-contamination'),
-                    energy: document.getElementById('stat-energy'),
-                    hunger: document.getElementById('stat-hunger'),
-                },
-                btnSurface: document.getElementById('btn-surface'),
-                btnDormitory: document.getElementById('btn-dormitory'),
-                btnMachine: document.getElementById('btn-machine'),
-            };
-
-            DOM.surface = {
-                location: document.getElementById('surface-location'),
-                danger: document.getElementById('surface-danger'),
-                turn: document.getElementById('surface-turn'),
-                oxygen: document.getElementById('surface-oxygen'),
-                contamination: document.getElementById('surface-contamination'),
-                energy: document.getElementById('surface-energy'),
-                narrative: document.getElementById('surface-narrative'),
-            };
-
-            DOM.combat = {
-                enemyName: document.getElementById('combat-enemy-name'),
-                enemyHP: document.getElementById('combat-enemy-hp'),
-                enemyMaxHP: document.getElementById('combat-enemy-maxhp'),
-                enemyHP2: document.getElementById('combat-enemy-hp2'),
-                enemyMaxHP2: document.getElementById('combat-enemy-maxhp2'),
-                enemyHPFill: document.getElementById('combat-enemy-hp-fill'),
-                playerName: document.getElementById('combat-player-name'),
-                playerHP: document.getElementById('combat-player-hp'),
-                playerHPFill: document.getElementById('combat-player-hp-fill'),
-                enemyName2: document.getElementById('combat-enemy-name2'),
-                log: document.getElementById('combat-log'),
-                btnAttack: document.getElementById('combat-attack'),
-                btnDefense: document.getElementById('combat-defense'),
-                btnFlee: document.getElementById('combat-flee'),
-            };
-
-            DOM.machine = {
-                battery: document.getElementById('machine-battery-display'),
-                batteryText: document.getElementById('machine-battery-text'),
-                production: document.getElementById('machine-production-display'),
-                btnBack: document.getElementById('btn-machine-back'),
-            };
-
-            DOM.start = {
-                input: document.getElementById('input-name'),
-                btn: document.getElementById('btn-start'),
-            };
-
-            DOM.modal = {
-                overlay: document.getElementById('modal'),
-                title: document.getElementById('modal-title'),
-                text: document.getElementById('modal-text'),
-                btnOk: document.getElementById('modal-btn-ok'),
-                btnCancel: document.getElementById('modal-btn-cancel'),
-            };
-        }
-
-        // ===== FUNÇÕES AUXILIARES =====
-        function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
-
-        function random(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-
-        function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-        function chance(pct) { return random(0, 100) < pct; }
-
-        // ===== GERENCIAMENTO DE TELAS =====
-        function showScreen(name) {
-            Object.keys(DOM.screens).forEach(key => {
-                DOM.screens[key].classList.toggle('active', key === name);
-            });
-            Game.currentScreen = name;
-        }
-
-        // ===== MODAL =====
-        function showModal(title, text, onOk = null) {
-            Game.eventLock = true;
-            DOM.modal.title.textContent = title;
-            DOM.modal.text.textContent = text;
-            DOM.modal.overlay.classList.add('active');
-
-            DOM.modal.btnOk.onclick = () => {
-                DOM.modal.overlay.classList.remove('active');
-                Game.eventLock = false;
-                if (onOk) onOk();
-                renderAll();
-            };
-
-            DOM.modal.btnCancel.style.display = 'none';
-        }
-
-        // ============================================================
-        // RENDERIZAÇÃO
-        // ============================================================
-
-        function renderAll() {
-            renderHeader();
-            renderBunker();
-            renderSurface();
-            renderMachine();
-        }
-
-        function renderHeader() {
-            DOM.header.playerName.textContent = Game.playerName || 'Sobrevivente';
-        }
-
-        function renderBunker() {
-            const r = Game.resources;
-            const stats = DOM.bunker.stats;
-
-            stats.oxygen.textContent = Math.floor(r.oxygen);
-            stats.contamination.textContent = Math.floor(r.contamination) + '%';
-            stats.energy.textContent = Math.floor(r.energy);
-            stats.hunger.textContent = Math.floor(r.hunger) + '%';
-
-            stats.oxygen.parentElement.className = 'bunker-stat ' + (r.oxygen > 30 ? 'safe' : 'danger');
-            stats.contamination.parentElement.className = 'bunker-stat ' + (r.contamination < 50 ? 'safe' : (r
-                .contamination < 75 ? 'warning' : 'danger'));
-            stats.energy.parentElement.className = 'bunker-stat ' + (r.energy > 20 ? 'safe' : 'danger');
-            stats.hunger.parentElement.className = 'bunker-stat ' + (r.hunger > 30 ? 'safe' : 'danger');
-
-            DOM.bunker.time.textContent = Game.cycle === 'day' ? '☀️ DIA' : '🌙 NOITE';
-            DOM.bunker.time.className = Game.cycle === 'day' ? 'day' : 'night';
-            DOM.bunker.turn.textContent = Game.turn;
-
-            DOM.bunker.safety.textContent = Game.cycle === 'day' ? 'SEGURO' : '⚠️ PERIGO!';
-            DOM.bunker.safety.style.color = Game.cycle === 'day' ? '#4aff8a' : '#ff4444';
-
-            DOM.bunker.btnSurface.disabled = Game.gameOver || Game.eventLock;
-            DOM.bunker.btnDormitory.disabled = Game.cycle === 'day' || Game.gameOver || Game.eventLock;
-            DOM.bunker.btnMachine.disabled = Game.gameOver || Game.eventLock;
-
-            DOM.bunker.btnDormitory.querySelector('.btn-desc').textContent =
-                Game.cycle === 'day' ? '🔒 Apenas à noite' : 'Durma e recupere energias';
-        }
-
-        function renderSurface() {
-            const s = Game.surface;
-            const r = Game.resources;
-
-            DOM.surface.location.textContent = s.currentLocation || 'Nova Prospekt';
-            DOM.surface.danger.textContent = `⚠️ PERIGO: ${s.danger}%`;
-            DOM.surface.danger.className = 'danger-level ' + (s.danger < 40 ? 'safe' : '');
-
-            DOM.surface.turn.textContent = `${s.turn}/${s.maxTurns}`;
-            DOM.surface.oxygen.textContent = Math.floor(r.oxygen);
-            DOM.surface.contamination.textContent = Math.floor(r.contamination) + '%';
-            DOM.surface.energy.textContent = Math.floor(r.energy);
-
-            renderNarrative();
-        }
-
-        function renderNarrative() {
-            const container = DOM.surface.narrative;
-            const s = Game.surface;
-
-            // Verifica se está em combate
-            if (Game.combat.active) {
-                container.innerHTML = `
-                    <div class="narrative-text" style="border-color:#ff4444;">
-                        ⚔️ <span class="danger">EM COMBATE!</span>
-                        <br>Volte para a tela de combate.
-                    </div>
-                `;
-                return;
-            }
-
-            if (!s.currentScenario || !SCENARIOS[s.currentScenario]) {
-                container.innerHTML = `
-                    <div class="narrative-text" style="border-color:#666;color:#666;text-align:center;padding:30px;">
-                        🌫️ A superfície está em silêncio...
-                        <br><span style="font-size:12px;color:#444;">Use as opções abaixo para explorar</span>
-                    </div>
-                `;
-                return;
-            }
-
-            const scenario = SCENARIOS[s.currentScenario];
-            let html = '';
-
-            // Verifica se o local já foi explorado
-            const isExplored = s.visitedLocations[s.currentScenario] || false;
-            const isResource = LOCATION_RESOURCES[s.currentScenario] !== undefined;
-            const wasCollected = s.collectedResources[s.currentScenario] || false;
-
-            // Texto da narrativa - com indicação se já foi explorado
-            let text = scenario.text;
-            if (isExplored && isResource) {
-                text += `<br><span class="explored">🔒 Este local já foi explorado. Os recursos já foram coletados.</span>`;
-            }
-
-            html += `<div class="narrative-text">${text}</div>`;
-
-            // Opções - filtrando para evitar loops
-            let options = scenario.options || [];
-
-            // SISTEMA ANTI-LOOP: Remove opções que levam a locais já explorados (se for recurso)
-            if (isResource && wasCollected) {
-                // Se já coletou, só oferece opções de saída
-                options = options.filter(opt => {
-                    const target = SCENARIOS[opt.id];
-                    if (!target) return true;
-                    // Mantém apenas opções de saída (que não são de coleta)
-                    return !LOCATION_RESOURCES[opt.id] || opt.id === 'voltar_para_onde_veio';
-                });
-
-                // Se não sobrou nenhuma opção, adiciona uma de saída
-                if (options.length === 0) {
-                    options = [
-                        { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair daqui', class: '' }
-                    ];
-                }
-            }
-
-            // SISTEMA ANTI-LOOP: Verifica se há loop detectado
-            if (options.length === 0) {
-                // Se não há opções, tenta forçar um avanço
-                const loopFix = LOOP_PREVENTION[s.currentScenario];
-                if (loopFix && loopFix.force) {
-                    // Avança automaticamente
-                    setTimeout(() => {
-                        goToScenario(loopFix.next);
-                    }, 300);
-                    html += `<div class="narrative-text" style="border-color:#ffaa44;color:#ffaa44;">
-                        ⏳ Avançando automaticamente...
-                    </div>`;
-                    container.innerHTML = html;
-                    return;
-                }
-
-                // Fallback: volta para o início
-                options = [
-                    { id: 'start', icon: '🚪', label: 'Voltar para o início', class: '' }
-                ];
-            }
-
-            // Mostra as opções
-            html += `<div class="narrative-options">`;
-            options.forEach(opt => {
-                const cls = opt.class || '';
-                const isExploredOpt = s.visitedLocations[opt.id] && LOCATION_RESOURCES[opt.id];
-                const finalCls = isExploredOpt ? 'explored' : cls;
-                html += `
-                    <button class="${finalCls}" data-optid="${opt.id}" ${isExploredOpt ? 'disabled' : ''}>
-                        <span class="opt-icon">${opt.icon || '➡️'}</span>
-                        ${opt.label}
-                        ${isExploredOpt ? ' ✅' : ''}
-                    </button>
-                `;
-            });
-            html += `</div>`;
-
-            container.innerHTML = html;
-
-            // Bind dos botões (apenas os não desabilitados)
-            container.querySelectorAll('.narrative-options button:not([disabled])').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const optId = this.dataset.optid;
-                    handleChoice(optId);
-                });
-            });
-
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function renderMachine() {
-            DOM.machine.battery.textContent = `🔋 ${Math.floor(Game.machine.battery)}%`;
-            DOM.machine.batteryText.textContent = Math.floor(Game.machine.battery) + '%';
-            DOM.machine.production.textContent = Game.machine.production;
-        }
-
-        // ============================================================
-        // COMBATE (Mantido da v3.0)
-        // ============================================================
-
-        function renderCombat() {
-            const c = Game.combat;
-            const enemy = c.enemy;
-
-            DOM.combat.enemyName.textContent = `${enemy.emoji} ${enemy.name}`;
-            DOM.combat.enemyName2.textContent = enemy.name;
-
-            DOM.combat.enemyHP.textContent = Math.floor(c.enemyHP);
-            DOM.combat.enemyMaxHP.textContent = c.maxEnemyHP;
-            DOM.combat.enemyHP2.textContent = Math.floor(c.enemyHP);
-            DOM.combat.enemyMaxHP2.textContent = c.maxEnemyHP;
-
-            const enemyPct = (c.enemyHP / c.maxEnemyHP) * 100;
-            DOM.combat.enemyHPFill.style.width = Math.max(0, enemyPct) + '%';
-
-            DOM.combat.playerName.textContent = Game.playerName;
-            DOM.combat.playerHP.textContent = Math.floor(c.playerHP);
-            const playerPct = (c.playerHP / c.maxPlayerHP) * 100;
-            DOM.combat.playerHPFill.style.width = Math.max(0, playerPct) + '%';
-
-            DOM.combat.log.innerHTML = c.log.map(entry =>
-                `<div class="combat-log-entry">${entry}</div>`
-            ).join('');
-            DOM.combat.log.scrollTop = DOM.combat.log.scrollHeight;
-
-            updateCombatButtons(!c.inProgress && c.isPlayerTurn && !Game.gameOver);
-        }
-
-        function updateCombatButtons(enabled) {
-            DOM.combat.btnAttack.disabled = !enabled || Game.gameOver;
-            DOM.combat.btnDefense.disabled = !enabled || Game.gameOver;
-            DOM.combat.btnFlee.disabled = !enabled || Game.gameOver;
-        }
-
-        function addCombatLog(msg) {
-            Game.combat.log.push(msg);
-            renderCombat();
-        }
-
-        function startCombat(enemyType) {
-            const enemy = MUTANT_TYPES.find(m => m.name === enemyType) || MUTANT_TYPES[0];
-
-            Game.combat.active = true;
-            Game.combat.enemy = enemy;
-            Game.combat.playerHP = 100;
-            Game.combat.maxPlayerHP = 100;
-            Game.combat.enemyHP = enemy.hp;
-            Game.combat.maxEnemyHP = enemy.hp;
-            Game.combat.turn = 0;
-            Game.combat.isPlayerTurn = true;
-            Game.combat.log = [];
-            Game.combat.inProgress = false;
-
-            showScreen('combat');
-            renderCombat();
-
-            addCombatLog(`⚔️ COMBATE INICIADO contra ${enemy.emoji} ${enemy.name}!`);
-            addCombatLog(`💪 ${enemy.name} tem ${enemy.hp} HP e causa ${enemy.damage} de dano.`);
-            addCombatLog('🎯 Escolha sua ação:');
-        }
-
-        function combatAttack() {
-            if (Game.combat.inProgress || !Game.combat.isPlayerTurn) return;
-            Game.combat.inProgress = true;
-            updateCombatButtons(false);
-
-            const c = Game.combat;
-            const enemy = c.enemy;
-
-            if (chance(40)) {
-                addCombatLog(`🔄 ${enemy.name} esquivou do seu ataque!`);
-            } else {
-                const damage = random(10, 20);
-                c.enemyHP = Math.max(0, c.enemyHP - damage);
-                addCombatLog(`⚔️ Você causou <span class="damage">${damage}</span> de dano em ${enemy.name}!`);
-                renderCombat();
-
-                if (c.enemyHP <= 0) {
-                    endCombat(true);
-                    return;
-                }
-            }
-
-            setTimeout(() => {
-                enemyTurn();
-            }, 600);
-        }
-
-        function combatDefense() {
-            if (Game.combat.inProgress || !Game.combat.isPlayerTurn) return;
-            Game.combat.inProgress = true;
-            updateCombatButtons(false);
-
-            const c = Game.combat;
-            const enemy = c.enemy;
-
-            addCombatLog(`🛡️ Você entrou em posição defensiva!`);
-
-            setTimeout(() => {
-                if (chance(70)) {
-                    addCombatLog(`🌀 Você esquivou do ataque de ${enemy.name}!`);
-                } else {
-                    const damage = random(8, 12);
-                    c.playerHP = Math.max(0, c.playerHP - damage);
-                    addCombatLog(`💥 ${enemy.name} causou <span class="damage">${damage}</span> de dano!`);
-                    renderCombat();
-
-                    if (c.playerHP <= 0) {
-                        endCombat(false);
-                        return;
-                    }
-                }
-
-                c.isPlayerTurn = true;
-                c.inProgress = false;
-                updateCombatButtons(true);
-                addCombatLog('🎯 Sua vez:');
-                renderCombat();
-            }, 600);
-        }
-
-        function combatFlee() {
-            if (Game.combat.inProgress || !Game.combat.isPlayerTurn) return;
-            Game.combat.inProgress = true;
-            updateCombatButtons(false);
-
-            const c = Game.combat;
-            const enemy = c.enemy;
-
-            if (chance(30)) {
-                addCombatLog(`🏃 <span class="flee">Você conseguiu fugir!</span>`);
-                setTimeout(() => {
-                    endCombat(false, true);
-                }, 500);
-            } else {
-                addCombatLog(`💥 Falha ao fugir! ${enemy.name} te atacou!`);
-                const damage = random(10, 20);
-                c.playerHP = Math.max(0, c.playerHP - damage);
-                renderCombat();
-
-                if (c.playerHP <= 0) {
-                    endCombat(false);
-                    return;
-                }
-
-                c.isPlayerTurn = true;
-                c.inProgress = false;
-                updateCombatButtons(true);
-                addCombatLog('🎯 Sua vez:');
-                renderCombat();
+    <!-- MUNIÇÃO -->
+    <div id="ammo-display">
+        🔫 <span id="ammo-current">12</span>/<span id="ammo-max">30</span>
+    </div>
+
+    <!-- INTERAÇÃO -->
+    <div id="interact-hint">[E] Pegar item</div>
+
+    <!-- DANO -->
+    <div id="damage-overlay"></div>
+
+    <!-- CONTROLES -->
+    <div id="controls-hint">WASD · Mouse · E · Clique Esquerdo para Atirar · Shift para Correr</div>
+
+    <!-- SCRIPTS -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
             }
         }
-
-        function enemyTurn() {
-            const c = Game.combat;
-            const enemy = c.enemy;
-
-            const damage = random(10, 20);
-            c.playerHP = Math.max(0, c.playerHP - damage);
-            addCombatLog(`💥 ${enemy.name} causou <span class="damage">${damage}</span> de dano!`);
-            renderCombat();
-
-            if (c.playerHP <= 0) {
-                endCombat(false);
-                return;
-            }
-
-            c.isPlayerTurn = true;
-            c.inProgress = false;
-            updateCombatButtons(true);
-            addCombatLog('🎯 Sua vez:');
-            renderCombat();
-        }
-
-        function endCombat(victory, fled = false) {
-            const c = Game.combat;
-            c.active = false;
-            c.inProgress = false;
-            updateCombatButtons(false);
-
-            if (fled) {
-                showModal('🏃 Fuga Bem-Sucedida',
-                    'Você escapou do combate!',
-                    () => {
-                        Game.surface.inCombat = false;
-                        showScreen('surface');
-                        renderAll();
-                        goToScenario('start');
-                    });
-                return;
-            }
-
-            if (victory) {
-                const reward = random(5, 15);
-                Game.resources.energy = Math.min(100, Game.resources.energy + reward);
-                Game.resources.hunger = Math.min(100, Game.resources.hunger + 5);
-                Game.resources.oxygen = Math.min(100, Game.resources.oxygen + 10);
-
-                showModal('⚔️ VITÓRIA!',
-                    `Você derrotou ${c.enemy.emoji} ${c.enemy.name}!\n\n🏆 +${reward} Energia\n🍖 +5 Fome\n🫧 +10 Oxigênio`,
-                    () => {
-                        Game.surface.inCombat = false;
-                        showScreen('surface');
-                        renderAll();
-                        goToScenario('start');
-                    });
-            } else {
-                Game.resources.oxygen = Math.max(0, Game.resources.oxygen - 20);
-                Game.resources.contamination = Math.min(100, Game.resources.contamination + 15);
-                Game.resources.energy = Math.max(0, Game.resources.energy - 10);
-
-                showModal('💀 DERROTA!',
-                    `${c.enemy.emoji} ${c.enemy.name} te derrotou!\n\nVocê perdeu recursos.`,
-                    () => {
-                        checkDeath();
-                        Game.surface.inCombat = false;
-                        showScreen('bunker');
-                        renderAll();
-                    });
-            }
-        }
-
-        // ============================================================
-        // LÓGICA DE NAVEGAÇÃO COM ANTI-LOOP
-        // ============================================================
-
-        function handleChoice(optionId) {
-            if (Game.eventLock) return;
-
-            // Verifica se é combate
-            if (optionId.startsWith('combate_')) {
-                const enemyMap = {
-                    'combate_rastejador': 'Rastejador',
-                    'combate_triturador': 'Triturador',
-                    'combate_sibila': 'Sibila',
-                    'combate_colosso': 'Colosso',
-                    'combate_espectro': 'Espectro',
-                };
-                const enemyType = enemyMap[optionId] || 'Rastejador';
-                Game.surface.inCombat = true;
-                startCombat(enemyType);
-                return;
-            }
-
-            // Verifica se é fuga
-            if (optionId === 'fuga') {
-                // Já foi tratado no cenário
-                return;
-            }
-
-            // Verifica se é retorno
-            if (optionId === 'voltar_para_onde_veio') {
-                const prevScenario = Game.surface.scenarioHistory.pop() || 'start';
-                goToScenario(prevScenario);
-                return;
-            }
-
-            // SISTEMA ANTI-LOOP: Verifica se o destino já foi visitado e é recurso
-            if (LOCATION_RESOURCES[optionId] && Game.surface.visitedLocations[optionId]) {
-                showModal('🔒 Já Explorado',
-                    'Você já coletou os recursos deste local. Escolha outro caminho.');
-                return;
-            }
-
-            // Consome um turno
-            Game.surface.turn += 1;
-
-            // Consome recursos
-            Game.resources.oxygen = Math.max(0, Game.resources.oxygen - 2);
-            Game.resources.hunger = Math.max(0, Game.resources.hunger - 2);
-            Game.resources.contamination = Math.min(100, Game.resources.contamination + 2);
-
-            // Verifica se acabaram os turnos
-            if (Game.surface.turn > Game.surface.maxTurns) {
-                showModal('⏳ Fim da Expedição',
-                    'Seus turnos na superfície acabaram (25/25). Você precisa voltar ao bunker.',
-                    () => {
-                        showScreen('bunker');
-                        renderAll();
-                    });
-                return;
-            }
-
-            // Verifica morte
-            if (checkDeath()) return;
-
-            // Marca o local atual como visitado (se for recurso)
-            if (Game.surface.currentScenario && LOCATION_RESOURCES[Game.surface.currentScenario]) {
-                Game.surface.visitedLocations[Game.surface.currentScenario] = true;
-                Game.surface.collectedResources[Game.surface.currentScenario] = true;
-            }
-
-            // Salva o cenário atual no histórico
-            if (Game.surface.currentScenario) {
-                Game.surface.scenarioHistory.push(Game.surface.currentScenario);
-            }
-
-            // Verifica se o cenário existe
-            if (SCENARIOS[optionId]) {
-                goToScenario(optionId);
-            } else {
-                showModal('⚠️ Caminho Bloqueado',
-                    'Este caminho não está disponível no momento.',
-                    () => {
-                        goToScenario('start');
-                    });
-            }
-
-            renderAll();
-        }
-
-        function goToScenario(scenarioId) {
-            const scenario = SCENARIOS[scenarioId];
-            if (!scenario) {
-                Game.surface.currentScenario = 'start';
-                Game.surface.currentLocation = 'Nova Prospekt';
-                renderAll();
-                return;
-            }
-
-            Game.surface.currentScenario = scenarioId;
-            Game.surface.currentLocation = scenario.location || 'Nova Prospekt';
-            Game.surface.danger = scenario.danger || 30;
-
-            // SISTEMA ANTI-LOOP: Executa coleta de recursos (apenas se não foi coletado antes)
-            if (LOCATION_RESOURCES[scenarioId] && !Game.surface.collectedResources[scenarioId]) {
-                const rewards = LOCATION_RESOURCES[scenarioId];
-                let msg = '📦 Você encontrou: ';
-                const parts = [];
-                let contaminationChange = 0;
-
-                Object.keys(rewards).forEach(key => {
-                    const value = rewards[key];
-                    if (key === 'contamination') {
-                        contaminationChange = value;
-                        return;
-                    }
-                    if (Game.resources[key] !== undefined) {
-                        Game.resources[key] = clamp(Game.resources[key] + value, 0, 100);
-                        parts.push(`${value} ${key}`);
-                    }
-                });
-
-                if (contaminationChange < 0) {
-                    Game.resources.contamination = Math.max(0, Game.resources.contamination + contaminationChange);
-                    parts.push(`${Math.abs(contaminationChange)}% contaminação removida`);
-                }
-
-                msg += parts.join(', ');
-                showModal('📦 Recursos Coletados', msg);
-
-                // Marca como coletado
-                Game.surface.collectedResources[scenarioId] = true;
-                Game.surface.visitedLocations[scenarioId] = true;
-            }
-
-            // SISTEMA ANTI-LOOP: Verifica se é um local de loop forçado
-            const loopFix = LOOP_PREVENTION[scenarioId];
-            if (loopFix && loopFix.force && !Game.surface.visitedLocations[scenarioId]) {
-                // Avança automaticamente para evitar loop
-                setTimeout(() => {
-                    Game.surface.visitedLocations[scenarioId] = true;
-                    goToScenario(loopFix.next);
-                }, 300);
-                return;
-            }
-
-            renderAll();
-        }
-
-        // ============================================================
-        // AÇÕES DO BUNKER
-        // ============================================================
-
-        function goToSurface() {
-            if (Game.cycle === 'night') {
-                showModal('🌙 Noite Perigosa',
-                    'A noite é muito perigosa! Espere o dia amanhecer.');
-                return;
-            }
-
-            if (Game.resources.oxygen < 20) {
-                showModal('⚠️ Oxigênio Baixo',
-                    'Seu oxigênio está muito baixo para uma expedição.');
-                return;
-            }
-
-            // Resetar superfície
-            Game.surface.turn = 0;
-            Game.surface.maxTurns = 25;
-            Game.surface.danger = Game.cycle === 'day' ? random(20, 40) : random(50, 80);
-            Game.surface.currentLocation = 'Nova Prospekt';
-            Game.surface.scenarioHistory = [];
-            Game.surface.inCombat = false;
-            Game.surface.visitedLocations = {};
-            Game.surface.collectedResources = {};
-            Game.surface.expeditionActive = true;
-
-            // Consome 1 turno do bunker
-            Game.turn -= 1;
-
-            showScreen('surface');
-
-            // Vai para o cenário inicial
-            goToScenario('start');
-
-            renderAll();
-        }
-
-        function actionSleep() {
-            if (Game.cycle === 'day') {
-                showModal('☀️ Ainda é Dia',
-                    'Você só pode dormir durante a noite.');
-                return;
-            }
-
-            const r = Game.resources;
-            r.energy = Math.min(100, r.energy + 30);
-            r.hunger = Math.min(100, r.hunger + 15);
-            r.contamination = Math.max(0, r.contamination - 10);
-            r.oxygen = Math.min(100, r.oxygen + 10);
-
-            if (Game.machine.active) {
-                r.oxygen = Math.min(100, r.oxygen + Game.machine.production);
-            }
-
-            Game.cycle = 'day';
-            Game.turn = 25;
-
-            showModal('🛏️ Bom Descanso',
-                `Você dormiu profundamente.\n\n⚡ +30 Energia\n🍖 +15 Fome\n☣️ -10 Contaminação\n🫧 +${10 + Game.machine.production} Oxigênio`);
-            renderAll();
-        }
-
-        function goToMachine() {
-            showScreen('machine');
-            renderMachine();
-        }
-
-        // ============================================================
-        // CHECAGENS
-        // ============================================================
-
-        function checkDeath() {
-            const r = Game.resources;
-            if (r.oxygen <= 0) {
-                Game.gameOver = true;
-                showModal('💀 FALHA CRÍTICA - SEM OXIGÊNIO',
-                    'Você ficou sem oxigênio. A Ecosfera reivindicou mais uma vida...');
-                return true;
-            }
-            if (r.hunger <= 0) {
-                Game.gameOver = true;
-                showModal('💀 FALHA CRÍTICA - FOME',
-                    'A fome consumiu você. A superfície não perdoa.');
-                return true;
-            }
-            if (r.contamination >= 100) {
-                Game.gameOver = true;
-                showModal('💀 FALHA CRÍTICA - CONTAMINAÇÃO',
-                    'A poluição tomou conta do seu corpo.');
-                return true;
-            }
-            return false;
-        }
-
-        // ============================================================
-        // CONFIGURAÇÃO DE EVENTOS
-        // ============================================================
-
-        function setupEvents() {
-            // Início
-            DOM.start.btn.addEventListener('click', startGame);
-            DOM.start.input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') startGame();
-            });
-
-            // Bunker
-            DOM.bunker.btnSurface.addEventListener('click', goToSurface);
-            DOM.bunker.btnDormitory.addEventListener('click', actionSleep);
-            DOM.bunker.btnMachine.addEventListener('click', goToMachine);
-
-            // Máquina
-            DOM.machine.btnBack.addEventListener('click', () => {
-                showScreen('bunker');
-                renderAll();
-            });
-
-            // Combate
-            DOM.combat.btnAttack.addEventListener('click', combatAttack);
-            DOM.combat.btnDefense.addEventListener('click', combatDefense);
-            DOM.combat.btnFlee.addEventListener('click', combatFlee);
-        }
-
-        function startGame() {
-            const name = DOM.start.input.value.trim();
-            if (!name) {
-                showModal('⚠️ Atenção', 'Por favor, digite o nome do seu personagem.');
-                return;
-            }
-
-            Game.playerName = name;
-            showScreen('bunker');
-            renderAll();
-
-            showModal('🌍 Bem-vindo, ' + name + '!',
-                'Você acordou no bunker. O mundo lá fora está devastado.\n\n' +
-                '☀️ Durante o DIA: explore a superfície (25 turnos)\n' +
-                '🌙 Durante a NOITE: durma no dormitório\n\n' +
-                '🗺️ Na superfície, explore prédios, metrô, ruas e a ponte!\n' +
-                '⚔️ Cuidado com os mutantes!\n' +
-                '🔒 Cada local só pode ser explorado UMA VEZ.\n\n' +
-                'Boa sorte, sobrevivente.');
-        }
-
-        // ============================================================
-        // TODOS OS CENÁRIOS (77 - MESMOS DA v3.0)
-        // ============================================================
-
-        const SCENARIOS = {
-
-            // ===== TURNO 0 - INÍCIO =====
-            'start': {
-                id: 'start',
-                location: 'Nova Prospekt',
-                turn: 0,
-                text: 'Você está em <span class="location-name">Nova Prospekt</span>, uma cidade devastada. O céu está cinza, os prédios estão desmoronando e o silêncio é quebrado apenas pelo vento. Você precisa decidir para onde ir.',
-                options: [
-                    { id: 'predio_entrada', icon: '🏚️', label: 'Explorar um PRÉDIO abandonado', class: '' },
-                    { id: 'metro_entrada', icon: '🚇', label: 'Ir para o METRÔ', class: '' },
-                    { id: 'rua_inicio', icon: '🛣️', label: 'Seguir a RUA', class: '' },
-                    { id: 'ponte_inicio', icon: '🌉', label: 'Atravessar a GRANDE PONTE', class: '' },
-                ]
-            },
-
-            // ===== PRÉDIO =====
-            'predio_entrada': {
-                id: 'predio_entrada',
-                location: 'Nova Prospekt - Prédio Abandonado',
-                turn: 1,
-                text: 'Você entra no prédio. O lobby está destruído, com vidros quebrados e móveis virados. Há três caminhos à sua frente.',
-                options: [
-                    { id: 'predio_escadaria', icon: '🪜', label: 'Escadaria (subir)', class: '' },
-                    { id: 'predio_elevador', icon: '🛗', label: 'Elevador (quebrado)', class: '' },
-                    { id: 'predio_corredor', icon: '🚪', label: 'Corredor do térreo', class: '' },
-                ]
-            },
-
-            'predio_escadaria': {
-                id: 'predio_escadaria',
-                location: 'Nova Prospekt - Escadaria',
-                turn: 1,
-                text: 'Os degraus estão cobertos de entulho. Você precisa subir com cuidado.',
-                options: [
-                    { id: 'predio_andar2', icon: '⬆️', label: 'Tentar subir (risco de queda)', class: 'danger' },
-                    { id: 'predio_voltar_lobby', icon: '🔙', label: 'Voltar ao lobby', class: '' },
-                ]
-            },
-
-            'predio_andar2': {
-                id: 'predio_andar2',
-                location: 'Nova Prospekt - Andar 2',
-                turn: 2,
-                text: 'Você chega ao segundo andar. As mesas estão reviradas e há papéis espalhados.',
-                options: [
-                    { id: 'predio_recursos', icon: '🔍', label: 'Revirar as mesas (recursos)', class: 'success' },
-                    { id: 'predio_recursos2', icon: '🔍', label: 'Verificar as gavetas', class: 'success' },
-                    { id: 'predio_andar3', icon: '⬆️', label: 'Ir para o próximo andar', class: '' },
-                    { id: 'predio_voltar_lobby', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'predio_andar3': {
-                id: 'predio_andar3',
-                location: 'Nova Prospekt - Andar 3',
-                turn: 3,
-                text: 'Um <span class="danger">mutante</span> está no corredor! Ele parece estar comendo algo.',
-                options: [
-                    { id: 'combate_rastejador', icon: '⚔️', label: 'Batalhar', class: 'danger' },
-                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
-                    { id: 'fuga', icon: '🕵️', label: 'Esconder-se', class: '' },
-                    { id: 'predio_andar2', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'predio_andar4': {
-                id: 'predio_andar4',
-                location: 'Nova Prospekt - Andar 4',
-                turn: 4,
-                text: 'Uma sala com uma mesa grande. Há um cofre aberto e objetos no chão.',
-                options: [
-                    { id: 'predio_recursos', icon: '🔍', label: 'Pegar os objetos', class: 'success' },
-                    { id: 'predio_recursos_raros', icon: '💎', label: 'Verificar o cofre', class: 'success' },
-                    { id: 'predio_terraco', icon: '⬆️', label: 'Ir para o terraço', class: '' },
-                    { id: 'predio_andar3', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'predio_terraco': {
-                id: 'predio_terraco',
-                location: 'Nova Prospekt - Terraço',
-                turn: 5,
-                text: 'Você chega ao terraço. A vista da cidade é assustadora. Há um heliporto abandonado.',
-                options: [
-                    { id: 'predio_recursos', icon: '🔍', label: 'Explorar o heliporto', class: 'success' },
-                    { id: 'predio_recursos2', icon: '🔍', label: 'Procurar por itens', class: 'success' },
-                    { id: 'predio_sinal_radio', icon: '📻', label: 'Usar o rádio', class: 'info' },
-                    { id: 'predio_andar4', icon: '🔙', label: 'Descer', class: '' },
-                ]
-            },
-
-            'predio_corredor': {
-                id: 'predio_corredor',
-                location: 'Nova Prospekt - Corredor do Térreo',
-                turn: 1,
-                text: 'O corredor do térreo tem várias lojas e escritórios.',
-                options: [
-                    { id: 'predio_loja', icon: '🏪', label: 'Loja de Conveniência', class: '' },
-                    { id: 'predio_escritorio', icon: '📋', label: 'Escritório de Advogados', class: '' },
-                    { id: 'predio_sala_espera', icon: '🪑', label: 'Sala de Espera', class: '' },
-                    { id: 'predio_voltar_lobby', icon: '🔙', label: 'Voltar ao lobby', class: '' },
-                ]
-            },
-
-            'predio_loja': {
-                id: 'predio_loja',
-                location: 'Nova Prospekt - Loja de Conveniência',
-                turn: 2,
-                text: 'As prateleiras estão caídas, mas ainda há coisas.',
-                options: [
-                    { id: 'predio_recursos', icon: '🔍', label: 'Revirar as prateleiras', class: 'success' },
-                    { id: 'predio_recursos2', icon: '🔍', label: 'Verificar o estoque', class: 'success' },
-                    { id: 'predio_recursos_comida', icon: '🍖', label: 'Procurar comida', class: 'success' },
-                    { id: 'predio_corredor', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'predio_escritorio': {
-                id: 'predio_escritorio',
-                location: 'Nova Prospekt - Escritório de Advogados',
-                turn: 2,
-                text: 'Há pastas e documentos espalhados.',
-                options: [
-                    { id: 'predio_informacao', icon: '📖', label: 'Revirar as pastas', class: 'info' },
-                    { id: 'predio_recursos2', icon: '🔍', label: 'Pegar objetos', class: 'success' },
-                    { id: 'predio_recursos_raros', icon: '💎', label: 'Procurar por cofres', class: 'success' },
-                    { id: 'predio_corredor', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'predio_sala_espera': {
-                id: 'predio_sala_espera',
-                location: 'Nova Prospekt - Sala de Espera',
-                turn: 2,
-                text: 'Um <span class="danger">mutante</span> está dormindo na sala de espera. Ele não te viu.',
-                options: [
-                    { id: 'fuga', icon: '🕵️', label: 'Passar silenciosamente', class: '' },
-                    { id: 'combate_rastejador', icon: '⚔️', label: 'Atacar primeiro', class: 'danger' },
-                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
-                    { id: 'predio_corredor', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'predio_voltar_lobby': {
-                id: 'predio_voltar_lobby',
-                location: 'Nova Prospekt - Lobby',
-                turn: 0,
-                text: 'Você voltou ao lobby do prédio.',
-                options: [
-                    { id: 'predio_entrada', icon: '🔙', label: 'Escolher outro caminho', class: '' },
-                    { id: 'start', icon: '🚪', label: 'Sair do prédio', class: '' },
-                ]
-            },
-
-            // ===== RECURSOS DO PRÉDIO =====
-            'predio_recursos': {
-                id: 'predio_recursos',
-                location: 'Nova Prospekt - Prédio',
-                turn: 0,
-                text: 'Você encontrou recursos! 🪚 Sucata e 🧴 Plástico.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {
-                    // Recurso gerenciado pelo sistema anti-loop
-                }
-            },
-
-            'predio_recursos2': {
-                id: 'predio_recursos2',
-                location: 'Nova Prospekt - Prédio',
-                turn: 0,
-                text: 'Você encontrou mais recursos! 🧴 Plástico e ⚙️ Peças.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'predio_recursos_comida': {
-                id: 'predio_recursos_comida',
-                location: 'Nova Prospekt - Prédio',
-                turn: 0,
-                text: 'Você encontrou comida! 🍖 Biomassa.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'predio_recursos_raros': {
-                id: 'predio_recursos_raros',
-                location: 'Nova Prospekt - Prédio',
-                turn: 0,
-                text: 'Você encontrou itens raros! 💎 Peças Raras.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'predio_recursos_ferramenta': {
-                id: 'predio_recursos_ferramenta',
-                location: 'Nova Prospekt - Prédio',
-                turn: 0,
-                text: 'Você encontrou ferramentas! 🔧 Úteis para arrombar portas.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'predio_informacao': {
-                id: 'predio_informacao',
-                location: 'Nova Prospekt - Prédio',
-                turn: 0,
-                text: 'Você encontrou documentos com informações sobre a cidade.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Ler', class: 'info' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {
-                    showModal('📖 Informação', 'Você descobre que Revelon tem um hospital com suprimentos médicos.');
-                }
-            },
-
-            'predio_sinal_radio': {
-                id: 'predio_sinal_radio',
-                location: 'Nova Prospekt - Prédio',
-                turn: 0,
-                text: 'Você capta um sinal de rádio! Alguém está pedindo ajuda.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '📡', label: 'Responder ao sinal', class: 'info' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Ignorar', class: '' },
-                ],
-                onEnter: () => {
-                    Game.resources.energy = Math.min(100, Game.resources.energy + 5);
-                    showModal('📡 Sinal de Rádio', 'Você respondeu ao sinal e recebeu coordenadas. +5 Energia.');
-                }
-            },
-
-            // ===== METRÔ =====
-            'metro_entrada': {
-                id: 'metro_entrada',
-                location: 'Nova Prospekt - Metrô',
-                turn: 1,
-                text: 'Você desce as escadas do metrô. As luzes piscam e há um cheiro forte de mofo e química. A bilheteria está destruída.',
-                options: [
-                    { id: 'metro_plataforma_leste', icon: '🚉', label: 'Plataforma Leste', class: '' },
-                    { id: 'metro_plataforma_oeste', icon: '🚉', label: 'Plataforma Oeste', class: '' },
-                    { id: 'metro_sala_controle', icon: '🖥️', label: 'Sala de Controle', class: '' },
-                    { id: 'metro_tunel_manutencao', icon: '🔧', label: 'Túnel de Manutenção', class: '' },
-                ]
-            },
-
-            'metro_plataforma_leste': {
-                id: 'metro_plataforma_leste',
-                location: 'Nova Prospekt - Plataforma Leste',
-                turn: 2,
-                text: 'Um trem parado. As portas estão abertas. Alguns vagões estão cheios de bagagens.',
-                options: [
-                    { id: 'metro_vagao_bagagens', icon: '🧳', label: 'Revirar as bagagens', class: 'success' },
-                    { id: 'metro_vagao_comida', icon: '🍖', label: 'Vagão Restaurante', class: '' },
-                    { id: 'metro_vagao_mutante', icon: '👾', label: 'Vagão com Mutante', class: 'danger' },
-                    { id: 'metro_entrada', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'metro_vagao_bagagens': {
-                id: 'metro_vagao_bagagens',
-                location: 'Nova Prospekt - Vagão de Bagagens',
-                turn: 3,
-                text: 'Malas e mochilas estão empilhadas.',
-                options: [
-                    { id: 'metro_recursos', icon: '✅', label: 'Revirar as malas', class: 'success' },
-                    { id: 'metro_recursos2', icon: '✅', label: 'Pegar mochilas', class: 'success' },
-                    { id: 'metro_plataforma_leste', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'metro_vagao_comida': {
-                id: 'metro_vagao_comida',
-                location: 'Nova Prospekt - Vagão Restaurante',
-                turn: 3,
-                text: 'Você encontra um vagão-restaurante com latas e alimentos.',
-                options: [
-                    { id: 'metro_recursos_comida', icon: '🍖', label: 'Pegar comida', class: 'success' },
-                    { id: 'metro_recursos2', icon: '🔍', label: 'Procurar itens melhores', class: 'success' },
-                    { id: 'metro_plataforma_leste', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'metro_vagao_mutante': {
-                id: 'metro_vagao_mutante',
-                location: 'Nova Prospekt - Vagão 3',
-                turn: 3,
-                text: 'Um <span class="danger">mutante</span> está no vagão seguinte.',
-                options: [
-                    { id: 'combate_rastejador', icon: '⚔️', label: 'Batalhar', class: 'danger' },
-                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
-                    { id: 'fuga', icon: '🕵️', label: 'Passar por outro vagão', class: '' },
-                    { id: 'metro_plataforma_leste', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'metro_plataforma_oeste': {
-                id: 'metro_plataforma_oeste',
-                location: 'Nova Prospekt - Plataforma Oeste',
-                turn: 2,
-                text: 'O túnel é escuro e úmido. Há água no chão. Você ouve algo se arrastando.',
-                options: [
-                    { id: 'metro_tunel_escuro', icon: '🚇', label: 'Seguir pelo túnel', class: 'danger' },
-                    { id: 'metro_recursos_lanterna', icon: '🔦', label: 'Usar lanterna', class: 'info' },
-                    { id: 'metro_entrada', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'metro_tunel_escuro': {
-                id: 'metro_tunel_escuro',
-                location: 'Nova Prospekt - Túnel Escuro',
-                turn: 3,
-                text: 'Duas criaturas estão no túnel.',
-                options: [
-                    { id: 'fuga', icon: '🕵️', label: 'Passar escondido', class: '' },
-                    { id: 'combate_rastejador', icon: '⚔️', label: 'Atacar', class: 'danger' },
-                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
-                    { id: 'metro_plataforma_oeste', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'metro_sala_controle': {
-                id: 'metro_sala_controle',
-                location: 'Nova Prospekt - Sala de Controle',
-                turn: 2,
-                text: 'A sala de controle está cheia de monitores. Alguns ainda funcionam.',
-                options: [
-                    { id: 'metro_informacao', icon: '🖥️', label: 'Verificar os monitores', class: 'info' },
-                    { id: 'metro_recursos_mapa', icon: '🗺️', label: 'Procurar por mapas', class: 'info' },
-                    { id: 'metro_recursos2', icon: '🔍', label: 'Pegar objetos', class: 'success' },
-                    { id: 'metro_entrada', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'metro_saida': {
-                id: 'metro_saida',
-                location: 'Nova Prospekt - Saída do Metrô',
-                turn: 2,
-                text: 'Você encontra uma saída do metrô que leva à superfície.',
-                options: [
-                    { id: 'rua_inicio', icon: '🚪', label: 'Sair para a rua', class: '' },
-                    { id: 'metro_entrada', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            // ===== RECURSOS DO METRÔ =====
-            'metro_recursos': {
-                id: 'metro_recursos',
-                location: 'Nova Prospekt - Metrô',
-                turn: 0,
-                text: 'Você encontrou recursos! 🪚 Sucata e 🔧 Ferramentas.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'metro_recursos2': {
-                id: 'metro_recursos2',
-                location: 'Nova Prospekt - Metrô',
-                turn: 0,
-                text: 'Você encontrou mais recursos! 💎 Peças Raras.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'metro_recursos_comida': {
-                id: 'metro_recursos_comida',
-                location: 'Nova Prospekt - Metrô',
-                turn: 0,
-                text: 'Você encontrou comida! 🍖 Biomassa.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'metro_recursos_lanterna': {
-                id: 'metro_recursos_lanterna',
-                location: 'Nova Prospekt - Metrô',
-                turn: 0,
-                text: 'Você encontrou uma lanterna! 🔦',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'metro_recursos_mapa': {
-                id: 'metro_recursos_mapa',
-                location: 'Nova Prospekt - Metrô',
-                turn: 0,
-                text: 'Você encontrou um mapa da cidade! 🗺️',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'info' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {
-                    showModal('🗺️ Mapa', 'Você encontrou um mapa de Nova Prospekt e Revelon!');
-                }
-            },
-
-            'metro_informacao': {
-                id: 'metro_informacao',
-                location: 'Nova Prospekt - Metrô',
-                turn: 0,
-                text: 'Os monitores mostram informações sobre a cidade.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Ler', class: 'info' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {
-                    showModal('🖥️ Informação', 'Os monitores mostram que Revelon tem um hospital com suprimentos.');
-                }
-            },
-
-            // ===== RUA =====
-            'rua_inicio': {
-                id: 'rua_inicio',
-                location: 'Nova Prospekt - Rua Principal',
-                turn: 1,
-                text: 'Você anda pela rua principal. Carros abandonados bloqueiam o caminho. Prédios residenciais e lojas ladeiam a via.',
-                options: [
-                    { id: 'rua_casa', icon: '🏠', label: 'Casa Abandonada', class: '' },
-                    { id: 'rua_loja_carros', icon: '🚗', label: 'Concessionária', class: '' },
-                    { id: 'rua_esgoto', icon: '🕳️', label: 'Esgoto', class: 'danger' },
-                    { id: 'rua_residencial', icon: '🏢', label: 'Prédio Residencial', class: '' },
-                    { id: 'rua_seguir_reto', icon: '🚶', label: 'Seguir reto', class: '' },
-                ]
-            },
-
-            'rua_casa': {
-                id: 'rua_casa',
-                location: 'Nova Prospekt - Casa Abandonada',
-                turn: 2,
-                text: 'Uma casa comum. A sala está bagunçada.',
-                options: [
-                    { id: 'rua_casa_sala', icon: '🛋️', label: 'Revirar os móveis', class: 'success' },
-                    { id: 'rua_casa_cozinha', icon: '🍳', label: 'Procurar na cozinha', class: '' },
-                    { id: 'rua_casa_quarto', icon: '🛏️', label: 'Ir para o quarto', class: '' },
-                    { id: 'rua_casa_porao', icon: '🔽', label: 'Ir para o porão', class: '' },
-                    { id: 'rua_inicio', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'rua_casa_sala': {
-                id: 'rua_casa_sala',
-                location: 'Nova Prospekt - Sala de Estar',
-                turn: 3,
-                text: 'A sala está cheia de objetos.',
-                options: [
-                    { id: 'rua_recursos', icon: '✅', label: 'Revirar tudo', class: 'success' },
-                    { id: 'rua_casa', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'rua_casa_cozinha': {
-                id: 'rua_casa_cozinha',
-                location: 'Nova Prospekt - Cozinha',
-                turn: 3,
-                text: 'A cozinha tem armários abertos.',
-                options: [
-                    { id: 'rua_recursos_comida', icon: '🍖', label: 'Pegar comida', class: 'success' },
-                    { id: 'rua_recursos2', icon: '🔍', label: 'Verificar a geladeira', class: 'success' },
-                    { id: 'rua_casa', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'rua_casa_quarto': {
-                id: 'rua_casa_quarto',
-                location: 'Nova Prospekt - Quarto',
-                turn: 3,
-                text: 'Um quarto com uma cama desfeita.',
-                options: [
-                    { id: 'rua_recursos2', icon: '🔍', label: 'Revirar o guarda-roupa', class: 'success' },
-                    { id: 'rua_recursos', icon: '🔍', label: 'Verificar a escrivaninha', class: 'success' },
-                    { id: 'rua_casa', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'rua_casa_porao': {
-                id: 'rua_casa_porao',
-                location: 'Nova Prospekt - Porão',
-                turn: 3,
-                text: 'O porão está escuro e úmido. Há caixas e objetos antigos.',
-                options: [
-                    { id: 'rua_recursos', icon: '📦', label: 'Explorar as caixas', class: 'success' },
-                    { id: 'rua_recursos_ferramenta', icon: '🔧', label: 'Pegar ferramentas', class: 'success' },
-                    { id: 'rua_casa', icon: '🔙', label: 'Voltar', class: '' },
-                    { id: 'combate_rastejador', icon: '👾', label: 'Cuidado: pode ter mutantes', class: 'danger' },
-                ]
-            },
-
-            'rua_loja_carros': {
-                id: 'rua_loja_carros',
-                location: 'Nova Prospekt - Concessionária',
-                turn: 2,
-                text: 'A concessionária está cheia de carros.',
-                options: [
-                    { id: 'rua_recursos', icon: '🔍', label: 'Revirar os carros', class: 'success' },
-                    { id: 'rua_recursos2', icon: '🔍', label: 'Verificar o escritório', class: 'success' },
-                    { id: 'rua_recursos_pecas', icon: '⚙️', label: 'Procurar peças', class: 'success' },
-                    { id: 'rua_inicio', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'rua_recursos_pecas': {
-                id: 'rua_recursos_pecas',
-                location: 'Nova Prospekt - Oficina',
-                turn: 3,
-                text: 'A oficina tem ferramentas e peças de carro.',
-                options: [
-                    { id: 'rua_recursos_ferramenta', icon: '🔧', label: 'Pegar ferramentas', class: 'success' },
-                    { id: 'rua_recursos_raros', icon: '💎', label: 'Procurar peças raras', class: 'success' },
-                    { id: 'rua_loja_carros', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'rua_esgoto': {
-                id: 'rua_esgoto',
-                location: 'Nova Prospekt - Esgoto',
-                turn: 2,
-                text: 'Você desce pelo esgoto. O cheiro é horrível.',
-                options: [
-                    { id: 'rua_esgoto_explorar', icon: '🔍', label: 'Explorar o esgoto', class: '' },
-                    { id: 'rua_esgoto_saida', icon: '🚪', label: 'Procurar saídas', class: '' },
-                    { id: 'rua_inicio', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'rua_esgoto_explorar': {
-                id: 'rua_esgoto_explorar',
-                location: 'Nova Prospekt - Túnel de Esgoto',
-                turn: 3,
-                text: 'Há <span class="danger">criaturas mutantes</span> no esgoto.',
-                options: [
-                    { id: 'fuga', icon: '🕵️', label: 'Passar escondido', class: '' },
-                    { id: 'combate_rastejador', icon: '⚔️', label: 'Lutar', class: 'danger' },
-                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
-                    { id: 'rua_esgoto', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'rua_esgoto_saida': {
-                id: 'rua_esgoto_saida',
-                location: 'Nova Prospekt - Saída do Esgoto',
-                turn: 3,
-                text: 'O esgoto leva a um rio poluído.',
-                options: [
-                    { id: 'rua_rio', icon: '🌊', label: 'Seguir o rio', class: '' },
-                    { id: 'rua_inicio', icon: '🔙', label: 'Voltar para a rua', class: '' },
-                ]
-            },
-
-            'rua_rio': {
-                id: 'rua_rio',
-                location: 'Nova Prospekt - Rio Poluído',
-                turn: 4,
-                text: 'O rio está cheio de lixo e água escura.',
-                options: [
-                    { id: 'rua_recursos', icon: '🔍', label: 'Explorar a margem', class: 'success' },
-                    { id: 'rua_recursos2', icon: '🔍', label: 'Procurar restos de naufrágios', class: 'success' },
-                    { id: 'rua_esgoto_saida', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'rua_residencial': {
-                id: 'rua_residencial',
-                location: 'Nova Prospekt - Prédio Residencial',
-                turn: 2,
-                text: 'O hall do prédio tem elevadores quebrados e uma escada.',
-                options: [
-                    { id: 'rua_residencial_andar', icon: '⬆️', label: 'Subir a escada', class: '' },
-                    { id: 'rua_recursos2', icon: '🔍', label: 'Verificar a portaria', class: 'success' },
-                    { id: 'rua_residencial_garagem', icon: '🔽', label: 'Ir para a garagem', class: '' },
-                    { id: 'rua_inicio', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'rua_residencial_andar': {
-                id: 'rua_residencial_andar',
-                location: 'Nova Prospekt - Apartamento 101',
-                turn: 3,
-                text: 'Um apartamento no primeiro andar.',
-                options: [
-                    { id: 'rua_recursos', icon: '🔍', label: 'Revirar o apartamento', class: 'success' },
-                    { id: 'rua_recursos_comida', icon: '🍖', label: 'Procurar comida', class: 'success' },
-                    { id: 'rua_residencial', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'rua_residencial_garagem': {
-                id: 'rua_residencial_garagem',
-                location: 'Nova Prospekt - Garagem',
-                turn: 3,
-                text: 'A garagem está cheia de carros abandonados.',
-                options: [
-                    { id: 'rua_recursos', icon: '🔍', label: 'Revirar os carros', class: 'success' },
-                    { id: 'rua_recursos_pecas', icon: '⚙️', label: 'Procurar peças', class: 'success' },
-                    { id: 'rua_residencial', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'rua_seguir_reto': {
-                id: 'rua_seguir_reto',
-                location: 'Nova Prospekt - Praça da Cidade',
-                turn: 2,
-                text: 'Você chega a uma praça central.',
-                options: [
-                    { id: 'rua_recursos', icon: '🔍', label: 'Explorar a praça', class: 'success' },
-                    { id: 'rua_informacao', icon: '📖', label: 'Procurar pistas', class: 'info' },
-                    { id: 'ponte_inicio', icon: '🌉', label: 'Seguir para a ponte', class: '' },
-                    { id: 'rua_inicio', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            // ===== RECURSOS DA RUA =====
-            'rua_recursos': {
-                id: 'rua_recursos',
-                location: 'Nova Prospekt - Rua',
-                turn: 0,
-                text: 'Você encontrou recursos! 🪚 Sucata e 🧴 Plástico.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'rua_recursos2': {
-                id: 'rua_recursos2',
-                location: 'Nova Prospekt - Rua',
-                turn: 0,
-                text: 'Você encontrou mais recursos! 🧴 Plástico e 💧 Água.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'rua_recursos_comida': {
-                id: 'rua_recursos_comida',
-                location: 'Nova Prospekt - Rua',
-                turn: 0,
-                text: 'Você encontrou comida! 🍖 Biomassa.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'rua_recursos_ferramenta': {
-                id: 'rua_recursos_ferramenta',
-                location: 'Nova Prospekt - Rua',
-                turn: 0,
-                text: 'Você encontrou ferramentas! 🔧',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'rua_recursos_raros': {
-                id: 'rua_recursos_raros',
-                location: 'Nova Prospekt - Rua',
-                turn: 0,
-                text: 'Você encontrou itens raros! 💎 Peças Raras.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'rua_informacao': {
-                id: 'rua_informacao',
-                location: 'Nova Prospekt - Rua',
-                turn: 0,
-                text: 'Você encontrou informações sobre a cidade.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Ler', class: 'info' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {
-                    showModal('📖 Informação', 'Você descobre que a ponte leva a Revelon.');
-                }
-            },
-
-            // ===== PONTE =====
-            'ponte_inicio': {
-                id: 'ponte_inicio',
-                location: 'Nova Prospekt - Grande Ponte',
-                turn: 1,
-                text: 'A ponte se estende por quilômetros sobre o rio poluído.',
-                options: [
-                    { id: 'ponte_atravessar', icon: '🚶', label: 'Atravessar a ponte', class: '' },
-                    { id: 'ponte_carros', icon: '🚗', label: 'Explorar os carros', class: '' },
-                    { id: 'ponte_rio', icon: '🌊', label: 'Descer para o rio', class: 'danger' },
-                    { id: 'start', icon: '🔙', label: 'Voltar para Nova Prospekt', class: '' },
-                ]
-            },
-
-            'ponte_atravessar': {
-                id: 'ponte_atravessar',
-                location: 'Ponte - Meio',
-                turn: 2,
-                text: 'Você chega ao meio da ponte. A estrutura está enferrujada.',
-                options: [
-                    { id: 'ponte_chegada_revelon', icon: '🚶', label: 'Continuar atravessando', class: '' },
-                    { id: 'ponte_carros', icon: '🔍', label: 'Verificar o movimento', class: 'danger' },
-                    { id: 'ponte_recursos', icon: '🔍', label: 'Procurar objetos', class: 'success' },
-                    { id: 'ponte_inicio', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'ponte_chegada_revelon': {
-                id: 'ponte_chegada_revelon',
-                location: 'Revelon - Chegada',
-                turn: 3,
-                text: 'Você finalmente chega ao outro lado. <span class="location-name">Revelon</span> está à sua frente.',
-                options: [
-                    { id: 'revelon_entrada', icon: '🏙️', label: 'Entrar em Revelon', class: '' },
-                    { id: 'ponte_inicio', icon: '🔙', label: 'Voltar para Nova Prospekt', class: '' },
-                ]
-            },
-
-            'ponte_carros': {
-                id: 'ponte_carros',
-                location: 'Ponte - Carros Abandonados',
-                turn: 2,
-                text: 'Há muitos carros na ponte.',
-                options: [
-                    { id: 'ponte_recursos', icon: '🔍', label: 'Revirar os carros', class: 'success' },
-                    { id: 'ponte_recursos_combustivel', icon: '🛢️', label: 'Pegar combustível', class: 'success' },
-                    { id: 'ponte_atravessar', icon: '🔙', label: 'Ignorar e seguir', class: '' },
-                ]
-            },
-
-            'ponte_rio': {
-                id: 'ponte_rio',
-                location: 'Ponte - Rio Poluído',
-                turn: 2,
-                text: 'O rio está cheio de lixo e água escura.',
-                options: [
-                    { id: 'ponte_recursos', icon: '🔍', label: 'Explorar a margem', class: 'success' },
-                    { id: 'ponte_recursos2', icon: '🔍', label: 'Procurar naufrágios', class: 'success' },
-                    { id: 'ponte_inicio', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            // ===== RECURSOS DA PONTE =====
-            'ponte_recursos': {
-                id: 'ponte_recursos',
-                location: 'Ponte - Carros',
-                turn: 0,
-                text: 'Você encontrou recursos nos carros! 🪚 Sucata.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'ponte_recursos_combustivel': {
-                id: 'ponte_recursos_combustivel',
-                location: 'Ponte - Carros',
-                turn: 0,
-                text: 'Você encontrou combustível! 🛢️',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'ponte_recursos2': {
-                id: 'ponte_recursos2',
-                location: 'Ponte - Naufrágio',
-                turn: 0,
-                text: 'Um barco naufragado está na margem.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Revirar o barco', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Ignorar', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            // ==========================================================
-            // REVELON
-            // ==========================================================
-
-            'revelon_entrada': {
-                id: 'revelon_entrada',
-                location: 'Revelon',
-                turn: 3,
-                text: 'Bem-vindo a <span class="location-name">Revelon</span>. A cidade é maior que Nova Prospekt.',
-                options: [
-                    { id: 'revelon_shopping', icon: '🛍️', label: 'Centro Comercial', class: '' },
-                    { id: 'revelon_trem', icon: '🚆', label: 'Estação de Trem', class: '' },
-                    { id: 'revelon_hospital', icon: '🏥', label: 'Hospital Abandonado', class: '' },
-                    { id: 'revelon_industrial', icon: '🏭', label: 'Parque Industrial', class: '' },
-                    { id: 'revelon_residencial', icon: '🏘️', label: 'Bairro Residencial', class: '' },
-                    { id: 'ponte_inicio', icon: '🔙', label: 'Voltar para Nova Prospekt', class: '' },
-                ]
-            },
-
-            'revelon_shopping': {
-                id: 'revelon_shopping',
-                location: 'Revelon - Shopping',
-                turn: 4,
-                text: 'O shopping está destruído. Lojas saqueadas.',
-                options: [
-                    { id: 'revelon_shopping_lojas', icon: '🛍️', label: 'Explorar as lojas', class: 'success' },
-                    { id: 'revelon_shopping_cinema', icon: '🎬', label: 'Ir para o cinema', class: '' },
-                    { id: 'revelon_shopping_comida', icon: '🍽️', label: 'Praça de alimentação', class: '' },
-                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_shopping_lojas': {
-                id: 'revelon_shopping_lojas',
-                location: 'Revelon - Loja de Eletrônicos',
-                turn: 5,
-                text: 'Uma loja de eletrônicos. Itens espalhados.',
-                options: [
-                    { id: 'revelon_recursos_eletronicos', icon: '💻', label: 'Pegar eletrônicos', class: 'success' },
-                    { id: 'revelon_recursos_bateria', icon: '🔋', label: 'Procurar baterias', class: 'success' },
-                    { id: 'revelon_shopping', icon: '🔙', label: 'Ignorar', class: '' },
-                ]
-            },
-
-            'revelon_shopping_comida': {
-                id: 'revelon_shopping_comida',
-                location: 'Revelon - Praça de Alimentação',
-                turn: 5,
-                text: 'Restaurantes abandonados.',
-                options: [
-                    { id: 'revelon_recursos_comida', icon: '🍖', label: 'Procurar comida', class: 'success' },
-                    { id: 'revelon_recursos2', icon: '🔍', label: 'Verificar cozinhas', class: 'success' },
-                    { id: 'revelon_shopping', icon: '🔙', label: 'Ignorar', class: '' },
-                ]
-            },
-
-            'revelon_shopping_cinema': {
-                id: 'revelon_shopping_cinema',
-                location: 'Revelon - Cinema',
-                turn: 5,
-                text: 'Um <span class="danger">mutante</span> está no cinema.',
-                options: [
-                    { id: 'fuga', icon: '🕵️', label: 'Passar silenciosamente', class: '' },
-                    { id: 'combate_rastejador', icon: '⚔️', label: 'Atacar', class: 'danger' },
-                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
-                    { id: 'revelon_shopping', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'revelon_trem': {
-                id: 'revelon_trem',
-                location: 'Revelon - Estação de Trem',
-                turn: 4,
-                text: 'A estação está vazia.',
-                options: [
-                    { id: 'revelon_trem_vagoes', icon: '🚆', label: 'Explorar o trem', class: 'success' },
-                    { id: 'revelon_recursos2', icon: '🔍', label: 'Verificar a sala de espera', class: 'success' },
-                    { id: 'revelon_recursos_mapa', icon: '🗺️', label: 'Procurar por mapas', class: 'info' },
-                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_trem_vagoes': {
-                id: 'revelon_trem_vagoes',
-                location: 'Revelon - Trem',
-                turn: 5,
-                text: 'O trem tem vários vagões.',
-                options: [
-                    { id: 'revelon_recursos', icon: '🔍', label: 'Explorar vagões', class: 'success' },
-                    { id: 'revelon_recursos2', icon: '🔍', label: 'Procurar por passageiros', class: '' },
-                    { id: 'revelon_recursos_raros', icon: '💎', label: 'Ir para a cabine', class: 'success' },
-                    { id: 'revelon_trem', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'revelon_hospital': {
-                id: 'revelon_hospital',
-                location: 'Revelon - Hospital',
-                turn: 4,
-                text: 'O hospital está destruído.',
-                options: [
-                    { id: 'revelon_hospital_recepcao', icon: '🏥', label: 'Explorar a recepção', class: '' },
-                    { id: 'revelon_hospital_emergencia', icon: '🚑', label: 'Pronto-Socorro', class: '' },
-                    { id: 'revelon_hospital_laboratorio', icon: '🔬', label: 'Laboratório', class: '' },
-                    { id: 'revelon_hospital_isolamento', icon: '⚠️', label: 'Ala de Isolamento', class: 'danger' },
-                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_hospital_recepcao': {
-                id: 'revelon_hospital_recepcao',
-                location: 'Revelon - Recepção',
-                turn: 5,
-                text: 'A recepção está destruída.',
-                options: [
-                    { id: 'revelon_recursos2', icon: '🔍', label: 'Revirar tudo', class: 'success' },
-                    { id: 'revelon_recursos_medicina', icon: '💊', label: 'Procurar remédios', class: 'success' },
-                    { id: 'revelon_hospital', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'revelon_hospital_emergencia': {
-                id: 'revelon_hospital_emergencia',
-                location: 'Revelon - Pronto-Socorro',
-                turn: 5,
-                text: 'Há kits médicos e remédios.',
-                options: [
-                    { id: 'revelon_recursos_medicina', icon: '💊', label: 'Pegar kits médicos', class: 'success' },
-                    { id: 'revelon_recursos_medicina2', icon: '💊', label: 'Pegar remédios', class: 'success' },
-                    { id: 'revelon_hospital', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_hospital_laboratorio': {
-                id: 'revelon_hospital_laboratorio',
-                location: 'Revelon - Laboratório',
-                turn: 5,
-                text: 'O laboratório tem equipamentos científicos.',
-                options: [
-                    { id: 'revelon_recursos_eletronicos', icon: '🔬', label: 'Pegar equipamentos', class: 'success' },
-                    { id: 'revelon_informacao', icon: '📖', label: 'Procurar amostras', class: 'info' },
-                    { id: 'revelon_hospital', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_hospital_isolamento': {
-                id: 'revelon_hospital_isolamento',
-                location: 'Revelon - Ala de Isolamento',
-                turn: 5,
-                text: 'Mutantes estão na ala de isolamento.',
-                options: [
-                    { id: 'fuga', icon: '🕵️', label: 'Passar em silêncio', class: '' },
-                    { id: 'revelon_informacao', icon: '🔍', label: 'Estudar os mutantes', class: 'info' },
-                    { id: 'revelon_hospital', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_industrial': {
-                id: 'revelon_industrial',
-                location: 'Revelon - Parque Industrial',
-                turn: 4,
-                text: 'Uma fábrica abandonada.',
-                options: [
-                    { id: 'revelon_industrial_fabrica', icon: '🏭', label: 'Explorar a fábrica', class: '' },
-                    { id: 'revelon_industrial_deposito', icon: '🛢️', label: 'Depósito Químico', class: 'danger' },
-                    { id: 'revelon_recursos_pecas', icon: '⚙️', label: 'Procurar peças', class: 'success' },
-                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_industrial_fabrica': {
-                id: 'revelon_industrial_fabrica',
-                location: 'Revelon - Fábrica',
-                turn: 5,
-                text: 'A fábrica está cheia de máquinas.',
-                options: [
-                    { id: 'revelon_recursos', icon: '🔍', label: 'Explorar a fábrica', class: 'success' },
-                    { id: 'revelon_recursos_pecas', icon: '⚙️', label: 'Procurar peças', class: 'success' },
-                    { id: 'revelon_recursos2', icon: '🔍', label: 'Ir para o escritório', class: 'success' },
-                    { id: 'revelon_industrial', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_industrial_deposito': {
-                id: 'revelon_industrial_deposito',
-                location: 'Revelon - Depósito Químico',
-                turn: 5,
-                text: 'Há barris de produtos químicos.',
-                options: [
-                    { id: 'revelon_recursos_quimicos', icon: '🧪', label: 'Pegar produtos (risco)', class: 'danger' },
-                    { id: 'revelon_industrial', icon: '🔙', label: 'Ignorar', class: '' },
-                ]
-            },
-
-            'revelon_residencial': {
-                id: 'revelon_residencial',
-                location: 'Revelon - Bairro Residencial',
-                turn: 4,
-                text: 'Casas abandonadas.',
-                options: [
-                    { id: 'revelon_residencial_casas', icon: '🏠', label: 'Explorar casas', class: 'success' },
-                    { id: 'revelon_residencial_escola', icon: '🏫', label: 'Escola Abandonada', class: '' },
-                    { id: 'revelon_residencial_igreja', icon: '⛪', label: 'Igreja', class: '' },
-                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_residencial_casas': {
-                id: 'revelon_residencial_casas',
-                location: 'Revelon - Casas',
-                turn: 5,
-                text: 'Casas abandonadas.',
-                options: [
-                    { id: 'revelon_recursos', icon: '🔍', label: 'Explorar casas', class: 'success' },
-                    { id: 'revelon_recursos_comida', icon: '🍖', label: 'Procurar suprimentos', class: 'success' },
-                    { id: 'revelon_recursos2', icon: '🔽', label: 'Verificar porões', class: 'success' },
-                    { id: 'revelon_residencial', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_residencial_escola': {
-                id: 'revelon_residencial_escola',
-                location: 'Revelon - Escola',
-                turn: 5,
-                text: 'Uma escola abandonada.',
-                options: [
-                    { id: 'revelon_recursos2', icon: '🔍', label: 'Explorar salas de aula', class: 'success' },
-                    { id: 'revelon_recursos_mapa', icon: '📚', label: 'Procurar na biblioteca', class: 'info' },
-                    { id: 'revelon_recursos', icon: '🏀', label: 'Ir para o ginásio', class: 'success' },
-                    { id: 'revelon_residencial', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_recursos_mapa': {
-                id: 'revelon_recursos_mapa',
-                location: 'Revelon - Biblioteca',
-                turn: 0,
-                text: 'Livros espalhados. Há mapas.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar mapas', class: 'info' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {
-                    showModal('🗺️ Mapas', 'Você encontrou mapas detalhados de Revelon!');
-                }
-            },
-
-            'revelon_residencial_igreja': {
-                id: 'revelon_residencial_igreja',
-                location: 'Revelon - Igreja',
-                turn: 5,
-                text: 'Uma igreja abandonada.',
-                options: [
-                    { id: 'revelon_recursos', icon: '🔍', label: 'Explorar', class: 'success' },
-                    { id: 'revelon_informacao', icon: '📖', label: 'Procurar abrigo', class: 'info' },
-                    { id: 'revelon_residencial', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            // ===== RECURSOS DE REVELON =====
-            'revelon_recursos': {
-                id: 'revelon_recursos',
-                location: 'Revelon',
-                turn: 0,
-                text: 'Você encontrou recursos! 🪚 Sucata e 🧴 Plástico.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'revelon_recursos2': {
-                id: 'revelon_recursos2',
-                location: 'Revelon',
-                turn: 0,
-                text: 'Você encontrou mais recursos! 💧 Água e 🍖 Biomassa.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'revelon_recursos_comida': {
-                id: 'revelon_recursos_comida',
-                location: 'Revelon',
-                turn: 0,
-                text: 'Você encontrou comida! 🍖 Biomassa.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'revelon_recursos_raros': {
-                id: 'revelon_recursos_raros',
-                location: 'Revelon',
-                turn: 0,
-                text: 'Você encontrou itens raros! 💎 Peças Raras.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'revelon_recursos_pecas': {
-                id: 'revelon_recursos_pecas',
-                location: 'Revelon',
-                turn: 0,
-                text: 'Você encontrou peças de máquinas! ⚙️',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'revelon_recursos_eletronicos': {
-                id: 'revelon_recursos_eletronicos',
-                location: 'Revelon',
-                turn: 0,
-                text: 'Você encontrou eletrônicos! 💻',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'revelon_recursos_bateria': {
-                id: 'revelon_recursos_bateria',
-                location: 'Revelon',
-                turn: 0,
-                text: 'Você encontrou baterias! 🔋',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'revelon_recursos_medicina': {
-                id: 'revelon_recursos_medicina',
-                location: 'Revelon - Hospital',
-                turn: 0,
-                text: 'Você encontrou medicamentos! 💊',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'revelon_recursos_medicina2': {
-                id: 'revelon_recursos_medicina2',
-                location: 'Revelon - Hospital',
-                turn: 0,
-                text: 'Você encontrou mais medicamentos! 💊',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'revelon_recursos_quimicos': {
-                id: 'revelon_recursos_quimicos',
-                location: 'Revelon - Depósito',
-                turn: 0,
-                text: 'Você pegou produtos químicos! ⚠️ Risco de contaminação.',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'danger' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {}
-            },
-
-            'revelon_informacao': {
-                id: 'revelon_informacao',
-                location: 'Revelon',
-                turn: 0,
-                text: 'Você encontrou informações valiosas! 📖',
-                options: [
-                    { id: 'voltar_para_onde_veio', icon: '✅', label: 'Ler', class: 'info' },
-                    { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair', class: '' },
-                ],
-                onEnter: () => {
-                    showModal('📖 Informação', 'Você descobre que há um bunker secreto em Revelon.');
-                }
-            },
-
-            // ===== COMBATE =====
-            'combate_rastejador': {
-                id: 'combate_rastejador',
-                location: 'Combate',
-                turn: 0,
-                text: '⚔️ COMBATE INICIADO!',
-                options: [],
-                isCombat: true,
-                combatEnemy: 'Rastejador'
-            },
-
-            'combate_triturador': {
-                id: 'combate_triturador',
-                location: 'Combate',
-                turn: 0,
-                text: '⚔️ COMBATE INICIADO!',
-                options: [],
-                isCombat: true,
-                combatEnemy: 'Triturador'
-            },
-
-            'combate_sibila': {
-                id: 'combate_sibila',
-                location: 'Combate',
-                turn: 0,
-                text: '⚔️ COMBATE INICIADO!',
-                options: [],
-                isCombat: true,
-                combatEnemy: 'Sibila'
-            },
-
-            'combate_colosso': {
-                id: 'combate_colosso',
-                location: 'Combate',
-                turn: 0,
-                text: '⚔️ COMBATE INICIADO!',
-                options: [],
-                isCombat: true,
-                combatEnemy: 'Colosso'
-            },
-
-            'combate_espectro': {
-                id: 'combate_espectro',
-                location: 'Combate',
-                turn: 0,
-                text: '⚔️ COMBATE INICIADO!',
-                options: [],
-                isCombat: true,
-                combatEnemy: 'Espectro'
-            },
-
-            // ===== AÇÕES GENÉRICAS =====
-            'fuga': {
-                id: 'fuga',
-                location: 'Fuga',
-                turn: 0,
-                text: 'Você tentou fugir ou se esconder...',
-                options: [],
-                isFlee: true,
-            },
-
-            'voltar_para_onde_veio': {
-                id: 'voltar_para_onde_veio',
-                location: 'Voltar',
-                turn: 0,
-                text: 'Voltando...',
-                options: [],
-                isReturn: true,
-            },
-
-        };
-
-        // ============================================================
-        // INICIALIZAÇÃO
-        // ============================================================
-
-        function init() {
-            cacheDOM();
-            setupEvents();
-            renderAll();
-            DOM.start.input.focus();
-
-            console.log('🌍 ECOSFERA 2200 - v3.1');
-            console.log('🔄 SISTEMA ANTI-LOOP ATIVADO');
-            console.log('📊 77 Cenários na Superfície');
-            console.log('⏰ 25/25 Turnos por expedição');
-            console.log('🔒 Cada local só pode ser explorado UMA VEZ');
-            console.log('📍 4 Rotas Principais: Prédio, Metrô, Rua, Ponte');
-            console.log('🏙️ 5 Áreas em Revelon');
-            console.log('⚔️ Sistema de Combate por Turnos');
-        }
-
-        document.addEventListener('DOMContentLoaded', init);
     </script>
 
+    <script type="module">
+        // ============================================================
+        // ECOSFERA 2200 3D - CÓDIGO COMPLETO
+        // ============================================================
+
+        import * as THREE from 'three';
+
+        // ===== CONFIGURAÇÕES =====
+        const CONFIG = {
+            walkSpeed: 5,
+            runSpeed: 8,
+            jumpForce: 8,
+            gravity: -25,
+            mouseSensitivity: 0.002,
+            maxHealth: 100,
+            maxAmmo: 30,
+            shootCooldown: 0.3,
+            enemySpawnDistance: 30,
+            maxEnemies: 15,
+        };
+
+        // ===== ESTADO DO JOGADOR =====
+        const player = {
+            position: new THREE.Vector3(0, 2, 0),
+            velocity: new THREE.Vector3(0, 0, 0),
+            health: 100,
+            maxHealth: 100,
+            ammo: 30,
+            maxAmmo: 30,
+            oxygen: 100,
+            energy: 100,
+            hunger: 100,
+            contamination: 0,
+            isGrounded: false,
+            isRunning: false,
+            weapon: 'pistol',
+            hasGun: true,
+            shootCooldown: 0,
+            inventory: [],
+        };
+
+        // ===== REFERÊNCIAS =====
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+        // ===== CENA =====
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        document.body.appendChild(renderer.domElement);
+
+        // ===== LUZES =====
+        const ambientLight = new THREE.AmbientLight(0x223344, 0.6);
+        scene.add(ambientLight);
+
+        const sun = new THREE.DirectionalLight(0xff8844, 1.8);
+        sun.position.set(50, 80, 30);
+        sun.castShadow = true;
+        sun.shadow.mapSize.width = 2048;
+        sun.shadow.mapSize.height = 2048;
+        sun.shadow.camera.near = 0.1;
+        sun.shadow.camera.far = 200;
+        sun.shadow.camera.left = -100;
+        sun.shadow.camera.right = 100;
+        sun.shadow.camera.top = 100;
+        sun.shadow.camera.bottom = -100;
+        scene.add(sun);
+
+        const fillLight = new THREE.DirectionalLight(0x4488ff, 0.3);
+        fillLight.position.set(-30, 40, -30);
+        scene.add(fillLight);
+
+        // ===== CÉU =====
+        const skyGeo = new THREE.SphereGeometry(500, 32, 32);
+        const skyMat = new THREE.ShaderMaterial({
+            side: THREE.BackSide,
+            uniforms: {
+                uTop: { value: new THREE.Color(0xff6a33) },
+                uBottom: { value: new THREE.Color(0x1a1a2e) },
+            },
+            vertexShader: `
+                varying vec3 vWorldPosition;
+                void main() {
+                    vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+                    vWorldPosition = worldPosition.xyz;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 uTop;
+                uniform vec3 uBottom;
+                varying vec3 vWorldPosition;
+                void main() {
+                    float h = normalize(vWorldPosition).y;
+                    gl_FragColor = vec4(mix(uBottom, uTop, max(0.0, h * 0.8 + 0.2)), 1.0);
+                }
+            `
+        });
+        const sky = new THREE.Mesh(skyGeo, skyMat);
+        scene.add(sky);
+
+        // ===== CHÃO =====
+        const groundGeo = new THREE.PlaneGeometry(200, 200);
+        const groundMat = new THREE.MeshStandardMaterial({
+            color: 0x2a3a2a,
+            roughness: 0.9,
+            metalness: 0.0,
+        });
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -0.5;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        // Grade de referência no chão
+        const gridHelper = new THREE.GridHelper(100, 50, 0x4aff8a, 0x2a4a2a);
+        gridHelper.position.y = -0.4;
+        gridHelper.material.opacity = 0.3;
+        gridHelper.material.transparent = true;
+        scene.add(gridHelper);
+
+        // ===== PRÉDIOS =====
+        function createBuilding(x, z, w, h, d, color) {
+            const geo = new THREE.BoxGeometry(w, h, d);
+            const mat = new THREE.MeshStandardMaterial({
+                color: color || 0x334455,
+                roughness: 0.8,
+                metalness: 0.1,
+            });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(x, h / 2 - 0.5, z);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+
+            // Janelas
+            const windowMat = new THREE.MeshStandardMaterial({
+                color: 0xff8844,
+                emissive: 0xff4400,
+                emissiveIntensity: 0.1,
+            });
+            for (let i = 0; i < 3; i++) {
+                const windowMesh = new THREE.Mesh(
+                    new THREE.PlaneGeometry(1, 1.5),
+                    windowMat
+                );
+                windowMesh.position.set(
+                    (i - 1) * 1.8,
+                    h * 0.3,
+                    d / 2 + 0.01
+                );
+                mesh.add(windowMesh);
+            }
+
+            scene.add(mesh);
+            return mesh;
+        }
+
+        // Cidade - Nova Prospekt
+        const buildings = [];
+        const buildingColors = [0x445566, 0x556677, 0x334455, 0x3a4a5a, 0x4a5a6a];
+
+        // Quarteirão 1
+        buildings.push(createBuilding(-15, -15, 8, 12, 6, buildingColors[0]));
+        buildings.push(createBuilding(-5, -15, 6, 8, 6, buildingColors[1]));
+        buildings.push(createBuilding(5, -15, 8, 15, 6, buildingColors[2]));
+        buildings.push(createBuilding(15, -15, 6, 10, 6, buildingColors[3]));
+
+        // Quarteirão 2
+        buildings.push(createBuilding(-15, -3, 8, 20, 6, buildingColors[4]));
+        buildings.push(createBuilding(-5, -3, 6, 6, 6, buildingColors[0]));
+        buildings.push(createBuilding(5, -3, 8, 14, 6, buildingColors[1]));
+        buildings.push(createBuilding(15, -3, 6, 18, 6, buildingColors[2]));
+
+        // Quarteirão 3
+        buildings.push(createBuilding(-15, 9, 8, 10, 6, buildingColors[3]));
+        buildings.push(createBuilding(-5, 9, 6, 16, 6, buildingColors[4]));
+        buildings.push(createBuilding(5, 9, 8, 8, 6, buildingColors[0]));
+        buildings.push(createBuilding(15, 9, 6, 12, 6, buildingColors[1]));
+
+        // Prédio alto (principal)
+        const tallBuilding = createBuilding(0, 0, 10, 25, 8, 0x2a3a4a);
+        tallBuilding.position.y = 12;
+
+        // ===== CARROS =====
+        function createCar(x, z, color) {
+            const car = new THREE.Group();
+
+            const bodyGeo = new THREE.BoxGeometry(2, 0.6, 1.2);
+            const bodyMat = new THREE.MeshStandardMaterial({
+                color: color || 0xcc3333,
+                roughness: 0.7,
+                metalness: 0.3,
+            });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 0.3;
+            car.add(body);
+
+            const roofGeo = new THREE.BoxGeometry(1.2, 0.4, 1);
+            const roofMat = new THREE.MeshStandardMaterial({
+                color: 0x222222,
+                roughness: 0.5,
+                metalness: 0.5,
+            });
+            const roof = new THREE.Mesh(roofGeo, roofMat);
+            roof.position.set(0, 0.8, 0);
+            car.add(roof);
+
+            // Rodas
+            const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 1 });
+            const wheelPos = [
+                [-0.8, -0.1, -0.7],
+                [-0.8, -0.1, 0.7],
+                [0.8, -0.1, -0.7],
+                [0.8, -0.1, 0.7]
+            ];
+            wheelPos.forEach(pos => {
+                const wheel = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.2, 0.2, 0.1, 8),
+                    wheelMat
+                );
+                wheel.rotation.x = Math.PI / 2;
+                wheel.position.set(pos[0], pos[1], pos[2]);
+                car.add(wheel);
+            });
+
+            car.position.set(x, -0.2, z);
+            car.rotation.y = Math.random() * Math.PI * 2;
+            scene.add(car);
+            return car;
+        }
+
+        const carColors = [0xcc3333, 0x3333cc, 0x33cc33, 0xcccc33, 0xcc33cc, 0x33cccc];
+        for (let i = 0; i < 12; i++) {
+            const x = (Math.random() - 0.5) * 60;
+            const z = (Math.random() - 0.5) * 60;
+            if (Math.abs(x) < 3 && Math.abs(z) < 3) continue;
+            createCar(x, z, carColors[i % carColors.length]);
+        }
+
+        // ===== ÁRVORES MORTAS =====
+        function createDeadTree(x, z) {
+            const tree = new THREE.Group();
+
+            const trunkMat = new THREE.MeshStandardMaterial({
+                color: 0x3a2a1a,
+                roughness: 1,
+            });
+            const trunk = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.15, 0.2, 1.5, 6),
+                trunkMat
+            );
+            trunk.position.y = 0.75;
+            tree.add(trunk);
+
+            const branchMat = new THREE.MeshStandardMaterial({
+                color: 0x2a1a0a,
+                roughness: 1,
+            });
+            for (let i = 0; i < 4; i++) {
+                const branch = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.05, 0.08, 0.8 + Math.random() * 0.5, 4),
+                    branchMat
+                );
+                const angle = (i / 4) * Math.PI * 2 + Math.random() * 0.5;
+                branch.position.set(Math.cos(angle) * 0.3, 1.5 + Math.random() * 0.3, Math.sin(angle) * 0.3);
+                branch.rotation.z = Math.cos(angle) * 0.8;
+                branch.rotation.x = Math.sin(angle) * 0.8;
+                tree.add(branch);
+            }
+
+            tree.position.set(x, -0.5, z);
+            scene.add(tree);
+            return tree;
+        }
+
+        for (let i = 0; i < 30; i++) {
+            const x = (Math.random() - 0.5) * 80;
+            const z = (Math.random() - 0.5) * 80;
+            if (Math.abs(x) < 5 && Math.abs(z) < 5) continue;
+            createDeadTree(x, z);
+        }
+
+        // ===== INIMIGOS =====
+        const enemies = [];
+        let enemyIdCounter = 0;
+
+        function spawnEnemy(x, z) {
+            const enemy = {
+                id: enemyIdCounter++,
+                mesh: new THREE.Group(),
+                health: 50 + Math.random() * 50,
+                maxHealth: 100,
+                speed: 1.5 + Math.random() * 1.5,
+                damage: 5 + Math.random() * 10,
+                attackCooldown: 0,
+                isDead: false,
+                type: Math.floor(Math.random() * 3),
+                position: new THREE.Vector3(x, 0, z),
+            };
+
+            // Corpo
+            const bodyMat = new THREE.MeshStandardMaterial({
+                color: new THREE.Color().setHSL(0.05 + Math.random() * 0.1, 0.8, 0.2 + Math.random() * 0.2),
+                roughness: 0.9,
+                metalness: 0.1,
+            });
+            const body = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.6, 0.8, 1.6, 8),
+                bodyMat
+            );
+            body.position.y = 0.8;
+            enemy.mesh.add(body);
+
+            // Cabeça
+            const headMat = new THREE.MeshStandardMaterial({
+                color: new THREE.Color().setHSL(0.0, 0.6, 0.3),
+                roughness: 0.8,
+            });
+            const head = new THREE.Mesh(
+                new THREE.SphereGeometry(0.4, 8, 8),
+                headMat
+            );
+            head.position.y = 1.8;
+            enemy.mesh.add(head);
+
+            // Olhos (vermelhos)
+            const eyeMat = new THREE.MeshStandardMaterial({
+                color: 0xff0000,
+                emissive: 0xff0000,
+                emissiveIntensity: 0.5,
+            });
+            for (let side of [-0.2, 0.2]) {
+                const eye = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.08, 6, 6),
+                    eyeMat
+                );
+                eye.position.set(side, 1.9, -0.35);
+                enemy.mesh.add(eye);
+            }
+
+            // Braços
+            const armMat = new THREE.MeshStandardMaterial({
+                color: new THREE.Color().setHSL(0.05, 0.6, 0.2),
+                roughness: 0.9,
+            });
+            for (let side of [-0.7, 0.7]) {
+                const arm = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.08, 0.1, 0.8, 4),
+                    armMat
+                );
+                arm.position.set(side, 1.2, 0);
+                arm.rotation.z = side * 0.3;
+                enemy.mesh.add(arm);
+            }
+
+            enemy.mesh.position.copy(enemy.position);
+            enemy.mesh.position.y = -0.5;
+            enemy.mesh.castShadow = true;
+            scene.add(enemy.mesh);
+
+            // Barra de vida (sempre olhando pro jogador)
+            const healthBar = new THREE.Mesh(
+                new THREE.PlaneGeometry(0.8, 0.1),
+                new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+            );
+            healthBar.position.y = 2.3;
+            enemy.mesh.add(healthBar);
+            enemy.healthBar = healthBar;
+
+            enemies.push(enemy);
+            return enemy;
+        }
+
+        // Spawn inicial de inimigos
+        for (let i = 0; i < 8; i++) {
+            let x, z;
+            do {
+                x = (Math.random() - 0.5) * 50;
+                z = (Math.random() - 0.5) * 50;
+            } while (Math.abs(x) < 5 && Math.abs(z) < 5);
+            spawnEnemy(x, z);
+        }
+
+        // ===== ITENS =====
+        const items = [];
+
+        function spawnItem(x, z, type) {
+            const item = {
+                mesh: new THREE.Mesh(),
+                type: type || 'ammo',
+                position: new THREE.Vector3(x, -0.2, z),
+                isCollected: false,
+            };
+
+            const colors = {
+                ammo: 0xff8844,
+                health: 0xff4444,
+                food: 0x44ff88,
+                energy: 0x44aaff,
+            };
+
+            const geo = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+            const mat = new THREE.MeshStandardMaterial({
+                color: colors[type] || 0xffffff,
+                emissive: colors[type] || 0xffffff,
+                emissiveIntensity: 0.2,
+                roughness: 0.3,
+                metalness: 0.5,
+            });
+            item.mesh = new THREE.Mesh(geo, mat);
+            item.mesh.position.copy(item.position);
+            item.mesh.position.y = 0.2;
+            item.mesh.castShadow = true;
+            scene.add(item.mesh);
+
+            // Brilho
+            const glow = new THREE.Mesh(
+                new THREE.SphereGeometry(0.4, 8, 8),
+                new THREE.MeshBasicMaterial({
+                    color: colors[type] || 0xffffff,
+                    transparent: true,
+                    opacity: 0.15,
+                })
+            );
+            glow.position.copy(item.mesh.position);
+            scene.add(glow);
+            item.glow = glow;
+
+            items.push(item);
+            return item;
+        }
+
+        // Spawn de itens pela cidade
+        const itemTypes = ['ammo', 'ammo', 'health', 'food', 'energy', 'ammo'];
+        for (let i = 0; i < 20; i++) {
+            let x, z;
+            do {
+                x = (Math.random() - 0.5) * 60;
+                z = (Math.random() - 0.5) * 60;
+            } while (Math.abs(x) < 4 && Math.abs(z) < 4);
+            spawnItem(x, z, itemTypes[Math.floor(Math.random() * itemTypes.length)]);
+        }
+
+        // ===== JOGADOR (Câmera) =====
+        camera.position.set(0, 1.6, 0);
+        camera.lookAt(0, 1.6, -1);
+
+        // ===== VARIÁVEIS DE CONTROLE =====
+        const keys = { w: false, a: false, s: false, d: false, shift: false, space: false };
+        let mouseX = 0,
+            mouseY = 0;
+        let isLocked = false;
+
+        // ===== EVENTOS DE TECLADO =====
+        document.addEventListener('keydown', (e) => {
+            switch (e.key.toLowerCase()) {
+                case 'w':
+                    keys.w = true;
+                    break;
+                case 'a':
+                    keys.a = true;
+                    break;
+                case 's':
+                    keys.s = true;
+                    break;
+                case 'd':
+                    keys.d = true;
+                    break;
+                case 'shift':
+                    keys.shift = true;
+                    break;
+                case ' ':
+                    keys.space = true;
+                    e.preventDefault();
+                    break;
+                case 'e':
+                    interact();
+                    break;
+                case 'r':
+                    reload();
+                    break;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            switch (e.key.toLowerCase()) {
+                case 'w':
+                    keys.w = false;
+                    break;
+                case 'a':
+                    keys.a = false;
+                    break;
+                case 's':
+                    keys.s = false;
+                    break;
+                case 'd':
+                    keys.d = false;
+                    break;
+                case 'shift':
+                    keys.shift = false;
+                    break;
+                case ' ':
+                    keys.space = false;
+                    break;
+            }
+        });
+
+        // ===== EVENTOS DE MOUSE =====
+        document.addEventListener('mousemove', (e) => {
+            if (!isLocked) return;
+            mouseX += e.movementX * CONFIG.mouseSensitivity;
+            mouseY += e.movementY * CONFIG.mouseSensitivity;
+            mouseY = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, mouseY));
+        });
+
+        document.addEventListener('click', () => {
+            if (!isLocked) {
+                renderer.domElement.requestPointerLock();
+                return;
+            }
+            shoot();
+        });
+
+        document.addEventListener('pointerlockchange', () => {
+            isLocked = document.pointerLockElement === renderer.domElement;
+            if (isLocked) {
+                document.getElementById('menu').style.display = 'none';
+            }
+        });
+
+        // ===== FUNÇÕES DO JOGO =====
+
+        function shoot() {
+            if (player.shootCooldown > 0) return;
+            if (player.ammo <= 0) {
+                // Som de clique vazio
+                return;
+            }
+
+            player.ammo--;
+            player.shootCooldown = CONFIG.shootCooldown;
+            updateHUD();
+
+            // Raycast
+            const raycaster = new THREE.Raycaster();
+            raycaster.set(camera.position, camera.getWorldDirection(new THREE.Vector3()));
+
+            const targets = enemies.filter(e => !e.isDead);
+            const meshes = targets.map(e => e.mesh);
+            const intersects = raycaster.intersectObjects(meshes, true);
+
+            if (intersects.length > 0) {
+                // Encontrou um inimigo
+                let hitEnemy = null;
+                for (const intersect of intersects) {
+                    let obj = intersect.object;
+                    while (obj.parent) {
+                        if (obj.parent === enemies.find(e => e.mesh === obj.parent)) {
+                            hitEnemy = enemies.find(e => e.mesh === obj.parent);
+                            break;
+                        }
+                        obj = obj.parent;
+                    }
+                    if (hitEnemy) break;
+                }
+
+                if (hitEnemy && !hitEnemy.isDead) {
+                    const damage = 20 + Math.random() * 15;
+                    hitEnemy.health -= damage;
+                    hitEnemy.healthBar.material.color.setHex(0xff0000);
+                    setTimeout(() => {
+                        if (hitEnemy.healthBar) {
+                            hitEnemy.healthBar.material.color.setHex(0x00ff00);
+                        }
+                    }, 100);
+
+                    // Efeito de dano no jogador (tela vermelha)
+                    const overlay = document.getElementById('damage-overlay');
+                    overlay.classList.add('active');
+                    setTimeout(() => overlay.classList.remove('active'), 50);
+
+                    if (hitEnemy.health <= 0) {
+                        hitEnemy.isDead = true;
+                        // Desaparece com animação
+                        const mesh = hitEnemy.mesh;
+                        mesh.scale.y = 0.1;
+                        setTimeout(() => {
+                            mesh.visible = false;
+                        }, 300);
+                        // Ganha recursos
+                        player.oxygen = Math.min(100, player.oxygen + 5);
+                        player.energy = Math.min(100, player.energy + 3);
+                        updateHUD();
+                    }
+                }
+            }
+
+            // Efeito visual de tiro (flash na tela)
+            const flash = document.createElement('div');
+            flash.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(255, 255, 200, 0.1);
+                pointer-events: none; z-index: 30;
+                transition: opacity 0.05s;
+            `;
+            document.body.appendChild(flash);
+            setTimeout(() => {
+                flash.style.opacity = '0';
+                setTimeout(() => flash.remove(), 100);
+            }, 50);
+
+            updateAmmoDisplay();
+        }
+
+        function reload() {
+            if (player.ammo >= player.maxAmmo) return;
+            // Recarga simples (instantânea para demo)
+            player.ammo = player.maxAmmo;
+            updateAmmoDisplay();
+            updateHUD();
+        }
+
+        function interact() {
+            const raycaster = new THREE.Raycaster();
+            raycaster.set(camera.position, camera.getWorldDirection(new THREE.Vector3()));
+            raycaster.far = 3;
+
+            const itemMeshes = items.filter(i => !i.isCollected).map(i => i.mesh);
+            const intersects = raycaster.intersectObjects(itemMeshes, true);
+
+            if (intersects.length > 0) {
+                let hitItem = null;
+                for (const intersect of intersects) {
+                    let obj = intersect.object;
+                    while (obj.parent) {
+                        const found = items.find(i => i.mesh === obj.parent);
+                        if (found && !found.isCollected) {
+                            hitItem = found;
+                            break;
+                        }
+                        obj = obj.parent;
+                    }
+                    if (hitItem) break;
+                }
+
+                if (hitItem) {
+                    collectItem(hitItem);
+                }
+            }
+        }
+
+        function collectItem(item) {
+            item.isCollected = true;
+            item.mesh.visible = false;
+            if (item.glow) item.glow.visible = false;
+
+            switch (item.type) {
+                case 'ammo':
+                    player.ammo = Math.min(player.maxAmmo, player.ammo + 10);
+                    break;
+                case 'health':
+                    player.health = Math.min(player.maxHealth, player.health + 25);
+                    break;
+                case 'food':
+                    player.hunger = Math.min(100, player.hunger + 20);
+                    break;
+                case 'energy':
+                    player.energy = Math.min(100, player.energy + 20);
+                    break;
+            }
+
+            updateHUD();
+            updateAmmoDisplay();
+
+            // Feedback visual
+            const hint = document.getElementById('interact-hint');
+            hint.textContent = `✅ Pegou ${item.type}!`;
+            hint.style.display = 'block';
+            hint.style.borderColor = '#4aff8a';
+            hint.style.color = '#4aff8a';
+            setTimeout(() => {
+                hint.style.display = 'none';
+            }, 1000);
+        }
+
+        function updateHUD() {
+            document.getElementById('hud-oxygen').textContent = Math.floor(player.oxygen);
+            document.getElementById('hud-energy').textContent = Math.floor(player.energy);
+            document.getElementById('hud-hunger').textContent = Math.floor(player.hunger);
+            document.getElementById('hud-contamination').textContent = Math.floor(player.contamination);
+            document.getElementById('hud-health').textContent = Math.floor(player.health);
+
+            // Cores
+            const stats = ['oxygen', 'energy', 'hunger', 'health'];
+            stats.forEach(stat => {
+                const el = document.getElementById(`hud-${stat}`);
+                const value = player[stat];
+                if (value < 20) {
+                    el.className = 'value danger';
+                } else if (value < 50) {
+                    el.className = 'value warning';
+                } else {
+                    el.className = 'value';
+                }
+            });
+
+            const contam = document.getElementById('hud-contamination');
+            if (player.contamination > 70) {
+                contam.className = 'value danger';
+            } else if (player.contamination > 40) {
+                contam.className = 'value warning';
+            } else {
+                contam.className = 'value';
+            }
+        }
+
+        function updateAmmoDisplay() {
+            document.getElementById('ammo-current').textContent = player.ammo;
+            document.getElementById('ammo-max').textContent = player.maxAmmo;
+        }
+
+        // ===== INIMIGOS AI =====
+        function updateEnemies(delta) {
+            enemies.forEach(enemy => {
+                if (enemy.isDead) return;
+
+                const dir = new THREE.Vector3()
+                    .copy(camera.position)
+                    .sub(enemy.mesh.position);
+                dir.y = 0;
+                const dist = dir.length();
+
+                if (dist < 20) {
+                    // Perseguir jogador
+                    dir.normalize();
+                    enemy.mesh.position.x += dir.x * enemy.speed * delta;
+                    enemy.mesh.position.z += dir.z * enemy.speed * delta;
+
+                    // Rotação
+                    const angle = Math.atan2(dir.x, dir.z);
+                    enemy.mesh.rotation.y = angle;
+
+                    // Animação de andar (bob)
+                    const bob = Math.sin(Date.now() / 300 + enemy.id) * 0.05;
+                    enemy.mesh.position.y = -0.5 + bob;
+
+                    // Ataque
+                    if (dist < 2 && enemy.attackCooldown <= 0) {
+                        player.health -= enemy.damage;
+                        enemy.attackCooldown = 1.5;
+
+                        // Efeito de dano
+                        const overlay = document.getElementById('damage-overlay');
+                        overlay.classList.add('active');
+                        setTimeout(() => overlay.classList.remove('active'), 200);
+
+                        updateHUD();
+
+                        if (player.health <= 0) {
+                            player.health = 0;
+                            updateHUD();
+                            // Game Over
+                            setTimeout(() => {
+                                if (confirm('💀 VOCÊ MORREU! Recarregar?')) {
+                                    location.reload();
+                                }
+                            }, 500);
+                        }
+                    }
+                }
+
+                if (enemy.attackCooldown > 0) {
+                    enemy.attackCooldown -= delta;
+                }
+
+                // Atualizar barra de vida (sempre olhando pro jogador)
+                if (enemy.healthBar) {
+                    const healthPct = Math.max(0, enemy.health / enemy.maxHealth);
+                    enemy.healthBar.scale.x = healthPct;
+                    enemy.healthBar.lookAt(camera.position);
+                }
+            });
+        }
+
+        // ===== DETECÇÃO DE ITENS PRÓXIMOS =====
+        function checkNearbyItems() {
+            const hint = document.getElementById('interact-hint');
+            let found = false;
+
+            const raycaster = new THREE.Raycaster();
+            raycaster.set(camera.position, camera.getWorldDirection(new THREE.Vector3()));
+            raycaster.far = 3;
+
+            const itemMeshes = items.filter(i => !i.isCollected).map(i => i.mesh);
+            const intersects = raycaster.intersectObjects(itemMeshes, true);
+
+            if (intersects.length > 0) {
+                found = true;
+            }
+
+            if (found) {
+                hint.textContent = '[E] Pegar item';
+                hint.style.display = 'block';
+                hint.style.borderColor = '#4aff8a';
+                hint.style.color = '#4aff8a';
+            } else {
+                hint.style.display = 'none';
+            }
+        }
+
+        // ===== LOOP PRINCIPAL =====
+        let lastTime = 0;
+        let time = 0;
+
+        function animate(timeStamp) {
+            const delta = Math.min((timeStamp - lastTime) / 1000, 0.05);
+            lastTime = timeStamp;
+            time += delta;
+
+            // ===== MOVIMENTO =====
+            const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+            forward.y = 0;
+            forward.normalize();
+
+            const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+            right.y = 0;
+            right.normalize();
+
+            const moveDir = new THREE.Vector3();
+            if (keys.w) moveDir.add(forward);
+            if (keys.s) moveDir.sub(forward);
+            if (keys.a) moveDir.sub(right);
+            if (keys.d) moveDir.add(right);
+            moveDir.y = 0;
+
+            const isRunning = keys.shift && moveDir.length() > 0;
+            const speed = isRunning ? CONFIG.runSpeed : CONFIG.walkSpeed;
+
+            if (moveDir.length() > 0) {
+                moveDir.normalize();
+                camera.position.x += moveDir.x * speed * delta;
+                camera.position.z += moveDir.z * speed * delta;
+            }
+
+            // ===== ROTAÇÃO =====
+            camera.rotation.order = 'YXZ';
+            camera.rotation.y = mouseX;
+            camera.rotation.x = mouseY;
+
+            // ===== GRAVIDADE E PULO =====
+            const isGrounded = camera.position.y <= 1.6;
+            if (!isGrounded) {
+                player.velocity.y += CONFIG.gravity * delta;
+            } else {
+                player.velocity.y = 0;
+                if (keys.space) {
+                    player.velocity.y = CONFIG.jumpForce;
+                }
+            }
+
+            camera.position.y += player.velocity.y * delta;
+
+            if (camera.position.y < 1.6) {
+                camera.position.y = 1.6;
+                player.velocity.y = 0;
+            }
+
+            // ===== RECURSOS (DEGRADAÇÃO LENTA) =====
+            if (time > 1) {
+                // A cada 1 segundo
+                player.oxygen = Math.max(0, player.oxygen - 0.02);
+                player.hunger = Math.max(0, player.hunger - 0.02);
+                if (isRunning) {
+                    player.energy = Math.max(0, player.energy - 0.05);
+                }
+                // Contaminação aumenta perto de inimigos mortos
+                enemies.forEach(e => {
+                    if (e.isDead) {
+                        const dist = camera.position.distanceTo(e.mesh.position);
+                        if (dist < 5) {
+                            player.contamination = Math.min(100, player.contamination + 0.05);
+                        }
+                    }
+                });
+                updateHUD();
+
+                // Spawn de inimigos se tiver poucos
+                const aliveEnemies = enemies.filter(e => !e.isDead);
+                if (aliveEnemies.length < CONFIG.maxEnemies && Math.random() < 0.01) {
+                    let x, z;
+                    do {
+                        x = (Math.random() - 0.5) * 60;
+                        z = (Math.random() - 0.5) * 60;
+                    } while (Math.abs(x) < 8 && Math.abs(z) < 8);
+                    spawnEnemy(x, z);
+                }
+            }
+
+            // ===== SHOOT COOLDOWN =====
+            if (player.shootCooldown > 0) {
+                player.shootCooldown -= delta;
+            }
+
+            // ===== INIMIGOS =====
+            updateEnemies(delta);
+
+            // ===== ITENS PRÓXIMOS =====
+            checkNearbyItems();
+
+            // ===== RENDER =====
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+
+        // ===== INÍCIO DO JOGO =====
+        document.getElementById('startBtn').addEventListener('click', () => {
+            renderer.domElement.requestPointerLock();
+        });
+
+        updateHUD();
+        updateAmmoDisplay();
+        animate(0);
+
+        // ===== RESPONSIVIDADE =====
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        console.log('🌍 ECOSFERA 2200 3D - VERSÃO 0.1');
+        console.log('🎮 Movimento: WASD | Mouse | Click para atirar');
+        console.log('🔫 Pressione R para recarregar');
+        console.log('📦 Pressione E para interagir');
+        console.log('🏃 Shift para correr');
+    </script>
 </body>
 </html>
