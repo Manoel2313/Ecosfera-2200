@@ -59,9 +59,11 @@
 // 🌍 ECOSFERA 2200 – COLÔNIA CASCATA
 // ============================================================================
 // VERSÃO FINAL
-// - Começa com 0 moedas e 5 milhos
-// - Milho recarrega automaticamente a cada 15 segundos (estoque volta para 5)
-// - Plantio no LAB SEMPRE liberado (só precisa de sol)
+// - Começa com 0 moedas e 5 milhos (recarga a cada 15s)
+// - SUPERFÍCIE (antigo LAB)
+// - Interface simplificada
+// - Pá para deletar plantas
+// - BOSS a cada 10 waves
 // ============================================================================
 
 // ============ ESTADO GLOBAL ============
@@ -71,7 +73,7 @@ let karma = 0;
 
 // ============ RECARGA DE MILHO ============
 let timerRecargaMilho = 0;
-const TEMPO_RECARGA_MILHO = 15 * 60; // 15 segundos em frames (60fps)
+const TEMPO_RECARGA_MILHO = 15 * 60;
 
 // ============ HACK ============
 let hackContador = 0;
@@ -86,12 +88,12 @@ let velocidadeJogador = 3;
 // ============ INTERAÇÃO ============
 let objetosChale = [
   { nome:"portaEsq", x:60,  y:240, w:50, h:80, tipo:"porta", destino:"FAZENDA", label:"🌱 ESTUFA", cor:[34,139,34] },
-  { nome:"portaDir", x:690, y:240, w:50, h:80, tipo:"porta", destino:"PVZ",     label:"🧬 LAB", cor:[139,69,19] },
+  { nome:"portaDir", x:690, y:240, w:50, h:80, tipo:"porta", destino:"PVZ",     label:"☢️ SUPERFÍCIE", cor:[139,69,19] },
   { nome:"pc",       x:350, y:90,  w:80, h:60, tipo:"pc",    label:"🛒 LOJA", cor:[0,100,200] }
 ];
 let telaLojaAberta = false;
 let lojaAba = "sementes";
-let jardimLiberado = false;
+let superficieLiberada = false;
 
 // ============ LOJA ============
 let sementesDisponiveis = {
@@ -125,7 +127,7 @@ let culturasInfo = {
 };
 let culturaSelecionada = "milho";
 
-// ============ JARDIM (PVZ) ============
+// ============ SUPERFÍCIE (PVZ) ============
 let plantasPvZ = [];
 let zumbisPvZ = [];
 let projeteis = [];
@@ -144,7 +146,17 @@ let offsetJardimY = 80;
 let estadoJardim = "preparacao";
 let tempoPreparacao = 300;
 let zumbisMortosWave = 0;
-let primeiraWave = true;
+
+// ============ PÁ ============
+let modoPaAtivo = false;
+
+// ============ BOSS ============
+let bossAtivo = false;
+let bossVida = 0;
+let bossVidaMax = 0;
+let bossDano = 0;
+let bossVelocidade = 0;
+let bossTimer = 0;
 
 // ============ FEEDBACK ============
 let feedbackMsg = "", tempoFeedback = 0;
@@ -157,12 +169,12 @@ function setup() {
   celulaW = width / colunasFaz;
   celulaH = (height - offsetYFazenda - 50) / linhasFaz;
   resetarFazenda();
-  resetarJardim();
+  resetarSuperficie();
   frameRate(60);
   document.getElementById('hint-text').textContent = '🎮 WASD = Mover · E = Interagir · L = Loja · 1-5 = Plantas';
 }
 
-function resetarJardim() {
+function resetarSuperficie() {
   plantasPvZ = [];
   zumbisPvZ = [];
   projeteis = [];
@@ -176,7 +188,9 @@ function resetarJardim() {
   tempoPreparacao = 300;
   zumbisMortosWave = 0;
   tempoProxZumbi = 0;
-  primeiraWave = true;
+  bossAtivo = false;
+  bossVida = 0;
+  modoPaAtivo = false;
 }
 
 function resetarFazenda() {
@@ -188,29 +202,22 @@ function resetarFazenda() {
 
 // ============ DRAW ============
 function draw() {
-  // ===== RECARGA DE MILHO =====
+  // RECARGA DE MILHO
   timerRecargaMilho++;
   if (timerRecargaMilho >= TEMPO_RECARGA_MILHO) {
     timerRecargaMilho = 0;
-    // Recarrega milho para 5 (se estiver abaixo de 5)
     if (sementesDisponiveis.milho.estoque < 5) {
       sementesDisponiveis.milho.estoque = 5;
       feedback("🌽 Milho recarregado! (+5)", 40);
     }
   }
   
-  // HACK - Timer de reset
+  // HACK
   if (hackTimer > 0) {
     hackTimer--;
-    if (hackTimer === 0) {
-      hackContador = 0;
-    }
+    if (hackTimer === 0) hackContador = 0;
   }
-  
-  // Cooldown do hack
-  if (hackCooldown > 0) {
-    hackCooldown--;
-  }
+  if (hackCooldown > 0) hackCooldown--;
   
   if (telaLojaAberta) { desenharLoja(); return; }
 
@@ -219,10 +226,9 @@ function draw() {
   } else if (modo === "FAZENDA") {
     desenharFazenda();
   } else if (modo === "PVZ") {
-    desenharJardim();
+    desenharSuperficie();
   }
   
-  // Mostrar status do hack
   if (hackAtivado) {
     let hint = document.getElementById('hint-text');
     hint.textContent = '🔥 HACK ATIVADO! +1000 MOEDAS!';
@@ -252,7 +258,7 @@ function desenharChale() {
   rect(width-120, 20, 80, 60);
   
   for (let obj of objetosChale) {
-    if (obj.tipo === "porta" && obj.destino === "PVZ" && !jardimLiberado) {
+    if (obj.tipo === "porta" && obj.destino === "PVZ" && !superficieLiberada) {
       fill(80, 60, 50);
     } else {
       fill(obj.cor || [60, 50, 40]);
@@ -279,14 +285,12 @@ function desenharChale() {
   textSize(12);
   text("🏠 BUNKER", width-120, 30);
   
-  // Timer de recarga do milho
   let segRestante = Math.ceil((TEMPO_RECARGA_MILHO - timerRecargaMilho) / 60);
   fill(150);
   textSize(10);
   textAlign(LEFT);
   text("🌽 Milho: " + sementesDisponiveis.milho.estoque + " | Recarga em " + segRestante + "s", 15, 45);
   
-  // Dica do hack (sutil)
   if (hackContador > 0 && hackContador < 5) {
     fill(255, 170, 0, 150);
     textSize(10);
@@ -360,18 +364,15 @@ function desenharLoja() {
   textSize(16);
   text("💰 " + moedas + " créditos", width-120, 35);
   
-  // Fechar
   fill(200, 50, 50);
   rect(width-70, 15, 50, 30, 5);
   fill(255);
   textSize(14);
   text("FECHAR", width-45, 35);
   
-  // Abas
   let abaY = 75;
   let abaW = 120;
   
-  // Aba Sementes
   fill(lojaAba === "sementes" ? [34, 139, 34] : [50, 50, 60]);
   rect(width/2 - abaW - 10, abaY, abaW, 35, 5);
   fill(255);
@@ -379,18 +380,15 @@ function desenharLoja() {
   textAlign(CENTER);
   text("🌾 SEMENTES", width/2 - abaW - 10 + abaW/2, abaY+24);
   
-  // Aba Mutantes
   fill(lojaAba === "mutantes" ? [139, 69, 19] : [50, 50, 60]);
   rect(width/2 + 10, abaY, abaW, 35, 5);
   fill(255);
-  textSize(16);
   text("🧬 MUTANTES", width/2 + 10 + abaW/2, abaY+24);
   
   let y = 130;
   let x = 50;
   
   if (lojaAba === "sementes") {
-    // SEMENTES
     fill(0, 255, 136);
     textSize(16);
     textAlign(LEFT);
@@ -422,11 +420,10 @@ function desenharLoja() {
     text("💡 Clique em COMPRAR para comprar 1 semente", x, y+10);
     
   } else {
-    // MUTANTES
     fill(0, 255, 136);
     textSize(16);
     textAlign(LEFT);
-    text("🧬 Plantas mutantes para o LABORATÓRIO", x, y);
+    text("🧬 Plantas mutantes para a SUPERFÍCIE", x, y);
     y += 30;
     
     let plantasLista = Object.entries(plantasDefesa);
@@ -462,10 +459,9 @@ function desenharLoja() {
     fill(150);
     textSize(11);
     textAlign(LEFT);
-    text("💡 Compre pelo menos 1 para liberar o LAB", x, y+10);
+    text("💡 Compre pelo menos 1 para liberar a SUPERFÍCIE", x, y+10);
   }
   
-  // Ajuda
   fill(100, 100, 120);
   textSize(11);
   textAlign(CENTER);
@@ -549,9 +545,9 @@ function desenharFazenda() {
   }
 }
 
-// ==================== JARDIM ====================
-function desenharJardim() {
-  if (!jardimLiberado) {
+// ==================== SUPERFÍCIE ====================
+function desenharSuperficie() {
+  if (!superficieLiberada) {
     modo = "CHALE";
     feedback("Compre uma planta mutante na Loja (L)!", 60);
     return;
@@ -559,6 +555,7 @@ function desenharJardim() {
   
   background(20, 25, 35);
   
+  // Grid
   for (let linha = 0; linha < linhasPvZ; linha++) {
     for (let col = 0; col < colunasPvZ; col++) {
       let x = col * celPvZW;
@@ -570,78 +567,180 @@ function desenharJardim() {
     }
   }
   
+  // Plantas
   for (let p of plantasPvZ) {
     let x = p.col * celPvZW + celPvZW/2;
     let y = offsetJardimY + p.linha * celPvZH + celPvZH/2;
     desenharPlantaPvZ(p, x, y);
   }
   
+  // Zumbis
   for (let z of zumbisPvZ) {
     desenharZumbi(z);
   }
   
+  // BOSS
+  if (bossAtivo) {
+    desenharBoss();
+  }
+  
+  // Projéteis
   for (let p of projeteis) {
     fill(0, 255, 100);
     ellipse(p.x, p.y, 6, 6);
   }
   
-  fill(0, 0, 0, 180);
-  rect(0, 0, width, 50);
+  // ===== HUD SUPER SIMPLES =====
+  // Barra superior
+  fill(0, 0, 0, 200);
+  rect(0, 0, width, 35);
+  
+  // Informações básicas
   fill(0, 255, 136);
   textSize(14);
   textAlign(LEFT);
-  text("☀️ " + sol + "  🌊 Wave " + wave, 15, 30);
-  fill(200);
-  text("🧟 " + zumbisRestantes + " restantes", 180, 30);
-  text("V = Voltar", width-80, 30);
+  text("☀️ " + sol + "  🌊 " + wave, 15, 24);
   
-  let yMenu = 55;
-  let plantasDisp = Object.keys(plantasDefesa).filter(id => plantasDefesa[id].comprada);
-  if (plantasDisp.length > 0) {
-    fill(150);
-    textSize(11);
-    textAlign(LEFT);
-    text("1-" + plantasDisp.length + " selecionar:", 15, yMenu);
-    for (let i = 0; i < plantasDisp.length; i++) {
-      let id = plantasDisp[i];
-      let p = plantasDefesa[id];
-      let selecionado = plantaSelecionada === id;
-      fill(selecionado ? [0, 255, 136] : [200, 200, 200]);
-      text(p.nome + (selecionado ? " ✅" : ""), 15 + i * 100, yMenu);
-    }
-  } else {
-    fill(200);
-    textSize(12);
-    text("Compre plantas na Loja (L)", 15, yMenu);
+  fill(200);
+  text("🧟 " + zumbisRestantes, 150, 24);
+  
+  // BOSS indicator
+  if (bossAtivo) {
+    fill(255, 50, 50);
+    text("👾 BOSS!", 250, 24);
   }
   
-  // Dica de plantio (sempre disponível)
-  fill(0, 255, 136, 150);
-  textSize(11);
-  textAlign(CENTER);
-  text("🌱 Clique na área verde para plantar (custa SOL)", width/2, height-15);
+  fill(200);
+  text("V=Voltar", width-80, 24);
   
-  // Estado da wave (apenas informativo)
+  // ===== MENU DE PLANTAS E PÁ =====
+  let yMenu = 40;
+  let plantasDisp = Object.keys(plantasDefesa).filter(id => plantasDefesa[id].comprada);
+  
+  // Fundo do menu
+  fill(0, 0, 0, 150);
+  rect(0, yMenu-5, width, 30);
+  
+  // Botões das plantas
+  let xBtn = 10;
+  for (let i = 0; i < plantasDisp.length && i < 5; i++) {
+    let id = plantasDisp[i];
+    let p = plantasDefesa[id];
+    let selecionado = plantaSelecionada === id;
+    fill(selecionado ? [0, 255, 136] : [60, 60, 80]);
+    rect(xBtn, yMenu, 55, 24, 4);
+    fill(255);
+    textSize(11);
+    textAlign(CENTER);
+    text(p.nome, xBtn+27, yMenu+17);
+    xBtn += 60;
+  }
+  
+  // Botão da PÁ
+  let paX = xBtn + 10;
+  let paSelecionado = modoPaAtivo;
+  fill(paSelecionado ? [255, 200, 0] : [80, 60, 40]);
+  rect(paX, yMenu, 55, 24, 4);
+  fill(255);
+  textSize(14);
+  textAlign(CENTER);
+  text("🪏", paX+27, yMenu+18);
+  
+  // Status da PÁ
+  if (modoPaAtivo) {
+    fill(255, 200, 0);
+    textSize(10);
+    textAlign(CENTER);
+    text("Clique na planta para remover", width/2, yMenu+32);
+  }
+  
+  // Dica de teclas
+  fill(100);
+  textSize(9);
+  textAlign(LEFT);
+  text("1-5: Plantas  |  P: Pá", 10, yMenu+48);
+  
+  // Estado da wave
   if (estadoJardim === "preparacao") {
     let seg = ceil(tempoPreparacao / 60);
     fill(255, 200, 100);
     textSize(14);
     textAlign(CENTER);
-    text("⚔️ PRÓXIMA WAVE EM " + seg + "s", width/2, 30);
-    fill(200);
-    textSize(11);
-    text("🌱 Plante suas defesas!", width/2, 48);
+    text("⚔️ PRÓXIMA WAVE EM " + seg + "s", width/2, height-20);
   } else {
     fill(255, 100, 100);
     textSize(14);
     textAlign(CENTER);
-    text("⚔️ COMBATE! Defenda-se!", width/2, 30);
+    text("⚔️ COMBATE!", width/2, height-20);
   }
   
-  atualizarJardim();
+  atualizarSuperficie();
 }
 
-// ==================== DESENHAR PLANTAS (NATURAIS) ====================
+function desenharBoss() {
+  let boss = zumbisPvZ.find(z => z.isBoss);
+  if (!boss) return;
+  
+  push();
+  translate(boss.x, boss.y);
+  
+  // Corpo gigante
+  fill(150, 30, 30);
+  ellipse(0, 0, 70, 80);
+  fill(200, 50, 50);
+  ellipse(-20, -25, 30, 35);
+  ellipse(20, -25, 30, 35);
+  
+  // Olhos vermelhos brilhantes
+  fill(255, 0, 0);
+  ellipse(-22, -30, 16, 16);
+  ellipse(22, -30, 16, 16);
+  fill(255, 255, 100);
+  ellipse(-22, -30, 8, 8);
+  ellipse(22, -30, 8, 8);
+  fill(0);
+  ellipse(-22, -30, 4, 4);
+  ellipse(22, -30, 4, 4);
+  
+  // Chifres
+  fill(100, 20, 20);
+  triangle(-30, -50, -18, -70, -8, -50);
+  triangle(8, -50, 18, -70, 30, -50);
+  
+  // Boca com dentes
+  fill(80, 10, 10);
+  arc(0, 5, 40, 20, 0, PI);
+  fill(255);
+  for (let i = -15; i <= 15; i+=8) {
+    rect(i-2, 5, 4, 8);
+  }
+  
+  // Garras
+  fill(100, 20, 20);
+  rect(-40, 10, 15, 25, 3);
+  rect(25, 10, 15, 25, 3);
+  fill(200, 50, 50);
+  for (let i = -3; i <= 3; i+=6) {
+    ellipse(-40+i, 35, 4, 4);
+    ellipse(25+i, 35, 4, 4);
+  }
+  
+  // Barra de vida do BOSS
+  fill(50, 0, 0);
+  rect(-45, -60, 90, 8);
+  fill(255, 0, 0);
+  rect(-45, -60, 90 * (boss.vida / boss.vidaMax), 8);
+  
+  // Título
+  fill(255, 200, 0);
+  textSize(12);
+  textAlign(CENTER);
+  text("👾 BOSS", 0, -68);
+  
+  pop();
+}
+
+// ==================== DESENHAR PLANTAS ====================
 function desenharPlantaPvZ(p, x, y) {
   push();
   translate(x, y);
@@ -656,7 +755,6 @@ function desenharPlantaPvZ(p, x, y) {
     }
     fill(60, 40, 20);
     ellipse(0, 0, 12, 12);
-    
   } else if (p.tipo === "ervilha") {
     fill(60, 180, 60);
     ellipse(0, 0, 35, 35);
@@ -667,7 +765,6 @@ function desenharPlantaPvZ(p, x, y) {
     fill(0);
     ellipse(-4, -7, 4, 4);
     ellipse(4, -7, 4, 4);
-    
   } else if (p.tipo === "cogumelo") {
     fill(120, 80, 160);
     ellipse(0, 0, 35, 35);
@@ -679,7 +776,6 @@ function desenharPlantaPvZ(p, x, y) {
     fill(255);
     ellipse(-3, -3, 3, 3);
     ellipse(3, -3, 3, 3);
-    
   } else if (p.tipo === "nozes") {
     fill(160, 120, 60);
     ellipse(0, 0, 40, 40);
@@ -688,7 +784,6 @@ function desenharPlantaPvZ(p, x, y) {
     ellipse(7, -4, 13, 13);
     fill(80, 50, 20);
     ellipse(0, 0, 10, 10);
-    
   } else if (p.tipo === "batataquente") {
     fill(180, 80, 20);
     ellipse(0, 0, 38, 38);
@@ -730,6 +825,12 @@ function desenharPlantaPvZ(p, x, y) {
 function desenharZumbi(z) {
   push();
   translate(z.x, z.y);
+  
+  // Se for BOSS, desenha separado
+  if (z.isBoss) {
+    pop();
+    return;
+  }
   
   fill(70, 85, 70);
   ellipse(0, 0, 35, 40);
@@ -777,22 +878,53 @@ function desenharZumbi(z) {
   pop();
 }
 
-// ==================== LÓGICA DO JARDIM ====================
-function atualizarJardim() {
-  // Preparação (só conta tempo)
+// ==================== LÓGICA DA SUPERFÍCIE ====================
+function atualizarSuperficie() {
+  // Preparação
   if (estadoJardim === "preparacao") {
     tempoPreparacao--;
     if (tempoPreparacao <= 0) {
       estadoJardim = "combate";
-      zumbisRestantes = 2 + wave * 1;
+      
+      // VERIFICA BOSS (a cada 10 waves)
+      let isBossWave = (wave % 10 === 0);
+      
+      if (isBossWave) {
+        // BOSS!
+        bossAtivo = true;
+        let linha = floor(random(linhasPvZ));
+        let x = colunaSpawn * celPvZW + celPvZW/2;
+        let y = offsetJardimY + linha * celPvZH + celPvZH/2;
+        
+        bossVidaMax = 500 + wave * 50;
+        bossVida = bossVidaMax;
+        bossDano = 30 + wave * 3;
+        bossVelocidade = 0.4 + wave * 0.02;
+        
+        let bossZumbi = {
+          x: x, y: y, linha: linha,
+          vida: bossVida, vidaMax: bossVidaMax,
+          velocidade: bossVelocidade,
+          timerAtaque: 0,
+          dano: bossDano,
+          tipo: "boss",
+          queimando: false,
+          isBoss: true
+        };
+        zumbisPvZ.push(bossZumbi);
+        zumbisRestantes = 1;
+        feedback("👾 BOSS APARECEU! Wave " + wave + "!", 90);
+      } else {
+        zumbisRestantes = 2 + wave * 1;
+      }
       zumbisMortosWave = 0;
       tempoProxZumbi = 0;
     }
     return;
   }
   
-  // Combate
-  if (zumbisRestantes > 0 && frameCount > tempoProxZumbi) {
+  // Spawn de zumbis (exceto BOSS)
+  if (!bossAtivo && zumbisRestantes > 0 && frameCount > tempoProxZumbi) {
     let linha = floor(random(linhasPvZ));
     let tipos = ["padrao"];
     if (wave >= 3) tipos.push("cone");
@@ -820,13 +952,15 @@ function atualizarJardim() {
       timerAtaque: 0,
       dano: dano,
       tipo: tipo,
-      queimando: false
+      queimando: false,
+      isBoss: false
     });
     
     zumbisRestantes--;
     tempoProxZumbi = frameCount + 60 + random(30);
   }
   
+  // Plantas atacam
   for (let p of plantasPvZ) {
     if (p.tipo === "girassol") {
       if (!p.timer) p.timer = 0;
@@ -892,6 +1026,7 @@ function atualizarJardim() {
     }
   }
   
+  // Projéteis
   for (let i = projeteis.length - 1; i >= 0; i--) {
     let p = projeteis[i];
     p.x += 6;
@@ -911,6 +1046,7 @@ function atualizarJardim() {
     if (hit || p.x > width) { projeteis.splice(i, 1); }
   }
   
+  // Zumbis se movem
   for (let i = zumbisPvZ.length - 1; i >= 0; i--) {
     let z = zumbisPvZ[i];
     let bloqueado = false;
@@ -944,23 +1080,36 @@ function atualizarJardim() {
     }
     
     if (z.vida <= 0) {
+      // BOSS morreu!
+      if (z.isBoss) {
+        bossAtivo = false;
+        moedas += 200 + wave * 20;
+        sol += 100;
+        feedback("👾 BOSS DERROTADO! +" + (200 + wave * 20) + " moedas!", 90);
+      } else {
+        moedas += 5 + wave * 2;
+      }
       zumbisPvZ.splice(i, 1);
       zumbisMortosWave++;
-      moedas += 5 + wave * 2;
     }
   }
   
-  if (zumbisPvZ.length === 0 && zumbisRestantes === 0 && zumbisMortosWave > 0) {
+  // Fim da wave
+  let totalZumbisWave = (wave % 10 === 0) ? 1 : (2 + wave * 1);
+  if (zumbisPvZ.length === 0 && zumbisMortosWave >= totalZumbisWave) {
     wave++;
     estadoJardim = "preparacao";
     tempoPreparacao = 200;
     sol += 30;
-    moedas += 20 + wave * 5;
-    feedback("🌊 Wave " + (wave-1) + " completa! +" + (20 + wave * 5) + " moedas", 60);
+    if (!bossAtivo) {
+      moedas += 20 + wave * 5;
+      feedback("🌊 Wave " + (wave-1) + " completa! +" + (20 + wave * 5) + " moedas", 60);
+    }
+    bossAtivo = false;
   }
 }
 
-// ==================== FUNÇÕES DAS CULTURAS (NATURAIS) ====================
+// ==================== FUNÇÕES DAS CULTURAS ====================
 function desenharMilho(progresso) {
   let tam = 15 + progresso * 20;
   push();
@@ -1042,45 +1191,58 @@ function atualizarFeedback() {
   if (tempoFeedback > 0) {
     tempoFeedback--;
     fill(0, 0, 0, 200);
-    rect(width/2-200, height-60, 400, 35, 8);
+    rect(width/2-200, height-40, 400, 30, 8);
     fill(0, 255, 136);
     textAlign(CENTER);
-    textSize(14);
-    text(feedbackMsg, width/2, height-38);
+    textSize(13);
+    text(feedbackMsg, width/2, height-22);
   }
 }
 
 // ==================== EVENTOS ====================
 function keyPressed() {
-  // ===== HACK SECRETO =====
+  // ===== HACK =====
   if (key === 'p' || key === 'P') {
     if (hackCooldown <= 0) {
       hackContador++;
-      hackTimer = 180; // 3 segundos (60fps * 3)
-      
+      hackTimer = 180;
       if (hackContador >= 5) {
-        // HACK ATIVADO!
         moedas += 1000;
         hackAtivado = true;
         hackContador = 0;
         hackTimer = 0;
-        hackCooldown = 300; // 5 segundos de cooldown
+        hackCooldown = 300;
         feedback("🔥 HACK ATIVADO! +1000 MOEDAS!", 90);
-        
-        let hint = document.getElementById('hint-text');
-        hint.textContent = '🔥 HACK ATIVADO! +1000 MOEDAS!';
-        hint.className = 'simple-hint hack-active';
-        setTimeout(() => {
-          hint.className = 'simple-hint';
-          hint.textContent = '🎮 WASD = Mover · E = Interagir · L = Loja · 1-5 = Plantas';
-          hackAtivado = false;
-        }, 2000);
         return;
       }
-      
-      feedback("🔑 " + hackContador + "/5 - Pressione P mais " + (5-hackContador) + "x", 60);
+      feedback("🔑 " + hackContador + "/5", 60);
     } else {
-      feedback("⏳ Hack em cooldown... aguarde", 30);
+      feedback("⏳ Hack em cooldown...", 30);
+    }
+    return;
+  }
+  
+  // ===== PÁ =====
+  if (key === 'P' && modo === "PVZ") {
+    if (key === 'p' || key === 'P') {
+      // Já tratado acima para o hack
+    }
+  }
+  
+  // Tecla P (pá) - no modo PVZ
+  if (key === 'p' && modo === "PVZ") {
+    // A tecla P já é usada para o hack, então usamos outra tecla para a pá
+    // Vamos usar a tecla "G" para pá (de "Gardening" ou "Pá" em português)
+  }
+  
+  // Usamos a tecla "G" para a Pá (para não conflitar com o hack)
+  if ((key === 'g' || key === 'G') && modo === "PVZ") {
+    modoPaAtivo = !modoPaAtivo;
+    if (modoPaAtivo) {
+      feedback("🪏 Modo Pá ATIVADO! Clique em uma planta para removê-la.", 60);
+      plantaSelecionada = null;
+    } else {
+      feedback("🪏 Modo Pá DESATIVADO.", 40);
     }
     return;
   }
@@ -1103,6 +1265,7 @@ function keyPressed() {
   if (key === 'v' || key === 'V') {
     if (modo !== "CHALE") {
       modo = "CHALE";
+      modoPaAtivo = false;
       document.getElementById('hint-text').textContent = '🎮 WASD = Mover · E = Interagir · L = Loja · 1-5 = Plantas';
     }
     return;
@@ -1114,13 +1277,13 @@ function keyPressed() {
     for (let obj of objetosChale) {
       if (colide(rectJogador, obj)) {
         if (obj.tipo === "porta") {
-          if (obj.destino === "PVZ" && !jardimLiberado) {
+          if (obj.destino === "PVZ" && !superficieLiberada) {
             feedback("Compre uma planta mutante na Loja (L)!", 60);
             return;
           }
           modo = obj.destino;
-          if (modo === "PVZ") { resetarJardim(); }
-          document.getElementById('hint-text').textContent = '🌱 Clique para plantar · 1-5 selecionar · V = Voltar';
+          if (modo === "PVZ") { resetarSuperficie(); }
+          document.getElementById('hint-text').textContent = '🌱 1-5 Plantas · G = Pá · V = Voltar';
         } else if (obj.tipo === "pc") {
           telaLojaAberta = true;
         }
@@ -1145,11 +1308,15 @@ function keyPressed() {
     }
   }
   
-  // Seleção de planta (1-5) - jardim
+  // Seleção de planta (1-5) - superfície
   if (modo === "PVZ") {
     let plantasDisp = Object.keys(plantasDefesa).filter(id => plantasDefesa[id].comprada);
     for (let i = 0; i < plantasDisp.length && i < 5; i++) {
       if (key === String(i+1)) {
+        if (modoPaAtivo) {
+          feedback("🪏 Desative a Pá primeiro (G) para selecionar plantas.", 40);
+          return;
+        }
         plantaSelecionada = plantasDisp[i];
         feedback("✅ " + plantasDefesa[plantaSelecionada].nome + " selecionada", 30);
       }
@@ -1158,25 +1325,21 @@ function keyPressed() {
 }
 
 function mousePressed() {
-  // Loja
+  // ===== LOJA =====
   if (telaLojaAberta) {
-    // Fechar
     if (mouseX > width-70 && mouseX < width-20 && mouseY > 15 && mouseY < 45) {
       telaLojaAberta = false;
       return;
     }
     
-    // Abas
     let abaY = 75;
     let abaW = 120;
     
-    // Aba Sementes
     if (mouseX > width/2 - abaW - 10 && mouseX < width/2 - 10 && mouseY > abaY && mouseY < abaY + 35) {
       lojaAba = "sementes";
       return;
     }
     
-    // Aba Mutantes
     if (mouseX > width/2 + 10 && mouseX < width/2 + 10 + abaW && mouseY > abaY && mouseY < abaY + 35) {
       lojaAba = "mutantes";
       return;
@@ -1210,8 +1373,8 @@ function mousePressed() {
           if (moedas >= p.preco) {
             moedas -= p.preco;
             p.comprada = true;
-            jardimLiberado = true;
-            feedback("✅ " + p.nome + " desbloqueada! Acesse o LAB!", 60);
+            superficieLiberada = true;
+            feedback("✅ " + p.nome + " desbloqueada! Acesse a SUPERFÍCIE!", 60);
           } else {
             feedback("❌ Sem créditos!", 30);
           }
@@ -1223,7 +1386,7 @@ function mousePressed() {
     return;
   }
   
-  // Fazenda - plantar/colher
+  // ===== FAZENDA =====
   if (modo === "FAZENDA") {
     for (let i = 0; i < linhasFaz; i++) {
       for (let j = 0; j < colunasFaz; j++) {
@@ -1256,14 +1419,31 @@ function mousePressed() {
     }
   }
   
-  // ===== JARDIM - PLANTAR (SEMPRE LIBERADO) =====
+  // ===== SUPERFÍCIE =====
   if (modo === "PVZ") {
     let col = floor(mouseX / celPvZW);
     let linha = floor((mouseY - offsetJardimY) / celPvZH);
     
     // Verifica se o clique está dentro da área plantável
     if (col >= 0 && col < colunasPlantaveis && linha >= 0 && linha < linhasPvZ) {
-      // Verifica se tem uma planta selecionada
+      
+      // ===== MODO PÁ =====
+      if (modoPaAtivo) {
+        let idx = plantasPvZ.findIndex(p => p.linha === linha && p.col === col);
+        if (idx !== -1) {
+          let planta = plantasPvZ[idx];
+          let custoOriginal = plantasDefesa[planta.tipo] ? plantasDefesa[planta.tipo].custoSol : 0;
+          let devolucao = Math.floor(custoOriginal * 0.3);
+          sol += devolucao;
+          plantasPvZ.splice(idx, 1);
+          feedback("🗑️ Planta removida! +" + devolucao + " sol", 40);
+        } else {
+          feedback("🪏 Nenhuma planta aqui para remover.", 30);
+        }
+        return;
+      }
+      
+      // ===== PLANTAR =====
       if (!plantaSelecionada) {
         feedback("❌ Selecione uma planta (1-5)!", 30);
         return;
@@ -1275,20 +1455,17 @@ function mousePressed() {
         return;
       }
       
-      // Verifica se o local está ocupado
       let ocupado = plantasPvZ.some(p => p.linha === linha && p.col === col);
       if (ocupado) {
         feedback("❌ Local ocupado!", 30);
         return;
       }
       
-      // Verifica se tem sol suficiente (ÚNICA CONDIÇÃO!)
       if (sol < plantaData.custoSol) {
         feedback("☀️ Sol insuficiente! (" + plantaData.custoSol + " necessário)", 30);
         return;
       }
       
-      // PLANTA!
       let vida = 50;
       if (plantaSelecionada === "nozes") vida = 200;
       if (plantaSelecionada === "batataquente") vida = 60;
