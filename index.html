@@ -7,6 +7,7 @@
     <style>
         body { margin: 0; overflow: hidden; background: #0a0a0f; font-family: 'Arial', sans-serif; }
         canvas { display: block; }
+        
         #info {
             position: absolute;
             bottom: 10px;
@@ -22,6 +23,7 @@
             letter-spacing: 1px;
             text-align: center;
         }
+        
         .simple-hint {
             position: absolute;
             bottom: 55px;
@@ -42,13 +44,269 @@
             border-color: rgba(255,170,0,0.4);
             background: rgba(255,170,0,0.1);
         }
+        
+        #start-screen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 10, 20, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            pointer-events: auto;
+            backdrop-filter: blur(10px);
+            transition: opacity 1s ease;
+        }
+        
+        #start-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        #start-screen .logo {
+            font-size: 64px;
+            font-weight: 900;
+            color: #00ff88;
+            text-shadow: 0 0 60px rgba(0,255,136,0.2), 0 0 120px rgba(0,255,136,0.1);
+            letter-spacing: 6px;
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+        
+        #start-screen .logo span {
+            color: #ff3366;
+            text-shadow: 0 0 60px rgba(255,51,102,0.2);
+        }
+        
+        #start-screen .subtitle {
+            color: #8888aa;
+            font-size: 20px;
+            letter-spacing: 8px;
+            margin-top: 10px;
+            font-weight: 300;
+        }
+        
+        #start-screen .version {
+            color: #445566;
+            font-size: 13px;
+            margin-top: 5px;
+            letter-spacing: 4px;
+        }
+        
+        #start-screen .tagline {
+            color: #666688;
+            font-size: 16px;
+            margin-top: 20px;
+            letter-spacing: 2px;
+            padding: 0 20px;
+            text-align: center;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+        
+        #start-screen .tagline .highlight {
+            color: #00ff88;
+        }
+        
+        #start-screen .tagline .danger {
+            color: #ff3366;
+        }
+        
+        #start-btn {
+            margin-top: 35px;
+            padding: 16px 60px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            border-radius: 50px;
+            color: #00ff88;
+            font-size: 22px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            box-shadow: 0 0 40px rgba(0,255,136,0.05);
+        }
+        
+        #start-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            box-shadow: 0 0 60px rgba(0,255,136,0.15);
+            transform: scale(1.03);
+        }
+        
+        #start-screen .credits-small {
+            position: absolute;
+            bottom: 30px;
+            color: #334455;
+            font-size: 11px;
+            letter-spacing: 2px;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { text-shadow: 0 0 60px rgba(0,255,136,0.2), 0 0 120px rgba(0,255,136,0.1); }
+            50% { text-shadow: 0 0 80px rgba(0,255,136,0.3), 0 0 160px rgba(0,255,136,0.15); }
+        }
+        
+        #victory-screen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 10, 20, 0.97);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            pointer-events: auto;
+            backdrop-filter: blur(20px);
+            animation: fadeIn 1.5s ease;
+        }
+        
+        #victory-screen.show {
+            display: flex;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        #victory-screen .victory-icon {
+            font-size: 80px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        #victory-screen h1 {
+            font-size: 52px;
+            font-weight: 900;
+            color: #ffaa00;
+            text-shadow: 0 0 60px rgba(255,170,0,0.3);
+            letter-spacing: 6px;
+            margin-top: 10px;
+        }
+        
+        #victory-screen h2 {
+            color: #00ff88;
+            font-size: 28px;
+            font-weight: 400;
+            letter-spacing: 4px;
+            margin-top: 5px;
+        }
+        
+        #victory-screen .stats {
+            color: #8888aa;
+            font-size: 18px;
+            margin-top: 20px;
+            line-height: 2;
+            text-align: center;
+        }
+        
+        #victory-screen .stats span {
+            color: #00ff88;
+            font-weight: 700;
+        }
+        
+        #victory-screen .credits-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px 40px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        #victory-screen .credits-box p {
+            color: #666688;
+            font-size: 14px;
+            line-height: 1.8;
+            letter-spacing: 1px;
+        }
+        
+        #victory-screen .credits-box .name {
+            color: #ffaa00;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        #victory-screen .credits-box .school {
+            color: #4488ff;
+            font-weight: 600;
+        }
+        
+        #victory-screen .restart-btn {
+            margin-top: 25px;
+            padding: 14px 50px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            border-radius: 50px;
+            color: #00ff88;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        
+        #victory-screen .restart-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            box-shadow: 0 0 60px rgba(0,255,136,0.15);
+            transform: scale(1.02);
+        }
+        
         @media (max-width: 600px) {
-            #info { font-size: 9px; padding: 2px 8px; bottom: 5px; }
-            .simple-hint { font-size: 10px; bottom: 45px; padding: 3px 10px; }
+            #start-screen .logo { font-size: 36px; letter-spacing: 3px; }
+            #start-screen .subtitle { font-size: 14px; letter-spacing: 4px; }
+            #start-btn { padding: 14px 40px; font-size: 18px; }
+            #victory-screen h1 { font-size: 32px; }
+            #victory-screen h2 { font-size: 20px; }
+            #victory-screen .stats { font-size: 14px; }
+            #victory-screen .credits-box { padding: 15px 20px; }
         }
     </style>
 </head>
 <body>
+
+<!-- TELA DE BOAS-VINDAS -->
+<div id="start-screen">
+    <div class="logo">⚡ ECOSFERA <span>2200</span></div>
+    <div class="subtitle">— COLÔNIA CASCATA —</div>
+    <div class="version">v2.5 · SOBREVIVÊNCIA</div>
+    <div class="tagline">
+        Em um mundo <span class="danger">devastado</span> pela poluição,<br>
+        você é o último <span class="highlight">sobrevivente</span>.<br>
+        Plante, colha, defenda-se e <span class="highlight">sobreviva</span>.
+    </div>
+    <button id="start-btn">▶ INICIAR</button>
+    <div class="credits-small">Criado por Manoel & Alesandra · Escola Prof. Pedro Carli</div>
+</div>
+
+<!-- TELA DE VITÓRIA -->
+<div id="victory-screen">
+    <div class="victory-icon">🏆</div>
+    <h1>VOCÊ VENCEU!</h1>
+    <h2>A Colônia Cascata está a salvo</h2>
+    <div class="stats">
+        🌊 <span id="v-wave">50</span> Waves sobrevividas<br>
+        ☀️ <span id="v-sol">0</span> Sol coletado<br>
+        🧟 <span id="v-kills">0</span> Mutantes derrotados<br>
+        💰 <span id="v-moedas">0</span> Créditos acumulados
+    </div>
+    <div class="credits-box">
+        <p>
+            🌍 <span class="name">Manoel</span> & <span class="name">Alesandra</span><br>
+            🎮 <span class="school">Escola Professor Pedro Carli</span><br>
+            📚 Projeto de Jogos Educativos · 2024
+        </p>
+    </div>
+    <button class="restart-btn" id="restart-btn">🔄 JOGAR NOVAMENTE</button>
+</div>
 
 <div id="info">⚡ ECOSFERA 2200 — Colônia Cascata · Sobrevivência</div>
 <div class="simple-hint" id="hint-text">🎮 WASD = Mover · E = Interagir · L = Loja · 1-5 = Plantas</div>
@@ -58,18 +316,20 @@
 // ============================================================================
 // 🌍 ECOSFERA 2200 – COLÔNIA CASCATA
 // ============================================================================
-// VERSÃO FINAL
-// - Começa com 0 moedas e 5 milhos (recarga a cada 15s)
-// - SUPERFÍCIE (antigo LAB)
-// - Interface simplificada
-// - Pá para deletar plantas
-// - BOSS a cada 10 waves
+// VERSÃO COMPLETA
+// - Tela de Boas-Vindas
+// - Fim de Jogo na Wave 50 (BOSS)
+// - Tela de Créditos com Manoel & Alesandra
 // ============================================================================
 
 // ============ ESTADO GLOBAL ============
 let modo = "CHALE";
 let moedas = 0;
 let karma = 0;
+let jogoIniciado = false;
+let vitoriaAlcancada = false;
+let totalKills = 0;
+let totalSolColetado = 0;
 
 // ============ RECARGA DE MILHO ============
 let timerRecargaMilho = 0;
@@ -156,7 +416,6 @@ let bossVida = 0;
 let bossVidaMax = 0;
 let bossDano = 0;
 let bossVelocidade = 0;
-let bossTimer = 0;
 
 // ============ FEEDBACK ============
 let feedbackMsg = "", tempoFeedback = 0;
@@ -171,7 +430,27 @@ function setup() {
   resetarFazenda();
   resetarSuperficie();
   frameRate(60);
+  
+  // Esconde o jogo até iniciar
+  document.getElementById('start-screen').classList.remove('hidden');
+  document.getElementById('info').style.display = 'none';
+  document.getElementById('hint-text').style.display = 'none';
+  
+  // Botão iniciar
+  document.getElementById('start-btn').addEventListener('click', iniciarJogo);
+  document.getElementById('restart-btn').addEventListener('click', reiniciarJogo);
+}
+
+function iniciarJogo() {
+  jogoIniciado = true;
+  document.getElementById('start-screen').classList.add('hidden');
+  document.getElementById('info').style.display = 'block';
+  document.getElementById('hint-text').style.display = 'block';
   document.getElementById('hint-text').textContent = '🎮 WASD = Mover · E = Interagir · L = Loja · 1-5 = Plantas';
+}
+
+function reiniciarJogo() {
+  location.reload();
 }
 
 function resetarSuperficie() {
@@ -202,6 +481,14 @@ function resetarFazenda() {
 
 // ============ DRAW ============
 function draw() {
+  if (!jogoIniciado) return;
+  
+  // Verifica vitória (Wave 50 com BOSS derrotado)
+  if (vitoriaAlcancada) {
+    // Já mostrou a tela de vitória
+    return;
+  }
+  
   // RECARGA DE MILHO
   timerRecargaMilho++;
   if (timerRecargaMilho >= TEMPO_RECARGA_MILHO) {
@@ -241,6 +528,16 @@ function draw() {
   }
   
   atualizarFeedback();
+}
+
+// ==================== MOSTRAR VITÓRIA ====================
+function mostrarVitoria() {
+  vitoriaAlcancada = true;
+  document.getElementById('v-wave').textContent = wave - 1;
+  document.getElementById('v-sol').textContent = totalSolColetado;
+  document.getElementById('v-kills').textContent = totalKills;
+  document.getElementById('v-moedas').textContent = moedas;
+  document.getElementById('victory-screen').classList.add('show');
 }
 
 // ==================== CHALÉ ====================
@@ -553,6 +850,16 @@ function desenharSuperficie() {
     return;
   }
   
+  // Verifica vitória - Wave 50 e BOSS derrotado
+  if (wave > 50 && !bossAtivo && zumbisPvZ.length === 0) {
+    // Verifica se já passou da wave 50 e não tem mais inimigos
+    let temZumbi = zumbisPvZ.some(z => z.isBoss || !z.isBoss);
+    if (!temZumbi) {
+      mostrarVitoria();
+      return;
+    }
+  }
+  
   background(20, 25, 35);
   
   // Grid
@@ -591,11 +898,9 @@ function desenharSuperficie() {
   }
   
   // ===== HUD SUPER SIMPLES =====
-  // Barra superior
   fill(0, 0, 0, 200);
   rect(0, 0, width, 35);
   
-  // Informações básicas
   fill(0, 255, 136);
   textSize(14);
   textAlign(LEFT);
@@ -604,10 +909,20 @@ function desenharSuperficie() {
   fill(200);
   text("🧟 " + zumbisRestantes, 150, 24);
   
-  // BOSS indicator
+  // Progresso para Wave 50 (BOSS final)
+  let progresso = min(1, wave / 50);
+  fill(50, 50, 80);
+  rect(220, 12, 120, 10, 5);
+  fill(0, 255, 136);
+  rect(220, 12, 120 * progresso, 10, 5);
+  fill(150);
+  textSize(9);
+  textAlign(CENTER);
+  text("BOSS " + wave + "/50", 280, 22);
+  
   if (bossAtivo) {
     fill(255, 50, 50);
-    text("👾 BOSS!", 250, 24);
+    text("👾 BOSS!", 380, 24);
   }
   
   fill(200);
@@ -617,11 +932,9 @@ function desenharSuperficie() {
   let yMenu = 40;
   let plantasDisp = Object.keys(plantasDefesa).filter(id => plantasDefesa[id].comprada);
   
-  // Fundo do menu
   fill(0, 0, 0, 150);
   rect(0, yMenu-5, width, 30);
   
-  // Botões das plantas
   let xBtn = 10;
   for (let i = 0; i < plantasDisp.length && i < 5; i++) {
     let id = plantasDisp[i];
@@ -636,7 +949,6 @@ function desenharSuperficie() {
     xBtn += 60;
   }
   
-  // Botão da PÁ
   let paX = xBtn + 10;
   let paSelecionado = modoPaAtivo;
   fill(paSelecionado ? [255, 200, 0] : [80, 60, 40]);
@@ -646,7 +958,6 @@ function desenharSuperficie() {
   textAlign(CENTER);
   text("🪏", paX+27, yMenu+18);
   
-  // Status da PÁ
   if (modoPaAtivo) {
     fill(255, 200, 0);
     textSize(10);
@@ -654,13 +965,11 @@ function desenharSuperficie() {
     text("Clique na planta para remover", width/2, yMenu+32);
   }
   
-  // Dica de teclas
   fill(100);
   textSize(9);
   textAlign(LEFT);
-  text("1-5: Plantas  |  P: Pá", 10, yMenu+48);
+  text("1-5: Plantas  |  G: Pá", 10, yMenu+48);
   
-  // Estado da wave
   if (estadoJardim === "preparacao") {
     let seg = ceil(tempoPreparacao / 60);
     fill(255, 200, 100);
@@ -826,7 +1135,6 @@ function desenharZumbi(z) {
   push();
   translate(z.x, z.y);
   
-  // Se for BOSS, desenha separado
   if (z.isBoss) {
     pop();
     return;
@@ -886,11 +1194,10 @@ function atualizarSuperficie() {
     if (tempoPreparacao <= 0) {
       estadoJardim = "combate";
       
-      // VERIFICA BOSS (a cada 10 waves)
+      // VERIFICA BOSS (a cada 10 waves, inclusive wave 50)
       let isBossWave = (wave % 10 === 0);
       
       if (isBossWave) {
-        // BOSS!
         bossAtivo = true;
         let linha = floor(random(linhasPvZ));
         let x = colunaSpawn * celPvZW + celPvZW/2;
@@ -913,7 +1220,12 @@ function atualizarSuperficie() {
         };
         zumbisPvZ.push(bossZumbi);
         zumbisRestantes = 1;
-        feedback("👾 BOSS APARECEU! Wave " + wave + "!", 90);
+        
+        if (wave === 50) {
+          feedback("👾 BOSS FINAL! Wave 50!", 90);
+        } else {
+          feedback("👾 BOSS APARECEU! Wave " + wave + "!", 90);
+        }
       } else {
         zumbisRestantes = 2 + wave * 1;
       }
@@ -966,7 +1278,9 @@ function atualizarSuperficie() {
       if (!p.timer) p.timer = 0;
       p.timer++;
       if (p.timer >= 200) {
-        sol += 15 + (p.nivel || 0) * 5;
+        let ganho = 15 + (p.nivel || 0) * 5;
+        sol += ganho;
+        totalSolColetado += ganho;
         p.timer = 0;
       }
     }
@@ -1083,11 +1397,22 @@ function atualizarSuperficie() {
       // BOSS morreu!
       if (z.isBoss) {
         bossAtivo = false;
-        moedas += 200 + wave * 20;
+        let bonus = 200 + wave * 20;
+        moedas += bonus;
         sol += 100;
-        feedback("👾 BOSS DERROTADO! +" + (200 + wave * 20) + " moedas!", 90);
+        totalKills++;
+        
+        // Verifica se é a Wave 50 (VITÓRIA!)
+        if (wave === 50) {
+          mostrarVitoria();
+          return;
+        }
+        
+        feedback("👾 BOSS DERROTADO! +" + bonus + " moedas!", 90);
       } else {
-        moedas += 5 + wave * 2;
+        let ganho = 5 + wave * 2;
+        moedas += ganho;
+        totalKills++;
       }
       zumbisPvZ.splice(i, 1);
       zumbisMortosWave++;
@@ -1101,7 +1426,7 @@ function atualizarSuperficie() {
     estadoJardim = "preparacao";
     tempoPreparacao = 200;
     sol += 30;
-    if (!bossAtivo) {
+    if (!bossAtivo && wave <= 50) {
       moedas += 20 + wave * 5;
       feedback("🌊 Wave " + (wave-1) + " completa! +" + (20 + wave * 5) + " moedas", 60);
     }
@@ -1222,31 +1547,6 @@ function keyPressed() {
     return;
   }
   
-  // ===== PÁ =====
-  if (key === 'P' && modo === "PVZ") {
-    if (key === 'p' || key === 'P') {
-      // Já tratado acima para o hack
-    }
-  }
-  
-  // Tecla P (pá) - no modo PVZ
-  if (key === 'p' && modo === "PVZ") {
-    // A tecla P já é usada para o hack, então usamos outra tecla para a pá
-    // Vamos usar a tecla "G" para pá (de "Gardening" ou "Pá" em português)
-  }
-  
-  // Usamos a tecla "G" para a Pá (para não conflitar com o hack)
-  if ((key === 'g' || key === 'G') && modo === "PVZ") {
-    modoPaAtivo = !modoPaAtivo;
-    if (modoPaAtivo) {
-      feedback("🪏 Modo Pá ATIVADO! Clique em uma planta para removê-la.", 60);
-      plantaSelecionada = null;
-    } else {
-      feedback("🪏 Modo Pá DESATIVADO.", 40);
-    }
-    return;
-  }
-  
   // Fechar loja
   if (telaLojaAberta) {
     if (key === 'e' || key === 'E' || key === 'Escape') {
@@ -1267,6 +1567,18 @@ function keyPressed() {
       modo = "CHALE";
       modoPaAtivo = false;
       document.getElementById('hint-text').textContent = '🎮 WASD = Mover · E = Interagir · L = Loja · 1-5 = Plantas';
+    }
+    return;
+  }
+  
+  // ===== PÁ (tecla G) =====
+  if ((key === 'g' || key === 'G') && modo === "PVZ") {
+    modoPaAtivo = !modoPaAtivo;
+    if (modoPaAtivo) {
+      feedback("🪏 Modo Pá ATIVADO! Clique em uma planta para removê-la.", 60);
+      plantaSelecionada = null;
+    } else {
+      feedback("🪏 Modo Pá DESATIVADO.", 40);
     }
     return;
   }
@@ -1424,7 +1736,6 @@ function mousePressed() {
     let col = floor(mouseX / celPvZW);
     let linha = floor((mouseY - offsetJardimY) / celPvZH);
     
-    // Verifica se o clique está dentro da área plantável
     if (col >= 0 && col < colunasPlantaveis && linha >= 0 && linha < linhasPvZ) {
       
       // ===== MODO PÁ =====
