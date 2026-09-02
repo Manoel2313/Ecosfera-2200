@@ -3,3408 +3,1176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ECOSFERA 2200 - Edição Suprema</title>
+    <title>ECOSFERA 2200 - Colônia Cascata</title>
     <style>
-        /* ===== RESET E ESTILOS GLOBAIS ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
-
-        :root {
-            --primary: #00ff88;
-            --secondary: #ff3366;
-            --accent: #ffaa00;
-            --bg-dark: #0a0a0f;
-            --bg-panel: #12121a;
-            --text-primary: #e0e0e0;
-            --text-secondary: #8888aa;
-            --border-color: #1a2a3a;
-            --shadow-glow: 0 0 30px rgba(0, 255, 136, 0.1);
-        }
-
-        body {
-            font-family: 'Rajdhani', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-image: 
-                radial-gradient(ellipse at 20% 50%, rgba(0, 255, 136, 0.05) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 50%, rgba(255, 51, 102, 0.05) 0%, transparent 60%);
-        }
-
-        #game {
-            width: 1100px;
-            max-width: 98vw;
-            height: 750px;
-            max-height: 98vh;
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 16px;
-            box-shadow: var(--shadow-glow), inset 0 0 80px rgba(0, 0, 0, 0.6);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* ===== HEADER ===== */
-        #header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 16px;
-            background: rgba(0, 0, 0, 0.4);
-            border-bottom: 1px solid var(--border-color);
-            border-radius: 8px 8px 0 0;
-            flex-shrink: 0;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        #title {
-            font-family: 'Orbitron', monospace;
-            font-size: 20px;
-            font-weight: 900;
-            color: var(--primary);
-            text-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
-            letter-spacing: 4px;
-        }
-
-        #title span { color: var(--secondary); }
-
-        #header-info {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        #header-info .badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .badge-day { background: rgba(0, 255, 136, 0.15); color: var(--primary); border: 1px solid rgba(0, 255, 136, 0.3); }
-        .badge-night { background: rgba(68, 102, 255, 0.15); color: #6688ff; border: 1px solid rgba(68, 102, 255, 0.3); }
-        .badge-danger { background: rgba(255, 51, 102, 0.15); color: var(--secondary); border: 1px solid rgba(255, 51, 102, 0.3); }
-
-        /* ===== NOTIFICAÇÕES ===== */
-        #notification {
-            position: fixed;
-            top: 20px;
+        body { margin: 0; overflow: hidden; background: #0a0a0f; font-family: 'Arial', sans-serif; }
+        canvas { display: block; }
+        #info {
+            position: absolute;
+            bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 9999;
-            padding: 12px 28px;
-            border-radius: 8px;
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 600;
-            font-size: 15px;
-            letter-spacing: 1px;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            opacity: 0;
-            transform: translateX(-50%) translateY(-30px) scale(0.9);
+            color: #666688;
+            font-size: 11px;
+            background: rgba(10,10,15,0.7);
+            padding: 3px 12px;
+            border-radius: 6px;
             pointer-events: none;
-            max-width: 90%;
+            border: 1px solid rgba(255,255,255,0.03);
+            letter-spacing: 1px;
             text-align: center;
-            border: 1px solid transparent;
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
         }
-
-        #notification.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0) scale(1);
-        }
-
-        #notification.success {
-            background: rgba(0, 255, 136, 0.12);
-            border-color: rgba(0, 255, 136, 0.3);
-            color: var(--primary);
-        }
-
-        #notification.error {
-            background: rgba(255, 51, 102, 0.12);
-            border-color: rgba(255, 51, 102, 0.3);
-            color: var(--secondary);
-        }
-
-        #notification.warning {
-            background: rgba(255, 170, 0, 0.12);
-            border-color: rgba(255, 170, 0, 0.3);
-            color: var(--accent);
-        }
-
-        #notification.info {
-            background: rgba(68, 136, 255, 0.12);
-            border-color: rgba(68, 136, 255, 0.3);
-            color: #4488ff;
-        }
-
-        /* ===== TELAS ===== */
-        .screen {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            position: relative;
-            z-index: 1;
-            padding: 12px 0;
-            overflow-y: auto;
-        }
-
-        .screen.active { display: flex; }
-
-        /* ===== TELA INICIAL ===== */
-        #screen-start {
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            gap: 16px;
-        }
-
-        #screen-start .logo {
-            font-family: 'Orbitron', monospace;
-            font-size: 52px;
-            font-weight: 900;
-            color: var(--primary);
-            text-shadow: 0 0 60px rgba(0, 255, 136, 0.15);
-            letter-spacing: 8px;
-        }
-
-        #screen-start .logo span { color: var(--secondary); }
-
-        #screen-start .subtitle {
-            font-size: 16px;
-            color: var(--text-secondary);
-            letter-spacing: 6px;
-            margin-bottom: 8px;
-        }
-
-        #lore-text {
-            max-width: 600px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px 24px;
-            margin: 0 auto 20px;
-            text-align: left;
-            font-size: 14px;
-            line-height: 1.9;
-            color: var(--text-secondary);
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        #lore-text .highlight { color: var(--primary); }
-        #lore-text .danger { color: var(--secondary); }
-        #lore-text .gold { color: var(--accent); }
-
-        #create-form {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        #create-form input {
-            padding: 14px 24px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 16px;
-            width: 240px;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        #create-form input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.05);
-        }
-
-        #create-form button {
-            padding: 14px 36px;
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 255, 136, 0.05));
-            border: 1px solid var(--primary);
-            border-radius: 8px;
-            color: var(--primary);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-
-        #create-form button:hover {
-            background: rgba(0, 255, 136, 0.2);
-            box-shadow: 0 0 40px rgba(0, 255, 136, 0.1);
-            transform: scale(1.02);
-        }
-
-        /* ===== TELA DO BUNKER ===== */
-        #screen-bunker { gap: 10px; }
-
-        #bunker-stats {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 6px;
-            flex-shrink: 0;
-        }
-
-        .bunker-stat {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 8px 10px;
-            text-align: center;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .bunker-stat .stat-icon { font-size: 16px; display: block; }
-        .bunker-stat .stat-value { font-size: 18px; font-weight: 700; color: var(--text-primary); }
-        .bunker-stat .stat-label { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
-
-        .bunker-stat.danger { border-color: var(--secondary); }
-        .bunker-stat.danger .stat-value { color: var(--secondary); }
-        .bunker-stat.warning { border-color: var(--accent); }
-        .bunker-stat.warning .stat-value { color: var(--accent); }
-        .bunker-stat.safe { border-color: rgba(0, 255, 136, 0.3); }
-        .bunker-stat.safe .stat-value { color: var(--primary); }
-
-        .bunker-stat .stat-bar {
+        .simple-hint {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 3px;
-            transition: width 0.5s ease;
-            border-radius: 0 2px 0 0;
-        }
-
-        .bunker-stat .stat-bar.green { background: var(--primary); }
-        .bunker-stat .stat-bar.red { background: var(--secondary); }
-        .bunker-stat .stat-bar.yellow { background: var(--accent); }
-
-        #bunker-actions {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            flex: 1;
-            align-content: center;
-            padding: 8px 0;
-        }
-
-        .bunker-btn {
-            padding: 20px 12px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-secondary);
-            font-family: 'Rajdhani', sans-serif;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .bunker-btn:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.03);
-            border-color: var(--primary);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-            color: var(--text-primary);
-        }
-
-        .bunker-btn:disabled { opacity: 0.25; cursor: not-allowed; transform: none !important; }
-
-        .bunker-btn .btn-icon { font-size: 28px; }
-        .bunker-btn .btn-label { font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: 1px; }
-        .bunker-btn .btn-desc { font-size: 11px; color: var(--text-secondary); }
-
-        .bunker-btn.surface { border-color: rgba(0, 255, 136, 0.2); }
-        .bunker-btn.surface:hover:not(:disabled) { border-color: var(--primary); }
-
-        .bunker-btn.dormitory { border-color: rgba(68, 136, 255, 0.2); }
-        .bunker-btn.dormitory:hover:not(:disabled) { border-color: #4488ff; }
-
-        .bunker-btn.machine { border-color: rgba(255, 170, 0, 0.2); }
-        .bunker-btn.machine:hover:not(:disabled) { border-color: var(--accent); }
-
-        .bunker-btn.trade { border-color: rgba(255, 51, 102, 0.2); }
-        .bunker-btn.trade:hover:not(:disabled) { border-color: var(--secondary); }
-
-        /* ===== TELA DA SUPERFÍCIE ===== */
-        #screen-surface { gap: 10px; }
-
-        #surface-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 14px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            flex-shrink: 0;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-
-        #surface-header .location { font-size: 16px; color: var(--accent); font-weight: 600; }
-        #surface-header .danger-level { font-size: 12px; padding: 4px 14px; border-radius: 20px; }
-        #surface-header .danger-level.safe { background: rgba(0, 255, 136, 0.1); color: var(--primary); border: 1px solid rgba(0, 255, 136, 0.2); }
-        #surface-header .danger-level.danger { background: rgba(255, 51, 102, 0.1); color: var(--secondary); border: 1px solid rgba(255, 51, 102, 0.2); }
-
-        #surface-stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            flex-shrink: 0;
-        }
-
-        .surface-stat {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 4px 10px;
-            text-align: center;
-        }
-
-        .surface-stat .stat-label { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; }
-        .surface-stat .stat-value { font-size: 15px; font-weight: 600; color: var(--text-primary); }
-
-        #surface-narrative {
-            flex: 1;
-            overflow-y: auto;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            min-height: 180px;
-        }
-
-        .narrative-text {
-            font-size: 14px;
-            line-height: 1.8;
-            color: var(--text-secondary);
-            padding: 12px 16px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 6px;
-            border-left: 3px solid var(--border-color);
-        }
-
-        .narrative-text .highlight { color: var(--primary); }
-        .narrative-text .danger { color: var(--secondary); }
-        .narrative-text .success { color: var(--primary); }
-        .narrative-text .info { color: #4488ff; }
-        .narrative-text .gold { color: var(--accent); }
-
-        .narrative-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            margin-top: 4px;
-        }
-
-        .narrative-options button {
-            padding: 10px 14px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: var(--text-secondary);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: left;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .narrative-options button:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.03);
-            border-color: var(--primary);
-            color: var(--text-primary);
-            transform: scale(1.01);
-        }
-
-        .narrative-options button:disabled { opacity: 0.3; cursor: not-allowed; }
-        .narrative-options button .opt-icon { font-size: 16px; }
-
-        .narrative-options button.danger { border-color: rgba(255, 51, 102, 0.3); color: var(--secondary); }
-        .narrative-options button.danger:hover:not(:disabled) { border-color: var(--secondary); background: rgba(255, 51, 102, 0.05); }
-
-        .narrative-options button.success { border-color: rgba(0, 255, 136, 0.3); color: var(--primary); }
-        .narrative-options button.success:hover:not(:disabled) { border-color: var(--primary); background: rgba(0, 255, 136, 0.05); }
-
-        .narrative-options button.gold { border-color: rgba(255, 170, 0, 0.3); color: var(--accent); }
-        .narrative-options button.gold:hover:not(:disabled) { border-color: var(--accent); background: rgba(255, 170, 0, 0.05); }
-
-        .narrative-options button.explored { opacity: 0.4; cursor: not-allowed; }
-
-        /* ===== COMBATE ===== */
-        #screen-combat { gap: 10px; justify-content: center; }
-
-        #combat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 16px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            flex-shrink: 0;
-        }
-
-        #combat-header .enemy-name { font-size: 20px; font-weight: 700; color: var(--secondary); }
-        #combat-header .enemy-hp { font-size: 15px; color: var(--text-secondary); }
-
-        #combat-status {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-
-        .combatant {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 10px 14px;
-            text-align: center;
-        }
-
-        .combatant .name { font-size: 13px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-        .combatant .hp-bar { width: 100%; height: 14px; background: rgba(0, 0, 0, 0.5); border-radius: 8px; margin: 4px 0; overflow: hidden; border: 1px solid var(--border-color); }
-        .combatant .hp-fill { height: 100%; border-radius: 8px; transition: width 0.6s ease; }
-        .combatant .hp-fill.player { background: linear-gradient(90deg, var(--primary), #00cc66); }
-        .combatant .hp-fill.enemy { background: linear-gradient(90deg, var(--secondary), #ff0044); }
-        .combatant .hp-text { font-size: 13px; color: var(--text-secondary); }
-
-        #combat-log {
-            flex: 1;
-            overflow-y: auto;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 10px 14px;
-            font-size: 13px;
-            line-height: 1.7;
-            color: var(--text-secondary);
-            min-height: 80px;
-            max-height: 160px;
-        }
-
-        .combat-log-entry { padding: 2px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
-        .combat-log-entry .damage { color: var(--secondary); font-weight: 700; }
-        .combat-log-entry .heal { color: var(--primary); font-weight: 700; }
-        .combat-log-entry .dodge { color: #4488ff; }
-        .combat-log-entry .critical { color: var(--accent); font-weight: 700; }
-
-        #combat-actions {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            flex-shrink: 0;
-            padding-top: 6px;
-        }
-
-        #combat-actions button {
-            padding: 12px 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: var(--text-secondary);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-        }
-
-        #combat-actions button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.03); border-color: var(--primary); color: var(--text-primary); }
-        #combat-actions button:disabled { opacity: 0.25; cursor: not-allowed; }
-        #combat-actions button .sub { font-size: 10px; color: var(--text-secondary); font-weight: 400; text-transform: none; }
-        #combat-actions button.attack { border-color: rgba(255, 51, 102, 0.3); color: var(--secondary); }
-        #combat-actions button.attack:hover:not(:disabled) { border-color: var(--secondary); background: rgba(255, 51, 102, 0.05); }
-        #combat-actions button.defense { border-color: rgba(68, 136, 255, 0.3); color: #4488ff; }
-        #combat-actions button.defense:hover:not(:disabled) { border-color: #4488ff; background: rgba(68, 136, 255, 0.05); }
-        #combat-actions button.flee { border-color: rgba(255, 170, 0, 0.3); color: var(--accent); }
-        #combat-actions button.flee:hover:not(:disabled) { border-color: var(--accent); background: rgba(255, 170, 0, 0.05); }
-        #combat-actions button.skill { border-color: rgba(0, 255, 136, 0.3); color: var(--primary); }
-        #combat-actions button.skill:hover:not(:disabled) { border-color: var(--primary); background: rgba(0, 255, 136, 0.05); }
-
-        /* ===== TELA DE COMÉRCIO ===== */
-        #screen-trade { gap: 10px; }
-
-        #trade-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 14px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            flex-shrink: 0;
-        }
-
-        #trade-header .merchant { font-size: 16px; color: var(--accent); font-weight: 700; }
-        #trade-header .credits { font-size: 14px; color: var(--primary); }
-
-        #trade-items {
-            flex: 1;
-            overflow-y: auto;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-            padding: 6px 0;
-        }
-
-        .trade-item {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 8px 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .trade-item .info { display: flex; flex-direction: column; gap: 2px; }
-        .trade-item .info .name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
-        .trade-item .info .desc { font-size: 11px; color: var(--text-secondary); }
-        .trade-item .price { font-size: 13px; color: var(--accent); font-weight: 700; }
-        .trade-item button {
+            bottom: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #4488ff;
+            font-size: 12px;
+            background: rgba(10,10,15,0.6);
             padding: 4px 16px;
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.2);
-            border-radius: 4px;
-            color: var(--primary);
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .trade-item button:hover { background: rgba(0, 255, 136, 0.2); }
-
-        /* ===== TELA DA MÁQUINA ===== */
-        #screen-machine {
-            justify-content: center;
-            align-items: center;
-            gap: 16px;
+            border-radius: 6px;
+            pointer-events: none;
+            border: 1px solid rgba(68,136,255,0.2);
             text-align: center;
         }
-
-        #screen-machine .machine-icon { font-size: 64px; }
-        #screen-machine .machine-title { font-size: 24px; color: var(--accent); font-weight: 700; letter-spacing: 3px; }
-        #screen-machine .machine-status { font-size: 16px; padding: 8px 24px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); border-radius: 6px; }
-        #screen-machine .machine-status.online { color: var(--primary); border-color: rgba(0, 255, 136, 0.3); }
-        #screen-machine .machine-status.offline { color: var(--secondary); border-color: rgba(255, 51, 102, 0.3); }
-        #screen-machine .machine-battery { font-size: 40px; color: var(--accent); }
-
-        #screen-machine button {
-            padding: 10px 36px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: var(--text-secondary);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        @media (max-width: 600px) {
+            #info { font-size: 9px; padding: 2px 8px; bottom: 5px; }
+            .simple-hint { font-size: 10px; bottom: 45px; padding: 3px 10px; }
         }
-
-        #screen-machine button:hover { border-color: var(--primary); color: var(--text-primary); }
-
-        /* ===== MODAL ===== */
-        #modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(4px);
-        }
-
-        #modal.active { display: flex; }
-
-        #modal-content {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 28px 32px;
-            max-width: 480px;
-            width: 92%;
-            box-shadow: 0 0 80px rgba(0, 0, 0, 0.9);
-            animation: modalIn 0.3s ease;
-        }
-
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.9) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        #modal-content h2 { color: var(--primary); text-align: center; margin-bottom: 10px; letter-spacing: 2px; font-size: 22px; font-family: 'Orbitron', monospace; }
-        #modal-content p { color: var(--text-secondary); line-height: 1.7; font-size: 15px; margin-bottom: 14px; text-align: center; }
-        #modal-content .modal-actions { display: flex; gap: 10px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
-        #modal-content .modal-actions button {
-            padding: 10px 28px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: var(--text-secondary);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        #modal-content .modal-actions button:hover { border-color: var(--primary); color: var(--text-primary); }
-        #modal-content .modal-actions button.danger { border-color: rgba(255, 51, 102, 0.3); color: var(--secondary); }
-        #modal-content .modal-actions button.danger:hover { border-color: var(--secondary); background: rgba(255, 51, 102, 0.05); }
-
-        /* ===== RESPONSIVIDADE ===== */
-        @media (max-width: 768px) {
-            #game { height: 100vh; max-height: 100vh; border-radius: 0; padding: 10px; border: none; }
-            #bunker-stats { grid-template-columns: repeat(3, 1fr); }
-            #bunker-actions { grid-template-columns: 1fr 1fr; }
-            #surface-stats { grid-template-columns: repeat(2, 1fr); }
-            .narrative-options { grid-template-columns: 1fr; }
-            #combat-actions { grid-template-columns: 1fr; }
-            #combat-status { grid-template-columns: 1fr; }
-            #trade-items { grid-template-columns: 1fr; }
-            #screen-start .logo { font-size: 32px; letter-spacing: 4px; }
-            #create-form { flex-direction: column; }
-            #create-form input { width: 100%; }
-            #title { font-size: 14px; letter-spacing: 2px; }
-            #header-info { font-size: 11px; gap: 8px; }
-            .bunker-btn .btn-icon { font-size: 22px; }
-            .bunker-btn .btn-label { font-size: 13px; }
-        }
-
-        @media (max-width: 480px) {
-            #bunker-stats { grid-template-columns: 1fr 1fr; gap: 4px; }
-            #bunker-actions { grid-template-columns: 1fr; }
-            #surface-stats { grid-template-columns: 1fr 1fr; }
-            #header { flex-direction: column; align-items: stretch; text-align: center; gap: 4px; }
-            #modal-content { padding: 20px; }
-            .trade-item { flex-wrap: wrap; gap: 6px; }
-        }
-
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
-        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
     </style>
 </head>
 <body>
 
-    <!-- ===== NOTIFICAÇÃO ===== -->
-    <div id="notification"></div>
+<div id="info">⚡ ECOSFERA 2200 — Colônia Cascata · Sobrevivência</div>
+<div class="simple-hint" id="hint-text">🎮 WASD = Mover · E = Interagir · Clique = Plantar/Colher</div>
 
-    <!-- ===== JOGO ===== -->
-    <div id="game">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+<script>
+// ============================================================================
+// 🌍 ECOSFERA 2200 – COLÔNIA CASCATA
+// ============================================================================
+// VERSÃO SIMPLES E EQUILIBRADA
+// - Plantas naturais (estilo Fazenda Cascata)
+// - Mutantes mantidos (tema pós-apocalíptico)
+// - Interface simplificada para crianças
+// - Equilíbrio: plantas baratas, mutantes mais lentos
+// ============================================================================
 
-        <!-- HEADER -->
-        <div id="header">
-            <div id="title">⚡ ECOSFERA <span>2200</span></div>
-            <div id="header-info">
-                <span id="hdr-player">👤 Sobrevivente</span>
-                <span id="hdr-level">⭐ Nv.1</span>
-                <span id="hdr-cycle" class="badge badge-day">☀️ DIA</span>
-                <span id="hdr-credits">💰 0</span>
-            </div>
-        </div>
+// ============ ESTADO GLOBAL ============
+let modo = "CHALE";
+let moedas = 100;
+let karma = 0;
 
-        <!-- TELA INICIAL -->
-        <div id="screen-start" class="screen active">
-            <div class="logo">⚡ ECOSFERA <span>2200</span></div>
-            <div class="subtitle">— O Último Refúgio da Humanidade —</div>
-            <div id="lore-text">
-                <p><span class="highlight">📜 ANO 2200</span></p>
-                <p>A humanidade pagou o preço por sua <span class="danger">ganância</span>.</p>
-                <p>O <span class="highlight">consumismo extremo</span> e a <span class="highlight">poluição desenfreada</span> transformaram o planeta em um deserto tóxico.</p>
-                <p>E então veio o <span class="danger">VÍRUS MORTAL</span>.</p>
-                <p>Nascido da própria poluição, o vírus se espalhou como fogo. <span class="danger">Bilhões</span> foram infectados.</p>
-                <p>Os poucos <span class="highlight">sobreviventes</span> fugiram para <span class="highlight">BUNKERS</span> subterrâneos.</p>
-                <p style="margin-top:8px;color:var(--text-secondary);">─────</p>
-                <p style="color:var(--text-secondary);font-size:13px;">Sua missão: <span class="highlight">sobreviver</span>, <span class="gold">explorar</span> e <span class="highlight">prosperar</span>.</p>
-            </div>
-            <div id="create-form">
-                <input type="text" id="input-name" placeholder="Digite seu nome..." maxlength="20" autofocus>
-                <button id="btn-start">▶ INICIAR</button>
-            </div>
-        </div>
+// ============ MOVIMENTO ============
+let jogadorX = 400, jogadorY = 300;
+let velocidadeJogador = 3;
 
-        <!-- TELA DO BUNKER -->
-        <div id="screen-bunker" class="screen">
-            <div id="bunker-stats">
-                <div class="bunker-stat safe"><span class="stat-icon">🫧</span><div class="stat-value" id="stat-oxygen">100</div><div class="stat-label">Oxigênio</div><div class="stat-bar green" id="bar-oxygen" style="width:100%"></div></div>
-                <div class="bunker-stat safe"><span class="stat-icon">☣️</span><div class="stat-value" id="stat-contamination">0%</div><div class="stat-label">Contaminação</div><div class="stat-bar green" id="bar-contamination" style="width:0%"></div></div>
-                <div class="bunker-stat safe"><span class="stat-icon">⚡</span><div class="stat-value" id="stat-energy">100</div><div class="stat-label">Energia</div><div class="stat-bar green" id="bar-energy" style="width:100%"></div></div>
-                <div class="bunker-stat safe"><span class="stat-icon">🍖</span><div class="stat-value" id="stat-hunger">100%</div><div class="stat-label">Fome</div><div class="stat-bar green" id="bar-hunger" style="width:100%"></div></div>
-                <div class="bunker-stat safe"><span class="stat-icon">💪</span><div class="stat-value" id="stat-stamina">100</div><div class="stat-label">Stamina</div><div class="stat-bar green" id="bar-stamina" style="width:100%"></div></div>
-                <div class="bunker-stat safe"><span class="stat-icon">⭐</span><div class="stat-value" id="stat-exp">0/100</div><div class="stat-label">Experiência</div><div class="stat-bar green" id="bar-exp" style="width:0%"></div></div>
-            </div>
-            <div id="bunker-actions">
-                <button class="bunker-btn surface" id="btn-surface"><span class="btn-icon">☢️</span><span class="btn-label">SUPERFÍCIE</span><span class="btn-desc">Explore o mundo devastado</span></button>
-                <button class="bunker-btn dormitory" id="btn-dormitory"><span class="btn-icon">🛏️</span><span class="btn-label">DORMITÓRIO</span><span class="btn-desc">Durma e recupere energias</span></button>
-                <button class="bunker-btn machine" id="btn-machine"><span class="btn-icon">⚙️</span><span class="btn-label">MÁQUINA</span><span class="btn-desc">Verifique o status</span></button>
-                <button class="bunker-btn trade" id="btn-trade"><span class="btn-icon">🛒</span><span class="btn-label">COMÉRCIO</span><span class="btn-desc">Compre e venda itens</span></button>
-            </div>
-        </div>
+// ============ INTERAÇÃO ============
+let objetosChale = [
+  { nome:"portaEsq", x:60,  y:240, w:50, h:80, tipo:"porta", destino:"FAZENDA", label:"🌱 ESTUFA", cor:[34,139,34] },
+  { nome:"portaDir", x:690, y:240, w:50, h:80, tipo:"porta", destino:"PVZ",     label:"🧬 LAB", cor:[139,69,19] },
+  { nome:"pc",       x:350, y:90,  w:80, h:60, tipo:"pc",    label:"🛒 LOJA", cor:[0,100,200] }
+];
+let telaLojaAberta = false;
+let jardimLiberado = false;
 
-        <!-- TELA DA SUPERFÍCIE -->
-        <div id="screen-surface" class="screen">
-            <div id="surface-header">
-                <div class="location">☢️ <span id="surface-location">Nova Prospekt</span></div>
-                <div class="danger-level safe" id="surface-danger">🛡️ PERIGO: 30%</div>
-            </div>
-            <div id="surface-stats">
-                <div class="surface-stat"><div class="stat-label">Turno</div><div class="stat-value" id="surface-turn">0/25</div></div>
-                <div class="surface-stat"><div class="stat-label">Oxigênio</div><div class="stat-value" id="surface-oxygen">100</div></div>
-                <div class="surface-stat"><div class="stat-label">Contaminação</div><div class="stat-value" id="surface-contamination">0%</div></div>
-                <div class="surface-stat"><div class="stat-label">Energia</div><div class="stat-value" id="surface-energy">100</div></div>
-            </div>
-            <div id="surface-narrative"></div>
-        </div>
+// ============ LOJA ============
+let sementesDisponiveis = {
+  milho:   { nome:"🌽 Milho",   preco:30,  estoque:5, comprada:true, venda:12  },
+  soja:    { nome:"🌱 Soja",    preco:80,  estoque:5, comprada:true, venda:45  },
+  cenoura: { nome:"🥕 Cenoura", preco:80,  estoque:5, comprada:true, venda:45  },
+  batata:  { nome:"🥔 Batata",  preco:300, estoque:3, comprada:true, venda:210 },
+  tomate:  { nome:"🍅 Tomate",  preco:300, estoque:3, comprada:true, venda:210 }
+};
 
-        <!-- TELA DE COMBATE -->
-        <div id="screen-combat" class="screen">
-            <div id="combat-header">
-                <div class="enemy-name" id="combat-enemy-name">👾 MUTANTE</div>
-                <div class="enemy-hp">❤️ <span id="combat-enemy-hp">100</span>/<span id="combat-enemy-maxhp">100</span></div>
-            </div>
-            <div id="combat-status">
-                <div class="combatant"><div class="name">🗿 <span id="combat-player-name">Você</span></div><div class="hp-bar"><div class="hp-fill player" id="combat-player-hp-fill" style="width:100%"></div></div><div class="hp-text">❤️ <span id="combat-player-hp">100</span>/100</div></div>
-                <div class="combatant"><div class="name">👾 <span id="combat-enemy-name2">Mutante</span></div><div class="hp-bar"><div class="hp-fill enemy" id="combat-enemy-hp-fill" style="width:100%"></div></div><div class="hp-text">❤️ <span id="combat-enemy-hp2">100</span>/<span id="combat-enemy-maxhp2">100</span></div></div>
-            </div>
-            <div id="combat-log"></div>
-            <div id="combat-actions">
-                <button class="attack" id="combat-attack">⚔️ ATACAR <span class="sub">10-25 de dano</span></button>
-                <button class="defense" id="combat-defense">🛡️ DEFENSIVA <span class="sub">+50% esquiva</span></button>
-                <button class="skill" id="combat-skill">💥 HABILIDADE <span class="sub">Dano crítico +30%</span></button>
-                <button class="flee" id="combat-flee">🏃 RECUAR <span class="sub">30% de fugir</span></button>
-            </div>
-        </div>
+let plantasDefesa = {
+  girassol:     { nome:"🌻 Girassol",     preco:80,  comprada:false, custoSol:20,  funcao:"gerarSol"  },
+  ervilha:      { nome:"🔫 Ervilha",      preco:80,  comprada:false, custoSol:40,  funcao:"atirar"    },
+  cogumelo:     { nome:"🍄 Cogumelo",     preco:300, comprada:false, custoSol:70,  funcao:"lentidao"  },
+  nozes:        { nome:"🥜 Nozes",        preco:500, comprada:false, custoSol:80,  funcao:"tanque"    },
+  batataquente: { nome:"🔥 Batata Fogo",  preco:500, comprada:false, custoSol:400, funcao:"fogo"      }
+};
 
-        <!-- TELA DE COMÉRCIO -->
-        <div id="screen-trade" class="screen">
-            <div id="trade-header">
-                <div class="merchant">🛒 Mercador Viajante</div>
-                <div class="credits">💰 <span id="trade-credits">0</span> Créditos</div>
-            </div>
-            <div id="trade-items"></div>
-            <button id="btn-trade-back" style="padding:10px;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:var(--text-secondary);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.3s;text-transform:uppercase;letter-spacing:2px;margin-top:6px;flex-shrink:0;">← VOLTAR</button>
-        </div>
+// ============ FAZENDA ============
+let fazendaGrid = [];
+let linhasFaz = 3, colunasFaz = 4;
+let celulaW, celulaH;
+let offsetYFazenda = 100;
 
-        <!-- TELA DA MÁQUINA -->
-        <div id="screen-machine" class="screen">
-            <div class="machine-icon">⚙️</div>
-            <div class="machine-title">MÁQUINA DE CARBONO</div>
-            <div class="machine-status online" id="machine-status">🟢 OPERACIONAL</div>
-            <div class="machine-battery" id="machine-battery">🔋 100%</div>
-            <div style="color:var(--text-secondary);font-size:14px;">Produz <span id="machine-production">2</span> Oxigênio/turno</div>
-            <div style="color:var(--text-secondary);font-size:13px;">Upgrade: <span id="machine-level">Nível 1</span></div>
-            <button id="btn-machine-upgrade" style="margin-top:4px;padding:8px 24px;background:rgba(255,170,0,0.1);border:1px solid rgba(255,170,0,0.2);border-radius:6px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-weight:600;cursor:pointer;transition:all 0.3s;">⬆ UPGRADE (50 Créditos)</button>
-            <button id="btn-machine-recharge" style="margin-top:4px;padding:8px 24px;background:rgba(68,136,255,0.1);border:1px solid rgba(68,136,255,0.2);border-radius:6px;color:#4488ff;font-family:'Rajdhani',sans-serif;font-weight:600;cursor:pointer;transition:all 0.3s;">🔋 RECARREGAR (15 Créditos/10%)</button>
-            <button id="btn-machine-back" style="margin-top:6px;padding:10px 36px;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:var(--text-secondary);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.3s;text-transform:uppercase;letter-spacing:2px;">← VOLTAR</button>
-        </div>
+let culturasInfo = {
+  milho:   { nome:"🌽 Milho",   tempo:80, venda:12,  desenho:desenharMilho   },
+  soja:    { nome:"🌱 Soja",    tempo:100, venda:45,  desenho:desenharSoja    },
+  cenoura: { nome:"🥕 Cenoura", tempo:60,  venda:45,  desenho:desenharCenoura },
+  batata:  { nome:"🥔 Batata",  tempo:75,  venda:210, desenho:desenharBatata  },
+  tomate:  { nome:"🍅 Tomate",  tempo:65,  venda:210, desenho:desenharTomate  }
+};
+let culturaSelecionada = "milho";
 
-    </div>
+// ============ JARDIM (PVZ) ============
+let plantasPvZ = [];
+let zumbisPvZ = [];
+let projeteis = [];
+let efeitosLentidao = [];
+let efeitosFogo = [];
+let sol = 100;
+let wave = 1;
+let zumbisRestantes = 0;
+let tempoProxZumbi = 0;
+let plantaSelecionada = null;
+let linhasPvZ = 5, colunasPvZ = 5;
+let colunasPlantaveis = 4, colunaSpawn = 4;
+let celPvZW, celPvZH;
+let offsetJardimY = 80;
 
-    <!-- ===== MODAL ===== -->
-    <div id="modal">
-        <div id="modal-content">
-            <h2 id="modal-title">⚠️ AVISO</h2>
-            <p id="modal-text">Conteúdo do evento...</p>
-            <div class="modal-actions">
-                <button id="modal-btn-ok">OK</button>
-                <button id="modal-btn-cancel" class="danger" style="display:none;">Cancelar</button>
-            </div>
-        </div>
-    </div>
+let estadoJardim = "preparacao";
+let tempoPreparacao = 300;
+let zumbisMortosWave = 0;
 
-    <!-- ============================================================ -->
-    <!-- JAVASCRIPT - ECOSFERA 2200 SUPREMA EDITION                      -->
-    <!-- ============================================================ -->
-    <script>
-        // ============================================================
-        //  ECOSFERA 2200 - EDIÇÃO SUPREMA
-        //  v5.0 - Edição Ampliada
-        // ============================================================
+// ============ FEEDBACK ============
+let feedbackMsg = "", tempoFeedback = 0;
 
-        // ===== ESTADO DO JOGO =====
-        const Game = {
-            playerName: 'Sobrevivente',
-            cycle: 'day',
-            turn: 25,
-            maxTurn: 25,
-            day: 1,
-            credits: 0,
-            level: 1,
-            exp: 0,
-            expToNext: 100,
-            stamina: 100,
-            maxStamina: 100,
+// ============ SETUP ============
+function setup() {
+  createCanvas(800, 600);
+  celPvZW = width / colunasPvZ;
+  celPvZH = (height - offsetJardimY - 30) / linhasPvZ;
+  celulaW = width / colunasFaz;
+  celulaH = (height - offsetYFazenda - 50) / linhasFaz;
+  resetarFazenda();
+  resetarJardim();
+  frameRate(60);
+  document.getElementById('hint-text').textContent = '🎮 WASD = Mover · E = Interagir · Clique = Plantar/Colher';
+}
 
-            // Atributos
-            stats: {
-                strength: 5,
-                agility: 5,
-                intelligence: 5,
-                vitality: 5,
-            },
+function resetarJardim() {
+  plantasPvZ = [];
+  zumbisPvZ = [];
+  projeteis = [];
+  efeitosLentidao = [];
+  efeitosFogo = [];
+  sol = 100;
+  wave = 1;
+  zumbisRestantes = 2;
+  plantaSelecionada = null;
+  estadoJardim = "preparacao";
+  tempoPreparacao = 300;
+  zumbisMortosWave = 0;
+  tempoProxZumbi = 0;
+}
 
-            // Recursos
-            resources: {
-                oxygen: 100,
-                contamination: 0,
-                energy: 100,
-                hunger: 100,
-                scrap: 0,
-                plastic: 0,
-                water: 0,
-                biomass: 0,
-                rare_parts: 0,
-                medicine: 0,
-                electronics: 0,
-                fuel: 0,
-            },
+function resetarFazenda() {
+  for (let i = 0; i < linhasFaz; i++) {
+    fazendaGrid[i] = [];
+    for (let j = 0; j < colunasFaz; j++) { fazendaGrid[i][j] = null; }
+  }
+}
 
-            // Inventário
-            inventory: {
-                weapons: [],
-                armor: [],
-                accessories: [],
-                consumables: [],
-                materials: [],
-                key_items: [],
-            },
+// ============ DRAW ============
+function draw() {
+  if (telaLojaAberta) { desenharLoja(); return; }
 
-            // Equipamento
-            equipped: {
-                weapon: null,
-                armor: null,
-                accessory: null,
-            },
+  if (modo === "CHALE") {
+    desenharChale();
+  } else if (modo === "FAZENDA") {
+    desenharFazenda();
+  } else if (modo === "PVZ") {
+    desenharJardim();
+  }
+  
+  atualizarFeedback();
+}
 
-            // Máquina
-            machine: {
-                battery: 100,
-                production: 2,
-                level: 1,
-                active: true,
-            },
+// ==================== CHALÉ ====================
+function desenharChale() {
+  background(30, 25, 20);
+  
+  // Piso
+  fill(50, 40, 30);
+  rect(0, 80, width, height-80);
+  
+  // Paredes
+  fill(60, 50, 40);
+  rect(0, 0, width, 80);
+  
+  // Luzes
+  fill(0, 255, 136, 20);
+  rect(40, 20, 80, 60);
+  rect(width-120, 20, 80, 60);
+  
+  // Objetos
+  for (let obj of objetosChale) {
+    if (obj.tipo === "porta" && obj.destino === "PVZ" && !jardimLiberado) {
+      fill(80, 60, 50);
+    } else {
+      fill(obj.cor || [60, 50, 40]);
+    }
+    rect(obj.x, obj.y, obj.w, obj.h, 8);
+    fill(200);
+    textSize(14);
+    textAlign(CENTER);
+    text(obj.label, obj.x+obj.w/2, obj.y+obj.h-8);
+  }
+  
+  // Jogador
+  desenharJogador(jogadorX, jogadorY);
+  
+  // HUD
+  fill(0, 0, 0, 180);
+  rect(0, 0, width, 45);
+  fill(0, 255, 136);
+  textSize(16);
+  textAlign(LEFT);
+  text(`💰 ${moedas}`, 15, 30);
+  fill(150);
+  textSize(12);
+  text("🌿 Karma: " + karma, 100, 30);
+  fill(200);
+  textSize(12);
+  text("🏠 BUNKER", width-120, 30);
+  
+  // Movimento
+  if (keyIsDown(87)) jogadorY -= velocidadeJogador;
+  if (keyIsDown(83)) jogadorY += velocidadeJogador;
+  if (keyIsDown(65)) jogadorX -= velocidadeJogador;
+  if (keyIsDown(68)) jogadorX += velocidadeJogador;
+  jogadorX = constrain(jogadorX, 30, width-30);
+  jogadorY = constrain(jogadorY, 90, height-40);
+}
 
-            // Superfície
-            surface: {
-                turn: 0,
-                maxTurns: 25,
-                danger: 30,
-                currentLocation: 'Nova Prospekt',
-                currentScenario: null,
-                scenarioHistory: [],
-                visitedLocations: {},
-                collectedResources: {},
-                inCombat: false,
-                expeditionActive: false,
-                discovered: [],
-            },
+function desenharJogador(x, y) {
+  push();
+  translate(x, y);
+  
+  // Corpo
+  fill(70, 80, 90);
+  rect(-12, -8, 24, 28, 6);
+  
+  // Cabeça
+  fill(210, 180, 160);
+  ellipse(0, -20, 26, 28);
+  
+  // Cabelo
+  fill(50, 40, 30);
+  arc(0, -24, 28, 14, PI, TWO_PI);
+  
+  // Olhos
+  fill(255);
+  ellipse(-7, -22, 6, 7);
+  ellipse(7, -22, 6, 7);
+  fill(50, 40, 30);
+  ellipse(-6, -21, 3, 4);
+  ellipse(8, -21, 3, 4);
+  fill(0);
+  ellipse(-5, -20, 1.5, 2);
+  ellipse(9, -20, 1.5, 2);
+  
+  // Boca (sorrindo)
+  stroke(150, 100, 80);
+  strokeWeight(1.5);
+  arc(0, -12, 8, 5, 0, PI);
+  noStroke();
+  
+  // Braços
+  fill(70, 80, 90);
+  rect(-18, 0, 5, 18, 4);
+  rect(13, 0, 5, 18, 4);
+  
+  // Pernas
+  fill(50, 60, 70);
+  rect(-9, 18, 6, 16, 4);
+  rect(3, 18, 6, 16, 4);
+  
+  // Botas
+  fill(40, 30, 20);
+  rect(-11, 32, 10, 6, 4);
+  rect(1, 32, 10, 6, 4);
+  
+  pop();
+}
 
-            // Combate
-            combat: {
-                active: false,
-                enemy: null,
-                playerHP: 100,
-                maxPlayerHP: 100,
-                enemyHP: 0,
-                maxEnemyHP: 0,
-                turn: 0,
-                isPlayerTurn: true,
-                log: [],
-                inProgress: false,
-                defenseBonus: false,
-            },
+// ==================== LOJA ====================
+function desenharLoja() {
+  background(15, 20, 30);
+  fill(10, 15, 25, 200);
+  rect(0, 0, width, height);
+  
+  fill(0, 255, 136);
+  textSize(28);
+  textAlign(CENTER);
+  text("🛒 LOJA", width/2, 60);
+  
+  fill(200);
+  textSize(16);
+  text("💰 " + moedas + " créditos", width-120, 40);
+  
+  // Fechar
+  fill(200, 50, 50);
+  rect(width-70, 20, 50, 30, 5);
+  fill(255);
+  textSize(14);
+  text("FECHAR", width-45, 40);
+  
+  let y = 100;
+  let x = 50;
+  
+  // Sementes
+  fill(0, 255, 136);
+  textSize(18);
+  textAlign(LEFT);
+  text("🌾 SEMENTES", x, y);
+  y += 30;
+  
+  for (let [id, s] of Object.entries(sementesDisponiveis)) {
+    if (!s.comprada) continue;
+    fill(200);
+    textSize(14);
+    text(s.nome + " - $" + s.preco + " (estoque: " + s.estoque + ")", x+10, y);
+    
+    let pode = moedas >= s.preco && s.estoque < 20;
+    fill(pode ? [34, 139, 34] : [150, 50, 50]);
+    rect(width-160, y-12, 100, 28, 5);
+    fill(255);
+    textSize(12);
+    textAlign(CENTER);
+    text(pode ? "COMPRAR" : s.estoque >= 20 ? "CHEIO" : "SEM $", width-110, y+6);
+    y += 35;
+  }
+  
+  y += 20;
+  
+  // Plantas Defensivas
+  fill(0, 255, 136);
+  textSize(18);
+  textAlign(LEFT);
+  text("🧬 PLANTAS MUTANTES", x, y);
+  y += 30;
+  
+  for (let [id, p] of Object.entries(plantasDefesa)) {
+    fill(p.comprada ? [0, 200, 100] : [200, 100, 50]);
+    textSize(14);
+    text(p.nome + (p.comprada ? " ✅" : " - $" + p.preco), x+10, y);
+    
+    if (!p.comprada) {
+      let pode = moedas >= p.preco;
+      fill(pode ? [34, 139, 34] : [150, 50, 50]);
+      rect(width-160, y-12, 100, 28, 5);
+      fill(255);
+      textSize(12);
+      textAlign(CENTER);
+      text(pode ? "COMPRAR" : "SEM $", width-110, y+6);
+    } else {
+      fill([100, 100, 100]);
+      rect(width-160, y-12, 100, 28, 5);
+      fill(200);
+      textSize(12);
+      textAlign(CENTER);
+      text("LIBERADA", width-110, y+6);
+    }
+    y += 35;
+  }
+  
+  // Ajuda
+  fill(150);
+  textSize(12);
+  textAlign(CENTER);
+  text("Clique no item para comprar", width/2, height-30);
+}
 
-            // Conquistas
-            achievements: [],
-            totalDiscoveries: 0,
-
-            // Companheiros
-            companions: [],
-
-            // Faccões
-            reputation: {
-                survivors: 0,
-                traders: 0,
-                techs: 0,
-            },
-
-            // Eventos
-            events: [],
-            gameOver: false,
-            currentScreen: 'start',
-            eventLock: false,
-        };
-
-        // ===== ITENS DO JOGO =====
-        const ITEMS = {
-            // Armas
-            'pistola_ferrugem': { name: 'Pistola de Ferrugem', type: 'weapon', damage: 15, desc: 'Arma básica de fogo', price: 30 },
-            'faca_caca': { name: 'Faca de Caça', type: 'weapon', damage: 20, desc: 'Faca afiada para combate', price: 45 },
-            'bastao_eletrico': { name: 'Bastão Elétrico', type: 'weapon', damage: 25, desc: 'Atordoa inimigos', price: 70 },
-            'rifle_precisao': { name: 'Rifle de Precisão', type: 'weapon', damage: 35, desc: 'Alto dano a distância', price: 120 },
-            'machado_bombeiro': { name: 'Machado de Bombeiro', type: 'weapon', damage: 28, desc: 'Pesado e devastador', price: 85 },
-            'lamina_serrilhada': { name: 'Lâmina Serrilhada', type: 'weapon', damage: 32, desc: 'Corte profundo, sangramento', price: 100 },
-
-            // Armaduras
-            'colete_leve': { name: 'Colete Leve', type: 'armor', defense: 10, desc: 'Proteção básica', price: 40 },
-            'armadura_combate': { name: 'Armadura de Combate', type: 'armor', defense: 20, desc: 'Proteção militar', price: 90 },
-            'traje_quimico': { name: 'Traje Químico', type: 'armor', defense: 15, desc: 'Proteção contra contaminação', price: 80 },
-            'armadura_reforcada': { name: 'Armadura Reforçada', type: 'armor', defense: 28, desc: 'Placas de metal soldadas', price: 130 },
-
-            // Acessórios
-            'radio_antigo': { name: 'Rádio Antigo', type: 'accessory', effect: 'receber_dicas', desc: 'Revela informações úteis', price: 25 },
-            'bussola_antiga': { name: 'Bússola Antiga', type: 'accessory', effect: 'navegacao', desc: 'Melhor navegação', price: 35 },
-            'lucky_charm': { name: 'Amuleto da Sorte', type: 'accessory', effect: 'sorte', desc: 'Aumenta chances de encontrar itens', price: 50 },
-            'mascara_gas': { name: 'Máscara de Gás', type: 'accessory', effect: 'filtragem', desc: 'Reduz contaminação recebida', price: 60 },
-
-            // Consumíveis
-            'kit_medico': { name: 'Kit Médico', type: 'consumable', effect: 'heal', value: 30, desc: 'Restaura 30 HP', price: 25 },
-            'comida_enlatada': { name: 'Comida Enlatada', type: 'consumable', effect: 'hunger', value: 25, desc: 'Restaura 25 de fome', price: 15 },
-            'garrafa_agua': { name: 'Garrafa de Água', type: 'consumable', effect: 'hunger', value: 15, desc: 'Restaura 15 de fome', price: 10 },
-            'bateria_extra': { name: 'Bateria Extra', type: 'consumable', effect: 'energy', value: 20, desc: 'Restaura 20 de energia', price: 20 },
-            'medicamento': { name: 'Medicamento', type: 'consumable', effect: 'contamination', value: -15, desc: 'Reduz 15% de contaminação', price: 30 },
-            'pocao_energia': { name: 'Poção de Energia', type: 'consumable', effect: 'stamina', value: 30, desc: 'Restaura 30 de stamina', price: 25 },
-            'antibiotico': { name: 'Antibiótico', type: 'consumable', effect: 'contamination', value: -25, desc: 'Reduz 25% de contaminação', price: 45 },
-            'racao_militar': { name: 'Ração Militar', type: 'consumable', effect: 'hunger', value: 40, desc: 'Restaura 40 de fome', price: 30 },
-
-            // Materiais
-            'sucata': { name: 'Sucata', type: 'material', desc: 'Material comum para crafting', price: 5 },
-            'plastico': { name: 'Plástico', type: 'material', desc: 'Material versátil', price: 8 },
-            'biomassa': { name: 'Biomassa', type: 'material', desc: 'Fonte de alimento', price: 12 },
-            'pecas_raras': { name: 'Peças Raras', type: 'material', desc: 'Componentes valiosos', price: 30 },
-            'eletronicos': { name: 'Eletrônicos', type: 'material', desc: 'Componentes eletrônicos', price: 20 },
-            'celula_energia': { name: 'Célula de Energia', type: 'material', desc: 'Recarrega equipamentos', price: 35 },
-
-            // Itens chave
-            'mapa_cidade': { name: 'Mapa da Cidade', type: 'key_item', desc: 'Revela novas localizações' },
-            'chave_bunker': { name: 'Chave do Bunker', type: 'key_item', desc: 'Abre áreas secretas' },
-            'codigo_revelon': { name: 'Código de Revelon', type: 'key_item', desc: 'Acesso a áreas restritas' },
-            'chave_torre': { name: 'Chave da Torre', type: 'key_item', desc: 'Abre a Torre de Comunicações' },
-        };
-
-        // ===== INIMIGOS =====
-        const ENEMIES = [
-            { name: 'Rastejador', hp: 100, damage: 12, emoji: '👾', exp: 15, drops: [{ id: 'sucata', chance: 0.5 }, { id: 'plastico',
-                    chance: 0.3 }] },
-            { name: 'Triturador', hp: 130, damage: 18, emoji: '🔪', exp: 25, drops: [{ id: 'sucata', chance: 0.6 }, { id: 'pecas_raras',
-                    chance: 0.2 }] },
-            { name: 'Sibila', hp: 90, damage: 22, emoji: '👻', exp: 30, drops: [{ id: 'eletronicos', chance: 0.4 }, { id: 'medicamento',
-                    chance: 0.3 }] },
-            { name: 'Colosso', hp: 180, damage: 15, emoji: '💀', exp: 40, drops: [{ id: 'pecas_raras', chance: 0.5 }, { id: 'biomassa',
-                    chance: 0.4 }] },
-            { name: 'Espectro', hp: 75, damage: 25, emoji: '🌀', exp: 35, drops: [{ id: 'eletronicos', chance: 0.6 }, { id: 'kit_medico',
-                    chance: 0.3 }] },
-            { name: 'Devorador', hp: 220, damage: 20, emoji: '🦴', exp: 55, drops: [{ id: 'pecas_raras', chance: 0.5 }, { id: 'celula_energia',
-                    chance: 0.3 }] },
-            { name: 'Enxame Tóxico', hp: 85, damage: 16, emoji: '🐝', exp: 20, drops: [{ id: 'medicamento', chance: 0.4 }, { id: 'biomassa',
-                    chance: 0.4 }] },
-            { name: 'Sentinela Corrompida', hp: 160, damage: 24, emoji: '🤖', exp: 45, drops: [{ id: 'eletronicos', chance: 0.6 }, { id: 'celula_energia',
-                    chance: 0.3 }] },
-        ];
-
-        // ===== MERCADORES =====
-        const MERCHANT_INVENTORY = [
-            { id: 'kit_medico', stock: 5, price: 25 },
-            { id: 'comida_enlatada', stock: 8, price: 15 },
-            { id: 'bateria_extra', stock: 5, price: 20 },
-            { id: 'medicamento', stock: 3, price: 30 },
-            { id: 'pocao_energia', stock: 4, price: 25 },
-            { id: 'faca_caca', stock: 2, price: 45 },
-            { id: 'colete_leve', stock: 2, price: 40 },
-            { id: 'radio_antigo', stock: 1, price: 25 },
-            { id: 'lucky_charm', stock: 1, price: 50 },
-            { id: 'antibiotico', stock: 2, price: 45 },
-            { id: 'racao_militar', stock: 3, price: 30 },
-            { id: 'mascara_gas', stock: 1, price: 60 },
-            { id: 'machado_bombeiro', stock: 1, price: 85 },
-        ];
-
-        // ===== RECURSOS POR LOCAL (ANTI-LOOP) =====
-        const LOCATION_RESOURCES = {
-            'predio_recursos': { scrap: 2, plastic: 1, energy: 5 },
-            'predio_recursos2': { plastic: 2, rare_parts: 1, energy: 3 },
-            'predio_recursos_comida': { biomass: 2, hunger: 10 },
-            'predio_recursos_raros': { rare_parts: 2, energy: 10 },
-            'predio_recursos_ferramenta': { scrap: 3 },
-            'predio_recursos_terraco': { scrap: 2, electronics: 1 },
-            'metro_recursos': { scrap: 3, energy: 5 },
-            'metro_recursos2': { rare_parts: 1 },
-            'metro_recursos_comida': { biomass: 2, hunger: 10 },
-            'metro_recursos_lanterna': { scrap: 1 },
-            'metro_recursos_deposito': { scrap: 2, electronics: 1 },
-            'rua_recursos': { scrap: 2, plastic: 1, energy: 5 },
-            'rua_recursos2': { plastic: 1, water: 2 },
-            'rua_recursos_comida': { biomass: 2, hunger: 10 },
-            'rua_recursos_ferramenta': { scrap: 3 },
-            'rua_recursos_raros': { rare_parts: 2, energy: 10 },
-            'rua_recursos_parque': { biomass: 1, water: 2 },
-            'ponte_recursos': { scrap: 3, energy: 5 },
-            'ponte_recursos_combustivel': { energy: 15 },
-            'ponte_recursos2': { scrap: 2, rare_parts: 1 },
-            'revelon_recursos': { scrap: 3, plastic: 2, energy: 5 },
-            'revelon_recursos2': { water: 2, biomass: 2 },
-            'revelon_recursos_comida': { biomass: 3, hunger: 15 },
-            'revelon_recursos_raros': { rare_parts: 2, energy: 10 },
-            'revelon_recursos_pecas': { rare_parts: 3 },
-            'revelon_recursos_eletronicos': { rare_parts: 2, energy: 5 },
-            'revelon_recursos_bateria': { energy: 20 },
-            'revelon_recursos_medicina': { medicine: 3, contamination: -10 },
-            'revelon_recursos_medicina2': { medicine: 2 },
-            'revelon_recursos_quimicos': { rare_parts: 2 },
-            'torre_recursos': { electronics: 3, rare_parts: 1 },
-            'torre_recursos_antena': { electronics: 2, energy: 10 },
-            'porto_recursos': { scrap: 2, water: 3 },
-            'porto_recursos_carga': { rare_parts: 2, plastic: 2 },
-            'floresta_recursos': { biomass: 3, water: 1 },
-            'floresta_recursos_raizes': { biomass: 2, medicine: 1 },
-        };
-
-        // ===== PREVENÇÃO DE LOOP =====
-        const LOOP_PREVENTION = {
-            'predio_voltar_lobby': { next: 'predio_entrada', force: true },
-            'metro_saida': { next: 'rua_inicio', force: true },
-            'rua_esgoto_saida': { next: 'rua_inicio', force: true },
-            'ponte_chegada_revelon': { next: 'revelon_entrada', force: true },
-        };
-
-        // ===== CONQUISTAS =====
-        const ACHIEVEMENTS = [
-            { id: 'first_step', name: 'Primeiro Passo', desc: 'Complete sua primeira expedição', unlocked: false },
-            { id: 'survivor', name: 'Sobrevivente', desc: 'Sobreviva 10 dias', unlocked: false },
-            { id: 'explorer', name: 'Explorador', desc: 'Descubra 20 locais diferentes', unlocked: false },
-            { id: 'fighter', name: 'Guerreiro', desc: 'Vença 10 combates', unlocked: false },
-            { id: 'merchant', name: 'Mercador', desc: 'Ganhe 500 créditos', unlocked: false },
-            { id: 'collector', name: 'Colecionador', desc: 'Tenha 10 itens diferentes', unlocked: false },
-            { id: 'engineer', name: 'Engenheiro', desc: 'Upgrade da máquina para nível 5', unlocked: false },
-            { id: 'legend', name: 'Lenda', desc: 'Alcance o nível 10', unlocked: false },
-            { id: 'veteran', name: 'Veterano', desc: 'Vença 25 combates', unlocked: false },
-            { id: 'cartographer', name: 'Cartógrafo', desc: 'Descubra 40 locais diferentes', unlocked: false },
-        ];
-
-        // ============================================================
-        // REFERÊNCIAS DOM
-        // ============================================================
-
-        const DOM = {};
-
-        function cacheDOM() {
-            DOM.screens = {
-                start: document.getElementById('screen-start'),
-                bunker: document.getElementById('screen-bunker'),
-                surface: document.getElementById('screen-surface'),
-                combat: document.getElementById('screen-combat'),
-                machine: document.getElementById('screen-machine'),
-                trade: document.getElementById('screen-trade'),
-            };
-
-            DOM.header = {
-                player: document.getElementById('hdr-player'),
-                level: document.getElementById('hdr-level'),
-                cycle: document.getElementById('hdr-cycle'),
-                credits: document.getElementById('hdr-credits'),
-            };
-
-            DOM.bunker = {
-                stats: {
-                    oxygen: document.getElementById('stat-oxygen'),
-                    contamination: document.getElementById('stat-contamination'),
-                    energy: document.getElementById('stat-energy'),
-                    hunger: document.getElementById('stat-hunger'),
-                    stamina: document.getElementById('stat-stamina'),
-                    exp: document.getElementById('stat-exp'),
-                },
-                bars: {
-                    oxygen: document.getElementById('bar-oxygen'),
-                    contamination: document.getElementById('bar-contamination'),
-                    energy: document.getElementById('bar-energy'),
-                    hunger: document.getElementById('bar-hunger'),
-                    stamina: document.getElementById('bar-stamina'),
-                    exp: document.getElementById('bar-exp'),
-                },
-                btnSurface: document.getElementById('btn-surface'),
-                btnDormitory: document.getElementById('btn-dormitory'),
-                btnMachine: document.getElementById('btn-machine'),
-                btnTrade: document.getElementById('btn-trade'),
-            };
-
-            DOM.surface = {
-                location: document.getElementById('surface-location'),
-                danger: document.getElementById('surface-danger'),
-                turn: document.getElementById('surface-turn'),
-                oxygen: document.getElementById('surface-oxygen'),
-                contamination: document.getElementById('surface-contamination'),
-                energy: document.getElementById('surface-energy'),
-                narrative: document.getElementById('surface-narrative'),
-            };
-
-            DOM.combat = {
-                enemyName: document.getElementById('combat-enemy-name'),
-                enemyHP: document.getElementById('combat-enemy-hp'),
-                enemyMaxHP: document.getElementById('combat-enemy-maxhp'),
-                enemyHP2: document.getElementById('combat-enemy-hp2'),
-                enemyMaxHP2: document.getElementById('combat-enemy-maxhp2'),
-                enemyHPFill: document.getElementById('combat-enemy-hp-fill'),
-                playerName: document.getElementById('combat-player-name'),
-                playerHP: document.getElementById('combat-player-hp'),
-                playerHPFill: document.getElementById('combat-player-hp-fill'),
-                enemyName2: document.getElementById('combat-enemy-name2'),
-                log: document.getElementById('combat-log'),
-                btnAttack: document.getElementById('combat-attack'),
-                btnDefense: document.getElementById('combat-defense'),
-                btnFlee: document.getElementById('combat-flee'),
-                btnSkill: document.getElementById('combat-skill'),
-            };
-
-            DOM.machine = {
-                battery: document.getElementById('machine-battery'),
-                status: document.getElementById('machine-status'),
-                production: document.getElementById('machine-production'),
-                level: document.getElementById('machine-level'),
-                btnBack: document.getElementById('btn-machine-back'),
-                btnUpgrade: document.getElementById('btn-machine-upgrade'),
-                btnRecharge: document.getElementById('btn-machine-recharge'),
-            };
-
-            DOM.trade = {
-                items: document.getElementById('trade-items'),
-                credits: document.getElementById('trade-credits'),
-                btnBack: document.getElementById('btn-trade-back'),
-            };
-
-            DOM.start = {
-                input: document.getElementById('input-name'),
-                btn: document.getElementById('btn-start'),
-            };
-
-            DOM.modal = {
-                overlay: document.getElementById('modal'),
-                title: document.getElementById('modal-title'),
-                text: document.getElementById('modal-text'),
-                btnOk: document.getElementById('modal-btn-ok'),
-                btnCancel: document.getElementById('modal-btn-cancel'),
-            };
-
-            DOM.notification = document.getElementById('notification');
+// ==================== FAZENDA ====================
+function desenharFazenda() {
+  background(30, 50, 30);
+  
+  // Céu
+  fill(100, 180, 220);
+  rect(0, 0, width, 80);
+  fill(255, 220, 50);
+  ellipse(60, 50, 40, 40);
+  
+  // Solo
+  fill(60, 40, 20);
+  rect(0, 80, width, height-80);
+  
+  // HUD
+  fill(0, 0, 0, 180);
+  rect(0, 0, width, 45);
+  fill(0, 255, 136);
+  textSize(16);
+  textAlign(LEFT);
+  text(`💰 ${moedas}`, 15, 30);
+  fill(200);
+  textSize(12);
+  text("🌾 ESTUFA", width/2-40, 30);
+  text("V = Voltar", width-100, 30);
+  
+  // Seleção de cultura
+  let semente = sementesDisponiveis[culturaSelecionada];
+  if (semente && semente.comprada) {
+    fill(255, 220, 50);
+    textSize(14);
+    textAlign(RIGHT);
+    text(culturasInfo[culturaSelecionada].nome + " (Z/X)", width-20, 60);
+    fill(200);
+    textSize(12);
+    text("Estoque: " + semente.estoque, width-20, 80);
+  }
+  
+  // Grade
+  for (let i = 0; i < linhasFaz; i++) {
+    for (let j = 0; j < colunasFaz; j++) {
+      let x = j * celulaW;
+      let y = offsetYFazenda + i * celulaH;
+      fill(80, 60, 30);
+      rect(x, y, celulaW-2, celulaH-2, 5);
+      fill(100, 80, 40);
+      rect(x+2, y+2, celulaW-6, celulaH-6, 3);
+      
+      if (fazendaGrid[i][j]) {
+        let p = fazendaGrid[i][j];
+        let info = culturasInfo[p.tipo];
+        let progresso = p.crescimento / info.tempo;
+        push();
+        translate(x + celulaW/2, y + celulaH/2);
+        info.desenho(progresso);
+        pop();
+        fill(50);
+        rect(x+5, y+5, celulaW-20, 5);
+        fill(0, 255, 100);
+        rect(x+5, y+5, (celulaW-20)*progresso, 5);
+        if (progresso >= 1) {
+          fill(255, 220, 50, 100);
+          ellipse(x+celulaW/2, y+celulaH/2, 30, 30);
         }
-
-        // ===== FUNÇÕES AUXILIARES =====
-        function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
-
-        function random(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-
-        function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-        function chance(pct) { return random(0, 100) < pct; }
-
-        // ===== NOTIFICAÇÕES =====
-        function notify(text, type = 'info', duration = 3000) {
-            const el = DOM.notification;
-            el.textContent = text;
-            el.className = type + ' show';
-            clearTimeout(el._timeout);
-            el._timeout = setTimeout(() => {
-                el.classList.remove('show');
-            }, duration);
+      }
+    }
+  }
+  
+  // Crescimento
+  if (frameCount % 3 === 0) {
+    let taxa = 0.5 + (karma > 0 ? 0.3 : 0);
+    for (let i = 0; i < linhasFaz; i++) {
+      for (let j = 0; j < colunasFaz; j++) {
+        if (fazendaGrid[i][j]) {
+          fazendaGrid[i][j].crescimento += taxa;
+          let maxC = culturasInfo[fazendaGrid[i][j].tipo].tempo;
+          if (fazendaGrid[i][j].crescimento > maxC) { fazendaGrid[i][j].crescimento = maxC; }
         }
+      }
+    }
+  }
+}
 
-        // ===== TELAS =====
-        function showScreen(name) {
-            Object.keys(DOM.screens).forEach(key => {
-                DOM.screens[key].classList.toggle('active', key === name);
-            });
-            Game.currentScreen = name;
-            if (name === 'bunker') renderBunker();
-            if (name === 'surface') renderSurface();
-            if (name === 'machine') renderMachine();
-            if (name === 'trade') renderTrade();
-            if (name === 'combat') renderCombat();
+// ==================== JARDIM ====================
+function desenharJardim() {
+  if (!jardimLiberado) {
+    modo = "CHALE";
+    feedback("Compre uma planta mutante na Loja!", 60);
+    return;
+  }
+  
+  background(20, 25, 35);
+  
+  // Grade
+  for (let linha = 0; linha < linhasPvZ; linha++) {
+    for (let col = 0; col < colunasPvZ; col++) {
+      let x = col * celPvZW;
+      let y = offsetJardimY + linha * celPvZH;
+      fill(col < colunasPlantaveis ? color(30, 60, 30) : color(50, 40, 50));
+      stroke(0, 255, 136, 20);
+      rect(x, y, celPvZW, celPvZH);
+      noStroke();
+    }
+  }
+  
+  // Plantas
+  for (let p of plantasPvZ) {
+    let x = p.col * celPvZW + celPvZW/2;
+    let y = offsetJardimY + p.linha * celPvZH + celPvZH/2;
+    desenharPlantaPvZ(p, x, y);
+  }
+  
+  // Zumbis
+  for (let z of zumbisPvZ) {
+    desenharZumbi(z);
+  }
+  
+  // Projéteis
+  for (let p of projeteis) {
+    fill(0, 255, 100);
+    ellipse(p.x, p.y, 6, 6);
+  }
+  
+  // HUD
+  fill(0, 0, 0, 180);
+  rect(0, 0, width, 50);
+  fill(0, 255, 136);
+  textSize(14);
+  textAlign(LEFT);
+  text("☀️ " + sol + "  🌊 Wave " + wave, 15, 30);
+  fill(200);
+  text("🧟 " + zumbisRestantes + " restantes", 180, 30);
+  text("V = Voltar", width-80, 30);
+  
+  // Menu de plantas
+  let yMenu = 55;
+  let plantasDisp = Object.keys(plantasDefesa).filter(id => plantasDefesa[id].comprada);
+  if (plantasDisp.length > 0) {
+    fill(150);
+    textSize(11);
+    textAlign(LEFT);
+    text("1-" + plantasDisp.length + " selecionar:", 15, yMenu);
+    for (let i = 0; i < plantasDisp.length; i++) {
+      let id = plantasDisp[i];
+      let p = plantasDefesa[id];
+      let selecionado = plantaSelecionada === id;
+      fill(selecionado ? [0, 255, 136] : [200, 200, 200]);
+      text(p.nome + (selecionado ? " ✅" : ""), 15 + i * 100, yMenu);
+    }
+  } else {
+    fill(200);
+    textSize(12);
+    text("Compre plantas na Loja (L)", 15, yMenu);
+  }
+  
+  // Estado
+  if (estadoJardim === "preparacao") {
+    let seg = ceil(tempoPreparacao / 60);
+    fill(255, 200, 100);
+    textSize(16);
+    textAlign(CENTER);
+    text("⚔️ PRÓXIMA WAVE EM " + seg + "s", width/2, 30);
+    fill(200);
+    textSize(12);
+    text("Plante suas defesas!", width/2, 48);
+  }
+  
+  // Atualizar
+  atualizarJardim();
+}
+
+// ==================== DESENHAR PLANTAS (NATURAIS) ====================
+function desenharPlantaPvZ(p, x, y) {
+  push();
+  translate(x, y);
+  
+  if (p.tipo === "girassol") {
+    fill(255, 220, 40);
+    ellipse(0, 0, 35, 35);
+    fill(255, 200, 20);
+    for (let i = 0; i < 8; i++) {
+      let ang = (i * TWO_PI) / 8;
+      ellipse(cos(ang)*22, sin(ang)*22, 10, 10);
+    }
+    fill(60, 40, 20);
+    ellipse(0, 0, 12, 12);
+    
+  } else if (p.tipo === "ervilha") {
+    fill(60, 180, 60);
+    ellipse(0, 0, 35, 35);
+    fill(255, 200, 100);
+    ellipse(10, -4, 8, 10);
+    fill(200, 50, 50);
+    ellipse(12, 4, 8, 6);
+    fill(0);
+    ellipse(-4, -7, 4, 4);
+    ellipse(4, -7, 4, 4);
+    
+  } else if (p.tipo === "cogumelo") {
+    fill(120, 80, 160);
+    ellipse(0, 0, 35, 35);
+    fill(140, 60, 180);
+    arc(0, -6, 40, 30, PI, TWO_PI);
+    fill(200, 100, 220);
+    ellipse(-8, -10, 7, 7);
+    ellipse(8, -10, 7, 7);
+    fill(255);
+    ellipse(-3, -3, 3, 3);
+    ellipse(3, -3, 3, 3);
+    
+  } else if (p.tipo === "nozes") {
+    fill(160, 120, 60);
+    ellipse(0, 0, 40, 40);
+    fill(140, 100, 50);
+    ellipse(-7, -4, 13, 13);
+    ellipse(7, -4, 13, 13);
+    fill(80, 50, 20);
+    ellipse(0, 0, 10, 10);
+    
+  } else if (p.tipo === "batataquente") {
+    fill(180, 80, 20);
+    ellipse(0, 0, 38, 38);
+    fill(220, 60, 10);
+    ellipse(-5, -3, 14, 14);
+    ellipse(7, -3, 12, 12);
+    fill(80, 40, 10);
+    ellipse(0, 2, 10, 10);
+    // Chamas
+    let t = frameCount * 0.12;
+    fill(255, 150, 0, 200);
+    triangle(-7, -15, 0, -32 + sin(t)*3, 7, -15);
+    fill(255, 80, 0, 180);
+    triangle(-4, -13, 4, -26 + sin(t+1)*3, 10, -13);
+    fill(255, 220, 0, 160);
+    triangle(-10, -15, -3, -28 + sin(t+2)*3, 3, -15);
+    // Olhos
+    fill(255);
+    ellipse(-7, -2, 7, 7);
+    ellipse(7, -2, 7, 7);
+    fill(200, 0, 0);
+    ellipse(-7, -2, 3, 3);
+    ellipse(7, -2, 3, 3);
+    // Boca
+    stroke(50, 0, 0);
+    strokeWeight(2);
+    line(-6, 8, -2, 11);
+    line(-2, 11, 2, 11);
+    line(2, 11, 6, 8);
+    noStroke();
+  }
+  
+  // Barra de vida
+  fill(255, 0, 0);
+  rect(-20, -28, 40, 4);
+  fill(0, 255, 100);
+  rect(-20, -28, 40 * (p.vida / p.vidaMax), 4);
+  
+  pop();
+}
+
+// ==================== DESENHAR ZUMBIS ====================
+function desenharZumbi(z) {
+  push();
+  translate(z.x, z.y);
+  
+  fill(70, 85, 70);
+  ellipse(0, 0, 35, 40);
+  fill(100, 115, 100);
+  ellipse(-10, -10, 14, 14);
+  ellipse(10, -10, 14, 14);
+  
+  fill(0, 255, 136);
+  ellipse(-12, -13, 6, 6);
+  ellipse(12, -13, 6, 6);
+  fill(0);
+  ellipse(-12, -13, 2.5, 2.5);
+  ellipse(12, -13, 2.5, 2.5);
+  
+  fill(60, 30, 30);
+  arc(0, 3, 18, 12, 0, PI);
+  fill(0, 255, 136);
+  rect(-5, 0, 3, 5);
+  rect(2, 0, 3, 5);
+  
+  // Tipo
+  if (z.tipo === "cone") {
+    fill(255, 100, 0);
+    triangle(-12, -30, 12, -30, 0, -45);
+  } else if (z.tipo === "balde") {
+    fill(180, 180, 200);
+    rect(-15, -38, 30, 18, 5);
+  } else if (z.tipo === "zumbinho") {
+    scale(0.7);
+  } else if (z.tipo === "escudeiro") {
+    fill(150, 150, 180);
+    rect(-18, -8, 36, 28, 5);
+  }
+  
+  // Barra de vida
+  fill(255, 0, 0);
+  rect(-20, -32, 40, 4);
+  fill(0, 255, 100);
+  rect(-20, -32, 40 * (z.vida / z.vidaMax), 4);
+  
+  // Fogo
+  if (z.queimando) {
+    fill(255, 100, 0, 200);
+    textSize(14);
+    text("🔥", 0, -38);
+  }
+  
+  pop();
+}
+
+// ==================== LÓGICA DO JARDIM ====================
+function atualizarJardim() {
+  // Preparação
+  if (estadoJardim === "preparacao") {
+    tempoPreparacao--;
+    if (tempoPreparacao <= 0) {
+      estadoJardim = "combate";
+      zumbisRestantes = 2 + wave * 1;
+      zumbisMortosWave = 0;
+      tempoProxZumbi = 0;
+    }
+    return;
+  }
+  
+  // Combate
+  // Spawn de zumbis
+  if (zumbisRestantes > 0 && frameCount > tempoProxZumbi) {
+    let linha = floor(random(linhasPvZ));
+    let tipos = ["padrao"];
+    if (wave >= 3) tipos.push("cone");
+    if (wave >= 5) tipos.push("balde");
+    if (wave >= 8) tipos.push("zumbinho");
+    if (wave >= 12) tipos.push("escudeiro");
+    let tipo = tipos[floor(random(tipos.length))];
+    
+    let vida = 40 + wave * 8;
+    let dano = 8 + wave * 2;
+    let vel = 0.5 + wave * 0.05;
+    
+    if (tipo === "cone") { vida *= 1.5; dano *= 1.2; }
+    if (tipo === "balde") { vida *= 2; dano *= 1.3; vel *= 0.8; }
+    if (tipo === "zumbinho") { vida *= 0.5; dano *= 0.7; vel *= 1.8; }
+    if (tipo === "escudeiro") { vida *= 3; dano *= 1; vel *= 0.5; }
+    
+    let x = colunaSpawn * celPvZW + celPvZW/2;
+    let y = offsetJardimY + linha * celPvZH + celPvZH/2;
+    
+    zumbisPvZ.push({
+      x: x, y: y, linha: linha,
+      vida: vida, vidaMax: vida,
+      velocidade: vel,
+      timerAtaque: 0,
+      dano: dano,
+      tipo: tipo,
+      queimando: false
+    });
+    
+    zumbisRestantes--;
+    tempoProxZumbi = frameCount + 60 + random(30);
+  }
+  
+  // Plantas atacam
+  for (let p of plantasPvZ) {
+    if (p.tipo === "girassol") {
+      if (!p.timer) p.timer = 0;
+      p.timer++;
+      if (p.timer >= 200) {
+        sol += 15 + (p.nivel || 0) * 5;
+        p.timer = 0;
+      }
+    }
+    
+    if (p.tipo === "ervilha") {
+      if (!p.timer) p.timer = 0;
+      p.timer++;
+      if (p.timer >= 25) {
+        let alvo = zumbisPvZ.find(z => z.linha === p.linha);
+        if (alvo) {
+          projeteis.push({
+            x: p.col * celPvZW + celPvZW/2 + 15,
+            y: offsetJardimY + p.linha * celPvZH + celPvZH/2,
+            linha: p.linha,
+            dano: 15 + (p.nivel || 0) * 5
+          });
+          p.timer = 0;
         }
-
-        // ===== MODAL =====
-        function showModal(title, text, onOk = null, onCancel = null) {
-            Game.eventLock = true;
-            DOM.modal.title.textContent = title;
-            DOM.modal.text.innerHTML = text.replace(/\n/g, '<br>');
-            DOM.modal.overlay.classList.add('active');
-
-            DOM.modal.btnOk.style.display = 'inline-block';
-            DOM.modal.btnCancel.style.display = onCancel ? 'inline-block' : 'none';
-
-            DOM.modal.btnOk.onclick = () => {
-                DOM.modal.overlay.classList.remove('active');
-                Game.eventLock = false;
-                if (onOk) onOk();
-                renderAll();
-            };
-
-            if (onCancel) {
-                DOM.modal.btnCancel.onclick = () => {
-                    DOM.modal.overlay.classList.remove('active');
-                    Game.eventLock = false;
-                    if (onCancel) onCancel();
-                    renderAll();
-                };
+      }
+    }
+    
+    if (p.tipo === "cogumelo") {
+      if (!p.timer) p.timer = 0;
+      p.timer++;
+      if (p.timer >= 60) {
+        let alvo = zumbisPvZ.find(z => z.linha === p.linha);
+        if (alvo) {
+          // Aplica lentidão
+          alvo.velocidade *= 0.5;
+          setTimeout(() => { alvo.velocidade *= 2; }, 3000);
+          projeteis.push({
+            x: p.col * celPvZW + celPvZW/2 + 15,
+            y: offsetJardimY + p.linha * celPvZH + celPvZH/2,
+            linha: p.linha,
+            dano: 5
+          });
+          p.timer = 0;
+        }
+      }
+    }
+    
+    if (p.tipo === "batataquente") {
+      if (!p.timer) p.timer = 0;
+      p.timer++;
+      if (p.timer >= 200) {
+        let alvo = zumbisPvZ.find(z => z.linha === p.linha);
+        if (alvo) {
+          projeteis.push({
+            x: p.col * celPvZW + celPvZW/2 + 15,
+            y: offsetJardimY + p.linha * celPvZH + celPvZH/2,
+            linha: p.linha,
+            dano: 30 + (p.nivel || 0) * 10,
+            fogo: true
+          });
+          p.timer = 0;
+        }
+      }
+    }
+  }
+  
+  // Projéteis
+  for (let i = projeteis.length - 1; i >= 0; i--) {
+    let p = projeteis[i];
+    p.x += 6;
+    let hit = false;
+    for (let z of zumbisPvZ) {
+      if (z.linha === p.linha && abs(p.x - z.x) < 25 && abs(p.y - z.y) < 20) {
+        z.vida -= p.dano;
+        if (p.fogo) {
+          z.queimando = true;
+          z.vida -= 30;
+          setTimeout(() => { z.queimando = false; }, 2000);
+        }
+        hit = true;
+        break;
+      }
+    }
+    if (hit || p.x > width) { projeteis.splice(i, 1); }
+  }
+  
+  // Zumbis se movem
+  for (let i = zumbisPvZ.length - 1; i >= 0; i--) {
+    let z = zumbisPvZ[i];
+    let bloqueado = false;
+    
+    // Verifica se tem planta na frente
+    for (let p of plantasPvZ) {
+      if (p.linha === z.linha) {
+        let plantaX = p.col * celPvZW + celPvZW/2;
+        if (abs(z.x - plantaX) < 30) {
+          bloqueado = true;
+          if (z.timerAtaque <= 0) {
+            p.vida -= z.dano;
+            z.timerAtaque = 20;
+            if (p.vida <= 0) {
+              let idx = plantasPvZ.indexOf(p);
+              if (idx > -1) { plantasPvZ.splice(idx, 1); }
             }
+          }
+          break;
         }
+      }
+    }
+    
+    if (!bloqueado) {
+      z.x -= z.velocidade;
+    }
+    
+    if (z.timerAtaque > 0) { z.timerAtaque--; }
+    
+    // Fogo contínuo
+    if (z.queimando) {
+      z.vida -= 1;
+    }
+    
+    // Morte
+    if (z.vida <= 0) {
+      zumbisPvZ.splice(i, 1);
+      zumbisMortosWave++;
+      moedas += 5 + wave * 2;
+    }
+  }
+  
+  // Fim da wave
+  if (zumbisPvZ.length === 0 && zumbisRestantes === 0 && zumbisMortosWave > 0) {
+    wave++;
+    estadoJardim = "preparacao";
+    tempoPreparacao = 200;
+    sol += 30;
+    moedas += 20 + wave * 5;
+    feedback("🌊 Wave " + (wave-1) + " completa! +" + (20 + wave * 5) + " moedas", 60);
+  }
+}
 
-        // ============================================================
-        // RENDERIZAÇÃO
-        // ============================================================
+// ==================== FUNÇÕES DAS CULTURAS (NATURAIS) ====================
+function desenharMilho(progresso) {
+  let tam = 15 + progresso * 20;
+  push();
+  fill(60, 120, 40);
+  rect(-2, 0, 4, tam * 0.6, 2);
+  fill(80, 160, 60);
+  triangle(-3, tam*0.1, -tam*0.4, -tam*0.1, -3, -tam*0.15);
+  triangle( 3, tam*0.15, tam*0.4, -tam*0.05, 3, -tam*0.1);
+  if (progresso > 0.4) {
+    fill(245, 215, 50);
+    rect(-tam*0.15, -tam*0.6, tam*0.3, tam*0.5, 2);
+    fill(255, 230, 60);
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 3; col++) {
+        ellipse(-tam*0.08 + col*tam*0.08, -tam*0.55 + row*tam*0.2, 4, 4);
+      }
+    }
+  }
+  pop();
+}
 
-        function renderAll() {
-            renderHeader();
-            renderBunker();
-            renderSurface();
-            renderMachine();
-            renderTrade();
+function desenharCenoura(progresso) {
+  let tam = 12 + progresso * 18;
+  push();
+  fill(230, 126, 34);
+  ellipse(0, 0, tam, tam);
+  stroke(180, 80, 20);
+  strokeWeight(2);
+  line(-tam/3, 0, tam/3, 0);
+  fill(50, 150, 50);
+  noStroke();
+  triangle(-tam/4, -tam/2, 0, -tam, tam/4, -tam/2);
+  pop();
+}
+
+function desenharBatata(progresso) {
+  let tam = 12 + progresso * 18;
+  push();
+  fill(205, 133, 63);
+  ellipse(0, 0, tam, tam);
+  fill(139, 69, 19);
+  for (let i = 0; i < 4; i++) {
+    ellipse(random(-tam/3, tam/3), random(-tam/3, tam/3), 2, 2);
+  }
+  pop();
+}
+
+function desenharTomate(progresso) {
+  let tam = 12 + progresso * 18;
+  push();
+  fill(231, 76, 60);
+  ellipse(0, 0, tam, tam);
+  fill(50, 150, 50);
+  ellipse(0, -tam/2, 6, 10);
+  line(0, -tam/2, -4, -tam/1.5);
+  line(0, -tam/2,  4, -tam/1.5);
+  pop();
+}
+
+function desenharSoja(progresso) {
+  let tam = 12 + progresso * 18;
+  push();
+  fill(100, 180, 100);
+  ellipse(0, 0, tam, tam);
+  fill(80, 130, 80);
+  ellipse(-tam/6, -tam/6, 4, 4);
+  ellipse( tam/6, -tam/6, 4, 4);
+  ellipse(0,      tam/6, 4, 4);
+  pop();
+}
+
+// ==================== FEEDBACK ====================
+function feedback(msg, tempo) {
+  feedbackMsg = msg;
+  tempoFeedback = tempo;
+}
+
+function atualizarFeedback() {
+  if (tempoFeedback > 0) {
+    tempoFeedback--;
+    fill(0, 0, 0, 200);
+    rect(width/2-200, height-60, 400, 35, 8);
+    fill(0, 255, 136);
+    textAlign(CENTER);
+    textSize(14);
+    text(feedbackMsg, width/2, height-38);
+  }
+}
+
+// ==================== EVENTOS ====================
+function keyPressed() {
+  // Fechar loja
+  if (telaLojaAberta) {
+    if (key === 'e' || key === 'E' || key === 'Escape') {
+      telaLojaAberta = false;
+    }
+    return;
+  }
+  
+  // Loja (L)
+  if (key === 'l' || key === 'L') {
+    telaLojaAberta = true;
+    return;
+  }
+  
+  // Voltar (V)
+  if (key === 'v' || key === 'V') {
+    if (modo !== "CHALE") {
+      modo = "CHALE";
+      document.getElementById('hint-text').textContent = '🎮 WASD = Mover · E = Interagir · Clique = Plantar/Colher';
+    }
+    return;
+  }
+  
+  // Interagir (E) - no chalé
+  if (modo === "CHALE" && (key === 'e' || key === 'E')) {
+    let rectJogador = { x: jogadorX-15, y: jogadorY-15, w: 30, h: 30 };
+    for (let obj of objetosChale) {
+      if (colide(rectJogador, obj)) {
+        if (obj.tipo === "porta") {
+          if (obj.destino === "PVZ" && !jardimLiberado) {
+            feedback("Compre uma planta mutante na Loja (L)!", 60);
+            return;
+          }
+          modo = obj.destino;
+          if (modo === "PVZ") { resetarJardim(); }
+          document.getElementById('hint-text').textContent = '🌱 Clique para plantar · 1-5 selecionar · V = Voltar';
+        } else if (obj.tipo === "pc") {
+          telaLojaAberta = true;
         }
+        break;
+      }
+    }
+    return;
+  }
+  
+  // Seleção de cultura (Z/X) - fazenda
+  if (modo === "FAZENDA") {
+    let culturas = Object.keys(culturasInfo);
+    if (key === 'z' || key === 'Z') {
+      let idx = culturas.indexOf(culturaSelecionada);
+      idx = (idx + 1) % culturas.length;
+      culturaSelecionada = culturas[idx];
+    }
+    if (key === 'x' || key === 'X') {
+      let idx = culturas.indexOf(culturaSelecionada);
+      idx = (idx - 1 + culturas.length) % culturas.length;
+      culturaSelecionada = culturas[idx];
+    }
+  }
+  
+  // Seleção de planta (1-5) - jardim
+  if (modo === "PVZ") {
+    let plantasDisp = Object.keys(plantasDefesa).filter(id => plantasDefesa[id].comprada);
+    for (let i = 0; i < plantasDisp.length && i < 5; i++) {
+      if (key === String(i+1)) {
+        plantaSelecionada = plantasDisp[i];
+        feedback("✅ " + plantasDefesa[plantaSelecionada].nome + " selecionada", 30);
+      }
+    }
+  }
+}
 
-        function renderHeader() {
-            DOM.header.player.textContent = '👤 ' + Game.playerName;
-            DOM.header.level.textContent = '⭐ Nv.' + Game.level;
-            DOM.header.credits.textContent = '💰 ' + Game.credits;
-
-            const isDay = Game.cycle === 'day';
-            DOM.header.cycle.textContent = isDay ? '☀️ DIA' : '🌙 NOITE';
-            DOM.header.cycle.className = 'badge ' + (isDay ? 'badge-day' : 'badge-night');
+function mousePressed() {
+  // Loja
+  if (telaLojaAberta) {
+    // Fechar
+    if (mouseX > width-70 && mouseX < width-20 && mouseY > 20 && mouseY < 50) {
+      telaLojaAberta = false;
+      return;
+    }
+    
+    // Comprar sementes
+    let y = 130;
+    for (let [id, s] of Object.entries(sementesDisponiveis)) {
+      if (!s.comprada) { y += 35; continue; }
+      let botaoX = width-160;
+      if (mouseX > botaoX && mouseX < botaoX+100 && mouseY > y-12 && mouseY < y+16) {
+        if (moedas >= s.preco && s.estoque < 20) {
+          moedas -= s.preco;
+          s.estoque++;
+          feedback("✅ Comprou " + s.nome, 30);
+        } else if (s.estoque >= 20) {
+          feedback("❌ Estoque cheio!", 30);
+        } else {
+          feedback("❌ Sem créditos!", 30);
         }
-
-        function renderBunker() {
-            const r = Game.resources;
-            const stats = DOM.bunker.stats;
-            const bars = DOM.bunker.bars;
-
-            // Valores
-            stats.oxygen.textContent = Math.floor(r.oxygen);
-            stats.contamination.textContent = Math.floor(r.contamination) + '%';
-            stats.energy.textContent = Math.floor(r.energy);
-            stats.hunger.textContent = Math.floor(r.hunger) + '%';
-            stats.stamina.textContent = Math.floor(Game.stamina);
-            stats.exp.textContent = Math.floor(Game.exp) + '/' + Game.expToNext;
-
-            // Barras
-            bars.oxygen.style.width = Math.max(0, r.oxygen) + '%';
-            bars.contamination.style.width = Math.min(100, r.contamination) + '%';
-            bars.energy.style.width = Math.max(0, r.energy) + '%';
-            bars.hunger.style.width = Math.max(0, r.hunger) + '%';
-            bars.stamina.style.width = (Game.stamina / Game.maxStamina * 100) + '%';
-            bars.exp.style.width = (Game.exp / Game.expToNext * 100) + '%';
-
-            // Classes de perigo
-            const statElements = DOM.bunker.stats;
-            Object.keys(statElements).forEach(key => {
-                const el = statElements[key].parentElement;
-                let val;
-                switch (key) {
-                    case 'oxygen':
-                        val = r.oxygen;
-                        el.className = 'bunker-stat ' + (val > 30 ? 'safe' : 'danger');
-                        break;
-                    case 'contamination':
-                        val = r.contamination;
-                        el.className = 'bunker-stat ' + (val < 50 ? 'safe' : val < 75 ? 'warning' : 'danger');
-                        break;
-                    case 'energy':
-                        val = r.energy;
-                        el.className = 'bunker-stat ' + (val > 20 ? 'safe' : 'danger');
-                        break;
-                    case 'hunger':
-                        val = r.hunger;
-                        el.className = 'bunker-stat ' + (val > 30 ? 'safe' : 'danger');
-                        break;
-                    case 'stamina':
-                        val = Game.stamina;
-                        el.className = 'bunker-stat ' + (val > 30 ? 'safe' : 'danger');
-                        break;
-                    case 'exp':
-                        el.className = 'bunker-stat safe';
-                        break;
-                }
-            });
-
-            // Botões
-            DOM.bunker.btnSurface.disabled = Game.gameOver || Game.eventLock || Game.cycle === 'night';
-            DOM.bunker.btnDormitory.disabled = Game.cycle === 'day' || Game.gameOver || Game.eventLock;
-            DOM.bunker.btnMachine.disabled = Game.gameOver || Game.eventLock;
-            DOM.bunker.btnTrade.disabled = Game.gameOver || Game.eventLock;
-
-            // Verifica morte
-            checkDeath();
+        return;
+      }
+      y += 35;
+    }
+    
+    // Comprar plantas defensivas
+    y += 30;
+    for (let [id, p] of Object.entries(plantasDefesa)) {
+      if (p.comprada) { y += 35; continue; }
+      let botaoX = width-160;
+      if (mouseX > botaoX && mouseX < botaoX+100 && mouseY > y-12 && mouseY < y+16) {
+        if (moedas >= p.preco) {
+          moedas -= p.preco;
+          p.comprada = true;
+          jardimLiberado = true;
+          feedback("✅ " + p.nome + " desbloqueada! Acesse o LAB!", 60);
+        } else {
+          feedback("❌ Sem créditos!", 30);
         }
-
-        function renderSurface() {
-            const s = Game.surface;
-            const r = Game.resources;
-
-            DOM.surface.location.textContent = s.currentLocation || 'Nova Prospekt';
-            DOM.surface.danger.textContent = `🛡️ PERIGO: ${s.danger}%`;
-            DOM.surface.danger.className = 'danger-level ' + (s.danger < 40 ? 'safe' : 'danger');
-
-            DOM.surface.turn.textContent = `${s.turn}/${s.maxTurns}`;
-            DOM.surface.oxygen.textContent = Math.floor(r.oxygen);
-            DOM.surface.contamination.textContent = Math.floor(r.contamination) + '%';
-            DOM.surface.energy.textContent = Math.floor(r.energy);
-
-            renderNarrative();
-        }
-
-        function renderNarrative() {
-            const container = DOM.surface.narrative;
-            const s = Game.surface;
-
-            if (Game.combat.active) {
-                container.innerHTML = `
-                    <div class="narrative-text" style="border-color:var(--secondary);">
-                        ⚔️ <span class="danger">EM COMBATE!</span>
-                        <br>Volte para a tela de combate.
-                    </div>
-                `;
-                return;
-            }
-
-            if (!s.currentScenario || !SCENARIOS[s.currentScenario]) {
-                container.innerHTML = `
-                    <div class="narrative-text" style="border-color:var(--text-secondary);color:var(--text-secondary);text-align:center;padding:30px;">
-                        🌫️ A superfície está em silêncio...
-                        <br><span style="font-size:12px;color:var(--text-secondary);">Use as opções abaixo para explorar</span>
-                    </div>
-                `;
-                return;
-            }
-
-            const scenario = SCENARIOS[s.currentScenario];
-            let html = '';
-
-            const isExplored = s.visitedLocations[s.currentScenario] || false;
-            const isResource = LOCATION_RESOURCES[s.currentScenario] !== undefined;
-            const wasCollected = s.collectedResources[s.currentScenario] || false;
-
-            let text = scenario.text;
-            if (isExplored && isResource) {
-                text += `<br><span class="explored">🔒 Este local já foi explorado. Recursos já coletados.</span>`;
-            }
-
-            html += `<div class="narrative-text">${text}</div>`;
-
-            let options = scenario.options || [];
-
-            if (isResource && wasCollected) {
-                options = options.filter(opt => {
-                    const target = SCENARIOS[opt.id];
-                    if (!target) return true;
-                    return !LOCATION_RESOURCES[opt.id] || opt.id === 'voltar_para_onde_veio';
-                });
-                if (options.length === 0) {
-                    options = [
-                        { id: 'voltar_para_onde_veio', icon: '🔙', label: 'Sair daqui', class: '' }
-                    ];
-                }
-            }
-
-            if (options.length === 0) {
-                const loopFix = LOOP_PREVENTION[s.currentScenario];
-                if (loopFix && loopFix.force) {
-                    setTimeout(() => {
-                        goToScenario(loopFix.next);
-                    }, 300);
-                    html += `<div class="narrative-text" style="border-color:var(--accent);color:var(--accent);">
-                        ⏳ Avançando automaticamente...
-                    </div>`;
-                    container.innerHTML = html;
-                    return;
-                }
-                options = [
-                    { id: 'start', icon: '🚪', label: 'Voltar para o início', class: '' }
-                ];
-            }
-
-            html += `<div class="narrative-options">`;
-            options.forEach(opt => {
-                const cls = opt.class || '';
-                const isExploredOpt = s.visitedLocations[opt.id] && LOCATION_RESOURCES[opt.id];
-                const finalCls = isExploredOpt ? 'explored' : cls;
-                html += `
-                    <button class="${finalCls}" data-optid="${opt.id}" ${isExploredOpt ? 'disabled' : ''}>
-                        <span class="opt-icon">${opt.icon || '➡️'}</span>
-                        ${opt.label}
-                        ${isExploredOpt ? ' ✅' : ''}
-                    </button>
-                `;
-            });
-            html += `</div>`;
-
-            container.innerHTML = html;
-
-            container.querySelectorAll('.narrative-options button:not([disabled])').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const optId = this.dataset.optid;
-                    handleChoice(optId);
-                });
-            });
-
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function renderMachine() {
-            const m = Game.machine;
-            DOM.machine.battery.textContent = `🔋 ${Math.floor(m.battery)}%`;
-            DOM.machine.status.textContent = m.active ? '🟢 OPERACIONAL' : '🔴 DESATIVADA';
-            DOM.machine.status.className = 'machine-status ' + (m.active ? 'online' : 'offline');
-            DOM.machine.production.textContent = m.production;
-            DOM.machine.level.textContent = `Nível ${m.level}`;
-            DOM.machine.btnUpgrade.textContent = `⬆ UPGRADE (${50 + m.level * 20} Créditos)`;
-            if (DOM.machine.btnRecharge) {
-                DOM.machine.btnRecharge.disabled = m.battery >= 100;
-            }
-        }
-
-        function renderTrade() {
-            const container = DOM.trade.items;
-            DOM.trade.credits.textContent = Game.credits;
-
-            let html = '';
-            MERCHANT_INVENTORY.forEach(item => {
-                const itemData = ITEMS[item.id];
-                if (!itemData) return;
-                const canBuy = Game.credits >= item.price && item.stock > 0;
-                html += `
-                    <div class="trade-item">
-                        <div class="info">
-                            <span class="name">${itemData.name}</span>
-                            <span class="desc">${itemData.desc}</span>
-                        </div>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <span class="price">💰 ${item.price}</span>
-                            <button data-id="${item.id}" ${!canBuy ? 'disabled' : ''}>
-                                COMPRAR
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-
-            container.querySelectorAll('button').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.dataset.id;
-                    buyItem(id);
-                });
-            });
-        }
-
-        function renderCombat() {
-            const c = Game.combat;
-            const enemy = c.enemy;
-
-            if (!enemy) return;
-
-            DOM.combat.enemyName.textContent = `${enemy.emoji} ${enemy.name}`;
-            DOM.combat.enemyName2.textContent = enemy.name;
-
-            DOM.combat.enemyHP.textContent = Math.floor(c.enemyHP);
-            DOM.combat.enemyMaxHP.textContent = c.maxEnemyHP;
-            DOM.combat.enemyHP2.textContent = Math.floor(c.enemyHP);
-            DOM.combat.enemyMaxHP2.textContent = c.maxEnemyHP;
-
-            const enemyPct = (c.enemyHP / c.maxEnemyHP) * 100;
-            DOM.combat.enemyHPFill.style.width = Math.max(0, enemyPct) + '%';
-
-            DOM.combat.playerName.textContent = Game.playerName;
-            DOM.combat.playerHP.textContent = Math.floor(c.playerHP);
-            const playerPct = (c.playerHP / c.maxPlayerHP) * 100;
-            DOM.combat.playerHPFill.style.width = Math.max(0, playerPct) + '%';
-
-            DOM.combat.log.innerHTML = c.log.map(entry =>
-                `<div class="combat-log-entry">${entry}</div>`
-            ).join('');
-            DOM.combat.log.scrollTop = DOM.combat.log.scrollHeight;
-
-            updateCombatButtons(!c.inProgress && c.isPlayerTurn && !Game.gameOver);
-        }
-
-        function updateCombatButtons(enabled) {
-            DOM.combat.btnAttack.disabled = !enabled || Game.gameOver;
-            DOM.combat.btnDefense.disabled = !enabled || Game.gameOver;
-            DOM.combat.btnFlee.disabled = !enabled || Game.gameOver;
-            DOM.combat.btnSkill.disabled = !enabled || Game.gameOver || Game.stamina < 20;
-        }
-
-        function addCombatLog(msg) {
-            Game.combat.log.push(msg);
-            renderCombat();
-        }
-
-        // ============================================================
-        // COMBATE
-        // ============================================================
-
-        function startCombat(enemyType) {
-            const enemy = ENEMIES.find(e => e.name === enemyType) || ENEMIES[0];
-
-            Game.combat.active = true;
-            Game.combat.enemy = enemy;
-            Game.combat.playerHP = 100;
-            Game.combat.maxPlayerHP = 100;
-            Game.combat.enemyHP = enemy.hp;
-            Game.combat.maxEnemyHP = enemy.hp;
-            Game.combat.turn = 0;
-            Game.combat.isPlayerTurn = true;
-            Game.combat.log = [];
-            Game.combat.inProgress = false;
-            Game.combat.defenseBonus = false;
-
-            showScreen('combat');
-            renderCombat();
-
-            addCombatLog(`⚔️ COMBATE INICIADO contra ${enemy.emoji} ${enemy.name}!`);
-            addCombatLog(`💪 ${enemy.name} tem ${enemy.hp} HP e causa ${enemy.damage} de dano.`);
-            addCombatLog('🎯 Escolha sua ação:');
-        }
-
-        function combatAttack() {
-            if (Game.combat.inProgress || !Game.combat.isPlayerTurn) return;
-            Game.combat.inProgress = true;
-            updateCombatButtons(false);
-
-            const c = Game.combat;
-            const enemy = c.enemy;
-
-            // Chance de crítico baseada em agilidade
-            const critChance = 10 + Game.stats.agility * 2;
-            const isCrit = chance(critChance);
-
-            // Dano base com força
-            let damage = random(10, 20) + Math.floor(Game.stats.strength * 2);
-
-            // Bônus de arma
-            if (Game.equipped.weapon && ITEMS[Game.equipped.weapon]) {
-                damage += ITEMS[Game.equipped.weapon].damage || 0;
-            }
-
-            if (isCrit) {
-                damage = Math.floor(damage * 1.5);
-                addCombatLog(`💥 <span class="critical">CRÍTICO!</span> +${damage} de dano!`);
-            }
-
-            if (chance(30 + Game.stats.agility * 2)) {
-                addCombatLog(`🌀 ${enemy.name} esquivou do seu ataque!`);
+        return;
+      }
+      y += 35;
+    }
+    return;
+  }
+  
+  // Fazenda - plantar/colher
+  if (modo === "FAZENDA") {
+    for (let i = 0; i < linhasFaz; i++) {
+      for (let j = 0; j < colunasFaz; j++) {
+        let x = j * celulaW;
+        let y = offsetYFazenda + i * celulaH;
+        if (mouseX > x && mouseX < x+celulaW && mouseY > y && mouseY < y+celulaH) {
+          if (fazendaGrid[i][j]) {
+            // Colher
+            let p = fazendaGrid[i][j];
+            if (p.crescimento >= culturasInfo[p.tipo].tempo) {
+              let valor = culturasInfo[p.tipo].venda;
+              moedas += valor;
+              fazendaGrid[i][j] = null;
+              feedback("💰 +" + valor + " moedas", 30);
             } else {
-                c.enemyHP = Math.max(0, c.enemyHP - damage);
-                addCombatLog(`⚔️ Você causou <span class="damage">${damage}</span> de dano em ${enemy.name}!`);
-                renderCombat();
-
-                if (c.enemyHP <= 0) {
-                    endCombat(true);
-                    return;
-                }
+              feedback("⏳ Ainda não cresceu!", 30);
             }
-
-            setTimeout(() => {
-                enemyTurn();
-            }, 500);
-        }
-
-        function combatDefense() {
-            if (Game.combat.inProgress || !Game.combat.isPlayerTurn) return;
-            Game.combat.inProgress = true;
-            updateCombatButtons(false);
-
-            Game.combat.defenseBonus = true;
-            addCombatLog(`🛡️ Você entrou em posição defensiva! +50% de esquiva`);
-
-            setTimeout(() => {
-                enemyTurn();
-            }, 500);
-        }
-
-        function combatSkill() {
-            if (Game.combat.inProgress || !Game.combat.isPlayerTurn) return;
-            if (Game.stamina < 20) {
-                notify('Stamina insuficiente!', 'error');
-                return;
-            }
-
-            Game.combat.inProgress = true;
-            updateCombatButtons(false);
-            Game.stamina = Math.max(0, Game.stamina - 20);
-
-            const c = Game.combat;
-            const enemy = c.enemy;
-
-            // Ataque especial: dano garantido +30%
-            let damage = random(20, 35) + Math.floor(Game.stats.strength * 3);
-
-            if (Game.equipped.weapon && ITEMS[Game.equipped.weapon]) {
-                damage += ITEMS[Game.equipped.weapon].damage || 0;
-            }
-
-            damage = Math.floor(damage * 1.3);
-            c.enemyHP = Math.max(0, c.enemyHP - damage);
-            addCombatLog(`💥 <span class="critical">HABILIDADE ESPECIAL!</span> ${damage} de dano!`);
-            renderCombat();
-
-            if (c.enemyHP <= 0) {
-                endCombat(true);
-                return;
-            }
-
-            setTimeout(() => {
-                enemyTurn();
-            }, 500);
-        }
-
-        function combatFlee() {
-            if (Game.combat.inProgress || !Game.combat.isPlayerTurn) return;
-            Game.combat.inProgress = true;
-            updateCombatButtons(false);
-
-            const c = Game.combat;
-            const enemy = c.enemy;
-
-            const fleeChance = 30 + Game.stats.agility * 3;
-            if (chance(fleeChance)) {
-                addCombatLog(`🏃 <span class="dodge">Você conseguiu fugir!</span>`);
-                setTimeout(() => {
-                    endCombat(false, true);
-                }, 500);
+          } else {
+            // Plantar
+            let s = sementesDisponiveis[culturaSelecionada];
+            if (s && s.comprada && s.estoque > 0) {
+              fazendaGrid[i][j] = { tipo: culturaSelecionada, crescimento: 0 };
+              s.estoque--;
+              feedback("🌱 Plantou " + culturasInfo[culturaSelecionada].nome, 30);
             } else {
-                addCombatLog(`💥 Falha ao fugir! ${enemy.name} te atacou!`);
-                const damage = random(10, 20) + Math.floor(enemy.damage * 0.8);
-                c.playerHP = Math.max(0, c.playerHP - damage);
-                renderCombat();
-
-                if (c.playerHP <= 0) {
-                    endCombat(false);
-                    return;
-                }
-
-                c.isPlayerTurn = true;
-                c.inProgress = false;
-                Game.combat.defenseBonus = false;
-                updateCombatButtons(true);
-                addCombatLog('🎯 Sua vez:');
-                renderCombat();
+              feedback("❌ Sem sementes!", 30);
             }
+          }
+          return;
         }
-
-        function enemyTurn() {
-            const c = Game.combat;
-            const enemy = c.enemy;
-
-            let damage = random(8, 18) + Math.floor(enemy.damage * 0.7);
-
-            // Defesa reduz dano
-            if (c.defenseBonus) {
-                const dodgeChance = 50 + Game.stats.agility * 2;
-                if (chance(dodgeChance)) {
-                    addCombatLog(`🌀 Você esquivou do ataque de ${enemy.name}!`);
-                    c.defenseBonus = false;
-                    c.isPlayerTurn = true;
-                    c.inProgress = false;
-                    updateCombatButtons(true);
-                    addCombatLog('🎯 Sua vez:');
-                    renderCombat();
-                    return;
-                }
-                damage = Math.floor(damage * 0.6);
-                c.defenseBonus = false;
-            }
-
-            // Esquiva normal baseada em agilidade
-            if (chance(15 + Game.stats.agility * 2)) {
-                addCombatLog(`🌀 Você esquivou do ataque de ${enemy.name}!`);
-                c.isPlayerTurn = true;
-                c.inProgress = false;
-                updateCombatButtons(true);
-                addCombatLog('🎯 Sua vez:');
-                renderCombat();
-                return;
-            }
-
-            c.playerHP = Math.max(0, c.playerHP - damage);
-            addCombatLog(`💥 ${enemy.name} causou <span class="damage">${damage}</span> de dano!`);
-            renderCombat();
-
-            if (c.playerHP <= 0) {
-                endCombat(false);
-                return;
-            }
-
-            c.isPlayerTurn = true;
-            c.inProgress = false;
-            updateCombatButtons(true);
-            addCombatLog('🎯 Sua vez:');
-            renderCombat();
+      }
+    }
+  }
+  
+  // Jardim - plantar
+  if (modo === "PVZ" && estadoJardim === "preparacao") {
+    let col = floor(mouseX / celPvZW);
+    let linha = floor((mouseY - offsetJardimY) / celPvZH);
+    if (col >= 0 && col < colunasPlantaveis && linha >= 0 && linha < linhasPvZ) {
+      if (plantaSelecionada && plantasDefesa[plantaSelecionada] && plantasDefesa[plantaSelecionada].comprada) {
+        let ocupado = plantasPvZ.some(p => p.linha === linha && p.col === col);
+        if (!ocupado && sol >= plantasDefesa[plantaSelecionada].custoSol) {
+          let p = plantasDefesa[plantaSelecionada];
+          let vida = 50;
+          if (plantaSelecionada === "nozes") vida = 200;
+          if (plantaSelecionada === "batataquente") vida = 60;
+          plantasPvZ.push({
+            tipo: plantaSelecionada,
+            linha: linha,
+            col: col,
+            vida: vida,
+            vidaMax: vida,
+            timer: 0,
+            nivel: 0
+          });
+          sol -= p.custoSol;
+          feedback("✅ " + p.nome + " plantada!", 30);
+        } else if (ocupado) {
+          feedback("❌ Local ocupado!", 30);
+        } else {
+          feedback("☀️ Sol insuficiente!", 30);
         }
-
-        function endCombat(victory, fled = false) {
-            const c = Game.combat;
-            c.active = false;
-            c.inProgress = false;
-            updateCombatButtons(false);
-
-            if (fled) {
-                showModal('🏃 Fuga Bem-Sucedida',
-                    'Você escapou do combate!',
-                    () => {
-                        Game.surface.inCombat = false;
-                        showScreen('surface');
-                        renderAll();
-                        goToScenario('start');
-                    });
-                return;
-            }
-
-            if (victory) {
-                const enemy = c.enemy;
-                const expGain = enemy.exp || 15;
-                const creditsGain = random(5, 15) + Math.floor(Game.stats.intelligence * 1.5);
-
-                // Ganha experiência
-                addExp(expGain);
-                Game.credits += creditsGain;
-
-                Game.stats.totalWins = (Game.stats.totalWins || 0) + 1;
-                if (Game.stats.totalWins >= 10) checkAchievement('fighter');
-                if (Game.stats.totalWins >= 25) checkAchievement('veteran');
-
-                // Drop de itens
-                let drops = [];
-                if (enemy.drops) {
-                    enemy.drops.forEach(drop => {
-                        if (chance(drop.chance * 100)) {
-                            drops.push(drop.id);
-                        }
-                    });
-                }
-
-                let dropText = '';
-                if (drops.length > 0) {
-                    dropText = '\n📦 Drop: ' + drops.map(id => ITEMS[id] ? ITEMS[id].name : id).join(', ');
-                    drops.forEach(id => {
-                        if (ITEMS[id]) {
-                            addItem(id);
-                        }
-                    });
-                }
-
-                showModal('⚔️ VITÓRIA!',
-                    `Você derrotou ${enemy.emoji} ${enemy.name}!\n\n⭐ +${expGain} EXP\n💰 +${creditsGain} Créditos${dropText}`,
-                    () => {
-                        Game.surface.inCombat = false;
-                        showScreen('surface');
-                        renderAll();
-                        goToScenario('start');
-                    });
-            } else {
-                Game.resources.oxygen = Math.max(0, Game.resources.oxygen - 20);
-                Game.resources.contamination = Math.min(100, Game.resources.contamination + 15);
-                Game.resources.energy = Math.max(0, Game.resources.energy - 10);
-
-                showModal('💀 DERROTA!',
-                    `${c.enemy.emoji} ${c.enemy.name} te derrotou!\n\n🫧 -20 Oxigênio\n☣️ +15% Contaminação\n⚡ -10 Energia`,
-                    () => {
-                        checkDeath();
-                        Game.surface.inCombat = false;
-                        showScreen('bunker');
-                        renderAll();
-                    });
-            }
-        }
-
-        // ============================================================
-        // SISTEMA DE EXPERIÊNCIA E NÍVEL
-        // ============================================================
-
-        function addExp(amount) {
-            Game.exp += amount;
-            while (Game.exp >= Game.expToNext) {
-                Game.exp -= Game.expToNext;
-                Game.level++;
-                Game.expToNext = Math.floor(Game.expToNext * 1.3) + 50;
-
-                // Aumenta atributos
-                Game.stats.strength += 1;
-                Game.stats.agility += 1;
-                Game.stats.intelligence += 1;
-                Game.stats.vitality += 1;
-                Game.maxStamina += 5;
-                Game.stamina = Game.maxStamina;
-
-                showModal('⭐ LEVEL UP!',
-                    `Parabéns! Você alcançou o Nível ${Game.level}!\n\n💪 Força +1\n🏃 Agilidade +1\n🧠 Inteligência +1\n❤️ Vitalidade +1\n⚡ Stamina +5`);
-
-                if (Game.level >= 10) checkAchievement('legend');
-                notify(`🎉 Nível ${Game.level} alcançado!`, 'success');
-                renderAll();
-            }
-            renderAll();
-        }
-
-        // ============================================================
-        // SISTEMA DE ITENS
-        // ============================================================
-
-        function addItem(itemId) {
-            const item = ITEMS[itemId];
-            if (!item) return false;
-
-            switch (item.type) {
-                case 'weapon':
-                    Game.inventory.weapons.push(itemId);
-                    break;
-                case 'armor':
-                    Game.inventory.armor.push(itemId);
-                    break;
-                case 'accessory':
-                    Game.inventory.accessories.push(itemId);
-                    break;
-                case 'consumable':
-                    Game.inventory.consumables.push(itemId);
-                    break;
-                case 'material':
-                    Game.inventory.materials.push(itemId);
-                    break;
-                case 'key_item':
-                    Game.inventory.key_items.push(itemId);
-                    break;
-                default:
-                    return false;
-            }
-
-            const uniqueCount = new Set([
-                ...Game.inventory.weapons, ...Game.inventory.armor, ...Game.inventory.accessories,
-                ...Game.inventory.consumables, ...Game.inventory.materials, ...Game.inventory.key_items
-            ]).size;
-            if (uniqueCount >= 10) checkAchievement('collector');
-            return true;
-        }
-
-        function useItem(itemId) {
-            const item = ITEMS[itemId];
-            if (!item || item.type !== 'consumable') return false;
-
-            const idx = Game.inventory.consumables.indexOf(itemId);
-            if (idx === -1) return false;
-
-            Game.inventory.consumables.splice(idx, 1);
-
-            switch (item.effect) {
-                case 'heal':
-                    Game.combat.playerHP = Math.min(Game.combat.maxPlayerHP, Game.combat.playerHP + item.value);
-                    notify(`💚 +${item.value} HP`, 'success');
-                    break;
-                case 'hunger':
-                    Game.resources.hunger = Math.min(100, Game.resources.hunger + item.value);
-                    notify(`🍖 +${item.value} Fome`, 'success');
-                    break;
-                case 'energy':
-                    Game.resources.energy = Math.min(100, Game.resources.energy + item.value);
-                    notify(`⚡ +${item.value} Energia`, 'success');
-                    break;
-                case 'stamina':
-                    Game.stamina = Math.min(Game.maxStamina, Game.stamina + item.value);
-                    notify(`⚡ +${item.value} Stamina`, 'success');
-                    break;
-                case 'contamination':
-                    Game.resources.contamination = Math.max(0, Game.resources.contamination + item.value);
-                    notify(`☣️ -${Math.abs(item.value)}% Contaminação`, 'success');
-                    break;
-                default:
-                    return false;
-            }
-
-            renderAll();
-            return true;
-        }
-
-        // ============================================================
-        // COMÉRCIO
-        // ============================================================
-
-        function buyItem(itemId) {
-            const merchantItem = MERCHANT_INVENTORY.find(i => i.id === itemId);
-            if (!merchantItem) return;
-
-            const item = ITEMS[itemId];
-            if (!item) return;
-
-            if (Game.credits < merchantItem.price) {
-                notify('Créditos insuficientes!', 'error');
-                return;
-            }
-
-            if (merchantItem.stock <= 0) {
-                notify('Item esgotado!', 'warning');
-                return;
-            }
-
-            Game.credits -= merchantItem.price;
-            merchantItem.stock--;
-
-            if (addItem(itemId)) {
-                notify(`🛒 Comprou ${item.name}!`, 'success');
-                if (Game.credits >= 500) checkAchievement('merchant');
-                renderAll();
-            }
-        }
-
-        // ============================================================
-        // CONQUISTAS
-        // ============================================================
-
-        function checkAchievement(id) {
-            const ach = ACHIEVEMENTS.find(a => a.id === id);
-            if (!ach || ach.unlocked) return;
-
-            ach.unlocked = true;
-            Game.achievements.push(id);
-            notify(`🏆 CONQUISTA DESBLOQUEADA: ${ach.name}!`, 'success');
-            showModal('🏆 CONQUISTA!', `${ach.name}\n\n${ach.desc}`);
-        }
-
-        // ============================================================
-        // NAVEGAÇÃO NA SUPERFÍCIE
-        // ============================================================
-
-        function handleChoice(optionId) {
-            if (Game.eventLock) return;
-
-            if (optionId.startsWith('combate_')) {
-                const enemyMap = {
-                    'combate_rastejador': 'Rastejador',
-                    'combate_triturador': 'Triturador',
-                    'combate_sibila': 'Sibila',
-                    'combate_colosso': 'Colosso',
-                    'combate_espectro': 'Espectro',
-                    'combate_devorador': 'Devorador',
-                    'combate_enxame': 'Enxame Tóxico',
-                    'combate_sentinela': 'Sentinela Corrompida',
-                };
-                const enemyType = enemyMap[optionId] || 'Rastejador';
-                Game.surface.inCombat = true;
-                startCombat(enemyType);
-                return;
-            }
-
-            if (optionId === 'fuga') {
-                return;
-            }
-
-            if (optionId === 'voltar_para_onde_veio') {
-                const prevScenario = Game.surface.scenarioHistory.pop() || 'start';
-                goToScenario(prevScenario);
-                return;
-            }
-
-            if (LOCATION_RESOURCES[optionId] && Game.surface.visitedLocations[optionId]) {
-                showModal('🔒 Já Explorado',
-                    'Você já coletou os recursos deste local. Escolha outro caminho.');
-                return;
-            }
-
-            // Consome turno
-            Game.surface.turn += 1;
-
-            // Consome recursos (com base no perigo)
-            const dangerMod = Game.surface.danger / 100;
-            Game.resources.oxygen = Math.max(0, Game.resources.oxygen - (1 + Math.floor(dangerMod * 2)));
-            Game.resources.hunger = Math.max(0, Game.resources.hunger - (1 + Math.floor(dangerMod * 1.5)));
-            Game.resources.contamination = Math.min(100, Game.resources.contamination + (0.5 + dangerMod * 1.5));
-
-            // Consome stamina
-            Game.stamina = Math.max(0, Game.stamina - 2);
-
-            // Verifica fim dos turnos
-            if (Game.surface.turn > Game.surface.maxTurns) {
-                showModal('⏳ Fim da Expedição',
-                    'Seus turnos na superfície acabaram (25/25). Você precisa voltar ao bunker.',
-                    () => {
-                        showScreen('bunker');
-                        renderAll();
-                    });
-                return;
-            }
-
-            if (checkDeath()) return;
-
-            // Marca local atual como visitado
-            if (Game.surface.currentScenario && LOCATION_RESOURCES[Game.surface.currentScenario]) {
-                Game.surface.visitedLocations[Game.surface.currentScenario] = true;
-                Game.surface.collectedResources[Game.surface.currentScenario] = true;
-                Game.totalDiscoveries++;
-
-                if (Game.totalDiscoveries >= 20) {
-                    checkAchievement('explorer');
-                }
-                if (Game.totalDiscoveries >= 40) {
-                    checkAchievement('cartographer');
-                }
-            }
-
-            if (Game.surface.currentScenario) {
-                Game.surface.scenarioHistory.push(Game.surface.currentScenario);
-            }
-
-            if (SCENARIOS[optionId]) {
-                goToScenario(optionId);
-            } else {
-                showModal('⚠️ Caminho Bloqueado',
-                    'Este caminho não está disponível no momento.',
-                    () => {
-                        goToScenario('start');
-                    });
-            }
-
-            renderAll();
-        }
-
-        function goToScenario(scenarioId) {
-            const scenario = SCENARIOS[scenarioId];
-            if (!scenario) {
-                Game.surface.currentScenario = 'start';
-                Game.surface.currentLocation = 'Nova Prospekt';
-                renderAll();
-                return;
-            }
-
-            Game.surface.currentScenario = scenarioId;
-            Game.surface.currentLocation = scenario.location || 'Nova Prospekt';
-            Game.surface.danger = scenario.danger || 30;
-
-            // Coleta de recursos
-            if (LOCATION_RESOURCES[scenarioId] && !Game.surface.collectedResources[scenarioId]) {
-                const rewards = LOCATION_RESOURCES[scenarioId];
-                let msg = '📦 Você encontrou: ';
-                const parts = [];
-                let contaminationChange = 0;
-
-                Object.keys(rewards).forEach(key => {
-                    const value = rewards[key];
-                    if (key === 'contamination') {
-                        contaminationChange = value;
-                        return;
-                    }
-                    if (Game.resources[key] !== undefined) {
-                        Game.resources[key] = clamp(Game.resources[key] + value, 0, 100);
-                        parts.push(`${value} ${key}`);
-                    }
-                });
-
-                if (contaminationChange < 0) {
-                    Game.resources.contamination = Math.max(0, Game.resources.contamination + contaminationChange);
-                    parts.push(`${Math.abs(contaminationChange)}% contaminação removida`);
-                }
-
-                msg += parts.join(', ');
-                showModal('📦 Recursos Coletados', msg);
-
-                Game.surface.collectedResources[scenarioId] = true;
-                Game.surface.visitedLocations[scenarioId] = true;
-                Game.totalDiscoveries++;
-
-                if (Game.totalDiscoveries >= 20) {
-                    checkAchievement('explorer');
-                }
-                if (Game.totalDiscoveries >= 40) {
-                    checkAchievement('cartographer');
-                }
-            }
-
-            // Prevenção de loop
-            const loopFix = LOOP_PREVENTION[scenarioId];
-            if (loopFix && loopFix.force && !Game.surface.visitedLocations[scenarioId]) {
-                setTimeout(() => {
-                    Game.surface.visitedLocations[scenarioId] = true;
-                    goToScenario(loopFix.next);
-                }, 300);
-                return;
-            }
-
-            renderAll();
-        }
-
-        // ============================================================
-        // AÇÕES DO BUNKER
-        // ============================================================
-
-        function goToSurface() {
-            if (Game.cycle === 'night') {
-                showModal('🌙 Noite Perigosa',
-                    'A noite é muito perigosa! Espere o dia amanhecer.');
-                return;
-            }
-
-            if (Game.resources.oxygen < 20) {
-                showModal('⚠️ Oxigênio Baixo',
-                    'Seu oxigênio está muito baixo para uma expedição.');
-                return;
-            }
-
-            if (Game.stamina < 10) {
-                showModal('⚠️ Stamina Baixa',
-                    'Você está muito cansado. Descanse antes de sair.');
-                return;
-            }
-
-            // Resetar superfície
-            Game.surface.turn = 0;
-            Game.surface.maxTurns = 25;
-            Game.surface.danger = Game.cycle === 'day' ? random(20, 40) : random(50, 80);
-            Game.surface.currentLocation = 'Nova Prospekt';
-            Game.surface.scenarioHistory = [];
-            Game.surface.inCombat = false;
-            Game.surface.visitedLocations = {};
-            Game.surface.collectedResources = {};
-            Game.surface.expeditionActive = true;
-
-            Game.turn -= 1;
-
-            showScreen('surface');
-            goToScenario('start');
-            renderAll();
-        }
-
-        function actionSleep() {
-            if (Game.cycle === 'day') {
-                showModal('☀️ Ainda é Dia',
-                    'Você só pode dormir durante a noite.');
-                return;
-            }
-
-            const r = Game.resources;
-            r.energy = Math.min(100, r.energy + 30);
-            r.hunger = Math.min(100, r.hunger + 15);
-            r.contamination = Math.max(0, r.contamination - 10);
-            r.oxygen = Math.min(100, r.oxygen + 10);
-            Game.stamina = Math.min(Game.maxStamina, Game.stamina + 40);
-
-            // A máquina consome 10% da bateria a cada dia que passa
-            const m = Game.machine;
-            m.battery = Math.max(0, m.battery - 10);
-            if (m.battery <= 0) {
-                m.active = false;
-                m.battery = 0;
-            } else {
-                m.active = true;
-            }
-
-            let oxygenFromMachine = 0;
-            if (m.active) {
-                oxygenFromMachine = m.production;
-                r.oxygen = Math.min(100, r.oxygen + oxygenFromMachine);
-            }
-
-            Game.cycle = 'day';
-            Game.turn = 25;
-            Game.day++;
-
-            if (Game.day >= 10) {
-                checkAchievement('survivor');
-            }
-
-            let batteryWarning = '';
-            if (m.battery <= 20 && m.battery > 0) {
-                batteryWarning = '\n\n⚠️ A bateria da máquina está fraca! Recarregue no Comércio ou na tela da Máquina.';
-            } else if (!m.active) {
-                batteryWarning = '\n\n🔴 A máquina de carbono ficou sem bateria e desligou! Ela não produzirá mais oxigênio até ser recarregada.';
-            }
-
-            showModal('🛏️ Bom Descanso',
-                `Dia ${Game.day} amanheceu.\n\n⚡ +30 Energia\n🍖 +15 Fome\n☣️ -10 Contaminação\n🫧 +${10 + oxygenFromMachine} Oxigênio\n⚡ +40 Stamina\n🔋 Máquina: -10% Bateria (${Math.floor(m.battery)}%)${batteryWarning}`);
-            renderAll();
-        }
-
-        function goToMachine() {
-            showScreen('machine');
-            renderMachine();
-        }
-
-        function goToTrade() {
-            showScreen('trade');
-            renderTrade();
-        }
-
-        function upgradeMachine() {
-            const cost = 50 + Game.machine.level * 20;
-            if (Game.credits < cost) {
-                notify('Créditos insuficientes!', 'error');
-                return;
-            }
-
-            Game.credits -= cost;
-            Game.machine.level++;
-            Game.machine.production = 2 + Game.machine.level;
-            Game.machine.battery = Math.min(100, Game.machine.battery + 10);
-
-            if (Game.machine.level >= 5) {
-                checkAchievement('engineer');
-            }
-
-            notify(`⬆ Máquina upgrade para Nível ${Game.machine.level}!`, 'success');
-            renderAll();
-        }
-
-        function rechargeMachine() {
-            const m = Game.machine;
-            if (m.battery >= 100) {
-                notify('Bateria já está cheia!', 'info');
-                return;
-            }
-            const cost = 15;
-            if (Game.credits < cost) {
-                notify('Créditos insuficientes!', 'error');
-                return;
-            }
-            Game.credits -= cost;
-            m.battery = Math.min(100, m.battery + 10);
-            m.active = m.battery > 0;
-            notify(`🔋 Máquina recarregada! Bateria: ${Math.floor(m.battery)}%`, 'success');
-            renderAll();
-        }
-
-        // ============================================================
-        // CHECAGENS
-        // ============================================================
-
-        function checkDeath() {
-            const r = Game.resources;
-            if (r.oxygen <= 0) {
-                Game.gameOver = true;
-                showModal('💀 FALHA CRÍTICA - SEM OXIGÊNIO',
-                    'Você ficou sem oxigênio. A Ecosfera reivindicou mais uma vida...\n\n' +
-                    'Fim de jogo.');
-                return true;
-            }
-            if (r.hunger <= 0) {
-                Game.gameOver = true;
-                showModal('💀 FALHA CRÍTICA - FOME',
-                    'A fome consumiu você. A superfície não perdoa.\n\n' +
-                    'Fim de jogo.');
-                return true;
-            }
-            if (r.contamination >= 100) {
-                Game.gameOver = true;
-                showModal('💀 FALHA CRÍTICA - CONTAMINAÇÃO',
-                    'A poluição tomou conta do seu corpo.\n\n' +
-                    'Fim de jogo.');
-                return true;
-            }
-            return false;
-        }
-
-        // ============================================================
-        // EVENTOS
-        // ============================================================
-
-        function setupEvents() {
-            DOM.start.btn.addEventListener('click', startGame);
-            DOM.start.input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') startGame();
-            });
-
-            DOM.bunker.btnSurface.addEventListener('click', goToSurface);
-            DOM.bunker.btnDormitory.addEventListener('click', actionSleep);
-            DOM.bunker.btnMachine.addEventListener('click', goToMachine);
-            DOM.bunker.btnTrade.addEventListener('click', goToTrade);
-
-            DOM.machine.btnBack.addEventListener('click', () => {
-                showScreen('bunker');
-                renderAll();
-            });
-            DOM.machine.btnUpgrade.addEventListener('click', upgradeMachine);
-            if (DOM.machine.btnRecharge) {
-                DOM.machine.btnRecharge.addEventListener('click', rechargeMachine);
-            }
-
-            DOM.trade.btnBack.addEventListener('click', () => {
-                showScreen('bunker');
-                renderAll();
-            });
-
-            DOM.combat.btnAttack.addEventListener('click', combatAttack);
-            DOM.combat.btnDefense.addEventListener('click', combatDefense);
-            DOM.combat.btnFlee.addEventListener('click', combatFlee);
-            DOM.combat.btnSkill.addEventListener('click', combatSkill);
-        }
-
-        function startGame() {
-            const name = DOM.start.input.value.trim();
-            if (!name) {
-                showModal('⚠️ Atenção', 'Por favor, digite o nome do seu personagem.');
-                return;
-            }
-
-            Game.playerName = name;
-            showScreen('bunker');
-            renderAll();
-
-            showModal('🌍 Bem-vindo, ' + name + '!',
-                'Você acordou no bunker. O mundo lá fora está devastado.\n\n' +
-                '📋 SISTEMAS:\n' +
-                '☀️ DIA: Explore a superfície (25 turnos)\n' +
-                '🌙 NOITE: Durma no dormitório\n' +
-                '⚔️ Combate: Ataque, Defenda ou Use Habilidades\n' +
-                '🛒 Comércio: Compre itens com créditos\n' +
-                '⭐ Níveis: Ganhe EXP e aumente seus atributos\n' +
-                '🔋 Máquina: perde 10% de bateria por dia — recarregue-a!\n\n' +
-                '🏆 Conquistas: Desbloqueie 10 conquistas especiais!\n\n' +
-                'Boa sorte, sobrevivente!');
-        }
-
-        // ============================================================
-        // CENÁRIOS COMPLETOS
-        // ============================================================
-
-        const SCENARIOS = {
-            // ===== INÍCIO =====
-            'start': {
-                id: 'start',
-                location: 'Nova Prospekt',
-                turn: 0,
-                text: 'Você está em <span class="location-name">Nova Prospekt</span>, uma cidade devastada. O céu está cinza, os prédios estão desmoronando e o silêncio é quebrado apenas pelo vento. Você precisa decidir para onde ir.',
-                options: [
-                    { id: 'predio_entrada', icon: '🏚️', label: 'Explorar um PRÉDIO abandonado', class: '' },
-                    { id: 'metro_entrada', icon: '🚇', label: 'Ir para o METRÔ', class: '' },
-                    { id: 'rua_inicio', icon: '🛣️', label: 'Seguir a RUA', class: '' },
-                    { id: 'ponte_inicio', icon: '🌉', label: 'Atravessar a GRANDE PONTE', class: '' },
-                    { id: 'porto_inicio', icon: '⚓', label: 'Ir para o PORTO abandonado', class: '' },
-                    { id: 'floresta_inicio', icon: '🌲', label: 'Adentrar a FLORESTA MUTANTE', class: '' },
-                ]
-            },
-
-            // ===== PRÉDIO =====
-            'predio_entrada': {
-                id: 'predio_entrada',
-                location: 'Nova Prospekt - Prédio Abandonado',
-                turn: 1,
-                text: 'Você entra no prédio. O lobby está destruído, com vidros quebrados e móveis virados. Há três caminhos à sua frente.',
-                options: [
-                    { id: 'predio_escadaria', icon: '🪜', label: 'Escadaria (subir)', class: '' },
-                    { id: 'predio_corredor', icon: '🚪', label: 'Corredor do térreo', class: '' },
-                    { id: 'predio_voltar_lobby', icon: '🔙', label: 'Sair do prédio', class: '' },
-                ]
-            },
-
-            'predio_escadaria': {
-                id: 'predio_escadaria',
-                location: 'Nova Prospekt - Escadaria',
-                turn: 1,
-                text: 'Os degraus estão cobertos de entulho. Você precisa subir com cuidado.',
-                options: [
-                    { id: 'predio_andar2', icon: '⬆️', label: 'Tentar subir (risco de queda)', class: 'danger' },
-                    { id: 'predio_entrada', icon: '🔙', label: 'Voltar ao lobby', class: '' },
-                ]
-            },
-
-            'predio_andar2': {
-                id: 'predio_andar2',
-                location: 'Nova Prospekt - Andar 2',
-                turn: 2,
-                text: 'Você chega ao segundo andar. As mesas estão reviradas e há papéis espalhados.',
-                options: [
-                    { id: 'predio_recursos', icon: '🔍', label: 'Revirar as mesas (recursos)', class: 'success' },
-                    { id: 'predio_recursos2', icon: '🔍', label: 'Verificar as gavetas', class: 'success' },
-                    { id: 'predio_andar3', icon: '⬆️', label: 'Ir para o próximo andar', class: '' },
-                    { id: 'predio_entrada', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'predio_andar3': {
-                id: 'predio_andar3',
-                location: 'Nova Prospekt - Andar 3',
-                turn: 3,
-                text: 'Um <span class="danger">mutante</span> está no corredor! Ele parece estar comendo algo.',
-                options: [
-                    { id: 'combate_rastejador', icon: '⚔️', label: 'Batalhar', class: 'danger' },
-                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
-                    { id: 'predio_andar2', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'predio_andar4': {
-                id: 'predio_andar4',
-                location: 'Nova Prospekt - Andar 4',
-                turn: 4,
-                text: 'Uma sala com uma mesa grande. Há um cofre aberto e objetos no chão.',
-                options: [
-                    { id: 'predio_recursos', icon: '🔍', label: 'Pegar os objetos', class: 'success' },
-                    { id: 'predio_recursos_raros', icon: '💎', label: 'Verificar o cofre', class: 'success' },
-                    { id: 'predio_andar3', icon: '🔙', label: 'Voltar', class: '' },
-                    { id: 'predio_terraco', icon: '🪜', label: 'Subir ao terraço', class: '' },
-                ]
-            },
-
-            'predio_terraco': {
-                id: 'predio_terraco',
-                location: 'Nova Prospekt - Terraço',
-                turn: 5,
-                text: 'O terraço oferece uma vista ampla da cidade devastada. Há uma antena de rádio caída e caixas de equipamento.',
-                options: [
-                    { id: 'predio_recursos_terraco', icon: '📡', label: 'Vasculhar as caixas', class: 'success' },
-                    { id: 'combate_sentinela', icon: '⚔️', label: 'Uma sentinela corrompida guarda o local', class: 'danger' },
-                    { id: 'predio_andar4', icon: '🔙', label: 'Descer', class: '' },
-                ]
-            },
-
-            'predio_corredor': {
-                id: 'predio_corredor',
-                location: 'Nova Prospekt - Corredor do Térreo',
-                turn: 1,
-                text: 'O corredor do térreo tem várias lojas e escritórios.',
-                options: [
-                    { id: 'predio_loja', icon: '🏪', label: 'Loja de Conveniência', class: '' },
-                    { id: 'predio_escritorio', icon: '📋', label: 'Escritório de Advogados', class: '' },
-                    { id: 'predio_entrada', icon: '🔙', label: 'Voltar ao lobby', class: '' },
-                ]
-            },
-
-            'predio_loja': {
-                id: 'predio_loja',
-                location: 'Nova Prospekt - Loja de Conveniência',
-                turn: 2,
-                text: 'As prateleiras estão caídas, mas ainda há coisas.',
-                options: [
-                    { id: 'predio_recursos', icon: '🔍', label: 'Revirar as prateleiras', class: 'success' },
-                    { id: 'predio_recursos_comida', icon: '🍖', label: 'Procurar comida', class: 'success' },
-                    { id: 'predio_corredor', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'predio_escritorio': {
-                id: 'predio_escritorio',
-                location: 'Nova Prospekt - Escritório de Advogados',
-                turn: 2,
-                text: 'Há pastas e documentos espalhados.',
-                options: [
-                    { id: 'predio_recursos2', icon: '🔍', label: 'Pegar objetos', class: 'success' },
-                    { id: 'predio_recursos_raros', icon: '💎', label: 'Procurar por cofres', class: 'success' },
-                    { id: 'predio_corredor', icon: '🔙', label: 'Sair', class: '' },
-                    { id: 'predio_andar4', icon: '🚪', label: 'Porta trancada nos fundos (forçar)', class: 'danger' },
-                ]
-            },
-
-            'predio_voltar_lobby': {
-                id: 'predio_voltar_lobby',
-                location: 'Nova Prospekt - Lobby',
-                turn: 0,
-                text: 'Você voltou ao lobby do prédio.',
-                options: [
-                    { id: 'predio_entrada', icon: '🔙', label: 'Escolher outro caminho', class: '' },
-                    { id: 'start', icon: '🚪', label: 'Sair do prédio', class: '' },
-                ]
-            },
-
-            // ===== RECURSOS DO PRÉDIO =====
-            'predio_recursos': { id: 'predio_recursos', location: 'Nova Prospekt - Prédio', turn: 0,
-                text: 'Você encontrou recursos! 🪚 Sucata e 🧴 Plástico.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
-                onEnter: () => {} },
-            'predio_recursos2': { id: 'predio_recursos2', location: 'Nova Prospekt - Prédio', turn: 0,
-                text: 'Você encontrou mais recursos! 🧴 Plástico e ⚙️ Peças.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
-                onEnter: () => {} },
-            'predio_recursos_comida': { id: 'predio_recursos_comida', location: 'Nova Prospekt - Prédio', turn: 0,
-                text: 'Você encontrou comida! 🍖 Biomassa.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'predio_recursos_raros': { id: 'predio_recursos_raros', location: 'Nova Prospekt - Prédio', turn: 0,
-                text: 'Você encontrou itens raros! 💎 Peças Raras.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'predio_recursos_ferramenta': { id: 'predio_recursos_ferramenta', location: 'Nova Prospekt - Prédio', turn: 0,
-                text: 'Você encontrou ferramentas! 🔧 Úteis para arrombar portas.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'predio_recursos_terraco': { id: 'predio_recursos_terraco', location: 'Nova Prospekt - Terraço', turn: 0,
-                text: 'Você encontrou equipamentos de rádio! ⚙️ Sucata e 💻 Eletrônicos.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
-                onEnter: () => {} },
-
-            // ===== METRÔ =====
-            'metro_entrada': {
-                id: 'metro_entrada',
-                location: 'Nova Prospekt - Metrô',
-                turn: 1,
-                text: 'Você desce as escadas do metrô. As luzes piscam e há um cheiro forte de mofo e química. A bilheteria está destruída.',
-                options: [
-                    { id: 'metro_plataforma_leste', icon: '🚉', label: 'Plataforma Leste', class: '' },
-                    { id: 'metro_plataforma_oeste', icon: '🚉', label: 'Plataforma Oeste', class: '' },
-                    { id: 'metro_sala_controle', icon: '🖥️', label: 'Sala de Controle', class: '' },
-                    { id: 'start', icon: '🔙', label: 'Voltar à superfície', class: '' },
-                ]
-            },
-
-            'metro_plataforma_leste': {
-                id: 'metro_plataforma_leste',
-                location: 'Nova Prospekt - Plataforma Leste',
-                turn: 2,
-                text: 'Um trem parado. As portas estão abertas. Alguns vagões estão cheios de bagagens.',
-                options: [
-                    { id: 'metro_recursos', icon: '🧳', label: 'Revirar as bagagens', class: 'success' },
-                    { id: 'metro_vagao_comida', icon: '🍖', label: 'Vagão Restaurante', class: '' },
-                    { id: 'metro_vagao_mutante', icon: '👾', label: 'Vagão com Mutante', class: 'danger' },
-                    { id: 'metro_entrada', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'metro_vagao_comida': {
-                id: 'metro_vagao_comida',
-                location: 'Nova Prospekt - Vagão Restaurante',
-                turn: 3,
-                text: 'Você encontra um vagão-restaurante com latas e alimentos.',
-                options: [
-                    { id: 'metro_recursos_comida', icon: '🍖', label: 'Pegar comida', class: 'success' },
-                    { id: 'metro_plataforma_leste', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'metro_vagao_mutante': {
-                id: 'metro_vagao_mutante',
-                location: 'Nova Prospekt - Vagão 3',
-                turn: 3,
-                text: 'Um <span class="danger">mutante</span> está no vagão seguinte.',
-                options: [
-                    { id: 'combate_rastejador', icon: '⚔️', label: 'Batalhar', class: 'danger' },
-                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
-                    { id: 'metro_plataforma_leste', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'metro_plataforma_oeste': {
-                id: 'metro_plataforma_oeste',
-                location: 'Nova Prospekt - Plataforma Oeste',
-                turn: 2,
-                text: 'O túnel é escuro e úmido. Há água no chão. Você ouve algo se arrastando.',
-                options: [
-                    { id: 'metro_tunel_escuro', icon: '🚇', label: 'Seguir pelo túnel', class: 'danger' },
-                    { id: 'metro_entrada', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'metro_tunel_escuro': {
-                id: 'metro_tunel_escuro',
-                location: 'Nova Prospekt - Túnel Escuro',
-                turn: 3,
-                text: 'Duas criaturas estão no túnel.',
-                options: [
-                    { id: 'combate_rastejador', icon: '⚔️', label: 'Atacar', class: 'danger' },
-                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
-                    { id: 'metro_plataforma_oeste', icon: '🔙', label: 'Voltar', class: '' },
-                    { id: 'metro_deposito', icon: '📦', label: 'Uma porta lateral de depósito', class: '' },
-                ]
-            },
-
-            'metro_deposito': {
-                id: 'metro_deposito',
-                location: 'Nova Prospekt - Depósito do Metrô',
-                turn: 4,
-                text: 'Um pequeno depósito de manutenção com ferramentas empoeiradas.',
-                options: [
-                    { id: 'metro_recursos_deposito', icon: '🔍', label: 'Vasculhar o depósito', class: 'success' },
-                    { id: 'metro_tunel_escuro', icon: '🔙', label: 'Voltar ao túnel', class: '' },
-                ]
-            },
-
-            'metro_sala_controle': {
-                id: 'metro_sala_controle',
-                location: 'Nova Prospekt - Sala de Controle',
-                turn: 2,
-                text: 'A sala de controle está cheia de monitores. Alguns ainda funcionam.',
-                options: [
-                    { id: 'metro_recursos2', icon: '🔍', label: 'Pegar objetos', class: 'success' },
-                    { id: 'metro_entrada', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'metro_saida': {
-                id: 'metro_saida',
-                location: 'Nova Prospekt - Saída do Metrô',
-                turn: 2,
-                text: 'Você encontra uma saída do metrô que leva à superfície.',
-                options: [
-                    { id: 'rua_inicio', icon: '🚪', label: 'Sair para a rua', class: '' },
-                    { id: 'metro_entrada', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            // ===== RECURSOS DO METRÔ =====
-            'metro_recursos': { id: 'metro_recursos', location: 'Nova Prospekt - Metrô', turn: 0,
-                text: 'Você encontrou recursos! 🪚 Sucata e 🔧 Ferramentas.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
-                onEnter: () => {} },
-            'metro_recursos2': { id: 'metro_recursos2', location: 'Nova Prospekt - Metrô', turn: 0,
-                text: 'Você encontrou mais recursos! 💎 Peças Raras.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'metro_recursos_comida': { id: 'metro_recursos_comida', location: 'Nova Prospekt - Metrô', turn: 0,
-                text: 'Você encontrou comida! 🍖 Biomassa.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'metro_recursos_deposito': { id: 'metro_recursos_deposito', location: 'Nova Prospekt - Metrô', turn: 0,
-                text: 'Você encontrou peças no depósito! ⚙️ Sucata e 💻 Eletrônicos.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
-                onEnter: () => {} },
-
-            // ===== RUA =====
-            'rua_inicio': {
-                id: 'rua_inicio',
-                location: 'Nova Prospekt - Rua Principal',
-                turn: 1,
-                text: 'Você anda pela rua principal. Carros abandonados bloqueiam o caminho. Prédios residenciais e lojas ladeiam a via.',
-                options: [
-                    { id: 'rua_casa', icon: '🏠', label: 'Casa Abandonada', class: '' },
-                    { id: 'rua_loja_carros', icon: '🚗', label: 'Concessionária', class: '' },
-                    { id: 'rua_esgoto', icon: '🕳️', label: 'Esgoto', class: 'danger' },
-                    { id: 'rua_residencial', icon: '🏢', label: 'Prédio Residencial', class: '' },
-                    { id: 'rua_parque', icon: '🌳', label: 'Parque Abandonado', class: '' },
-                    { id: 'start', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'rua_parque': {
-                id: 'rua_parque',
-                location: 'Nova Prospekt - Parque Abandonado',
-                turn: 2,
-                text: 'Um parque tomado pela vegetação mutada. Árvores retorcidas crescem em formas estranhas.',
-                options: [
-                    { id: 'rua_recursos_parque', icon: '🌿', label: 'Coletar plantas e água', class: 'success' },
-                    { id: 'combate_enxame', icon: '⚔️', label: 'Um enxame tóxico ataca!', class: 'danger' },
-                    { id: 'rua_inicio', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'rua_casa': {
-                id: 'rua_casa',
-                location: 'Nova Prospekt - Casa Abandonada',
-                turn: 2,
-                text: 'Uma casa comum. A sala está bagunçada.',
-                options: [
-                    { id: 'rua_recursos', icon: '🛋️', label: 'Revirar os móveis', class: 'success' },
-                    { id: 'rua_casa_cozinha', icon: '🍳', label: 'Procurar na cozinha', class: '' },
-                    { id: 'rua_inicio', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'rua_casa_cozinha': {
-                id: 'rua_casa_cozinha',
-                location: 'Nova Prospekt - Cozinha',
-                turn: 3,
-                text: 'A cozinha tem armários abertos.',
-                options: [
-                    { id: 'rua_recursos_comida', icon: '🍖', label: 'Pegar comida', class: 'success' },
-                    { id: 'rua_casa', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'rua_loja_carros': {
-                id: 'rua_loja_carros',
-                location: 'Nova Prospekt - Concessionária',
-                turn: 2,
-                text: 'A concessionária está cheia de carros.',
-                options: [
-                    { id: 'rua_recursos', icon: '🔍', label: 'Revirar os carros', class: 'success' },
-                    { id: 'rua_recursos_pecas', icon: '⚙️', label: 'Procurar peças', class: 'success' },
-                    { id: 'rua_inicio', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'rua_recursos_pecas': {
-                id: 'rua_recursos_pecas',
-                location: 'Nova Prospekt - Oficina',
-                turn: 3,
-                text: 'A oficina tem ferramentas e peças de carro.',
-                options: [
-                    { id: 'rua_recursos_ferramenta', icon: '🔧', label: 'Pegar ferramentas', class: 'success' },
-                    { id: 'rua_recursos_raros', icon: '💎', label: 'Procurar peças raras', class: 'success' },
-                    { id: 'rua_loja_carros', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'rua_esgoto': {
-                id: 'rua_esgoto',
-                location: 'Nova Prospekt - Esgoto',
-                turn: 2,
-                text: 'Você desce pelo esgoto. O cheiro é horrível.',
-                options: [
-                    { id: 'rua_esgoto_explorar', icon: '🔍', label: 'Explorar o esgoto', class: '' },
-                    { id: 'rua_esgoto_saida', icon: '🚪', label: 'Procurar saídas', class: '' },
-                    { id: 'rua_inicio', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'rua_esgoto_explorar': {
-                id: 'rua_esgoto_explorar',
-                location: 'Nova Prospekt - Túnel de Esgoto',
-                turn: 3,
-                text: 'Há <span class="danger">criaturas mutantes</span> no esgoto.',
-                options: [
-                    { id: 'combate_rastejador', icon: '⚔️', label: 'Lutar', class: 'danger' },
-                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
-                    { id: 'rua_esgoto', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'rua_esgoto_saida': {
-                id: 'rua_esgoto_saida',
-                location: 'Nova Prospekt - Saída do Esgoto',
-                turn: 3,
-                text: 'O esgoto leva a um rio poluído.',
-                options: [
-                    { id: 'rua_rio', icon: '🌊', label: 'Seguir o rio', class: '' },
-                    { id: 'rua_inicio', icon: '🔙', label: 'Voltar para a rua', class: '' },
-                ]
-            },
-
-            'rua_rio': {
-                id: 'rua_rio',
-                location: 'Nova Prospekt - Rio Poluído',
-                turn: 4,
-                text: 'O rio está cheio de lixo e água escura.',
-                options: [
-                    { id: 'rua_recursos', icon: '🔍', label: 'Explorar a margem', class: 'success' },
-                    { id: 'rua_esgoto_saida', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'rua_residencial': {
-                id: 'rua_residencial',
-                location: 'Nova Prospekt - Prédio Residencial',
-                turn: 2,
-                text: 'O hall do prédio tem elevadores quebrados e uma escada.',
-                options: [
-                    { id: 'rua_residencial_andar', icon: '⬆️', label: 'Subir a escada', class: '' },
-                    { id: 'rua_recursos2', icon: '🔍', label: 'Verificar a portaria', class: 'success' },
-                    { id: 'rua_inicio', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'rua_residencial_andar': {
-                id: 'rua_residencial_andar',
-                location: 'Nova Prospekt - Apartamento 101',
-                turn: 3,
-                text: 'Um apartamento no primeiro andar.',
-                options: [
-                    { id: 'rua_recursos', icon: '🔍', label: 'Revirar o apartamento', class: 'success' },
-                    { id: 'rua_recursos_comida', icon: '🍖', label: 'Procurar comida', class: 'success' },
-                    { id: 'rua_residencial', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            // ===== RECURSOS DA RUA =====
-            'rua_recursos': { id: 'rua_recursos', location: 'Nova Prospekt - Rua', turn: 0,
-                text: 'Você encontrou recursos! 🪚 Sucata e 🧴 Plástico.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
-                onEnter: () => {} },
-            'rua_recursos2': { id: 'rua_recursos2', location: 'Nova Prospekt - Rua', turn: 0,
-                text: 'Você encontrou mais recursos! 🧴 Plástico e 💧 Água.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'rua_recursos_comida': { id: 'rua_recursos_comida', location: 'Nova Prospekt - Rua', turn: 0,
-                text: 'Você encontrou comida! 🍖 Biomassa.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'rua_recursos_ferramenta': { id: 'rua_recursos_ferramenta', location: 'Nova Prospekt - Rua', turn: 0,
-                text: 'Você encontrou ferramentas! 🔧',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'rua_recursos_raros': { id: 'rua_recursos_raros', location: 'Nova Prospekt - Rua', turn: 0,
-                text: 'Você encontrou itens raros! 💎 Peças Raras.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'rua_recursos_parque': { id: 'rua_recursos_parque', location: 'Nova Prospekt - Parque', turn: 0,
-                text: 'Você coletou plantas e água! 🍖 Biomassa e 💧 Água.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
-                onEnter: () => {} },
-
-            // ===== PONTE =====
-            'ponte_inicio': {
-                id: 'ponte_inicio',
-                location: 'Nova Prospekt - Grande Ponte',
-                turn: 1,
-                text: 'A ponte se estende por quilômetros sobre o rio poluído.',
-                options: [
-                    { id: 'ponte_atravessar', icon: '🚶', label: 'Atravessar a ponte', class: '' },
-                    { id: 'ponte_carros', icon: '🚗', label: 'Explorar os carros', class: '' },
-                    { id: 'start', icon: '🔙', label: 'Voltar para Nova Prospekt', class: '' },
-                ]
-            },
-
-            'ponte_atravessar': {
-                id: 'ponte_atravessar',
-                location: 'Ponte - Meio',
-                turn: 2,
-                text: 'Você chega ao meio da ponte. A estrutura está enferrujada.',
-                options: [
-                    { id: 'ponte_chegada_revelon', icon: '🚶', label: 'Continuar atravessando', class: '' },
-                    { id: 'ponte_recursos', icon: '🔍', label: 'Procurar objetos', class: 'success' },
-                    { id: 'ponte_inicio', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'ponte_chegada_revelon': {
-                id: 'ponte_chegada_revelon',
-                location: 'Revelon - Chegada',
-                turn: 3,
-                text: 'Você finalmente chega ao outro lado. <span class="location-name">Revelon</span> está à sua frente.',
-                options: [
-                    { id: 'revelon_entrada', icon: '🏙️', label: 'Entrar em Revelon', class: '' },
-                    { id: 'ponte_inicio', icon: '🔙', label: 'Voltar para Nova Prospekt', class: '' },
-                ]
-            },
-
-            'ponte_carros': {
-                id: 'ponte_carros',
-                location: 'Ponte - Carros Abandonados',
-                turn: 2,
-                text: 'Há muitos carros na ponte.',
-                options: [
-                    { id: 'ponte_recursos', icon: '🔍', label: 'Revirar os carros', class: 'success' },
-                    { id: 'ponte_recursos_combustivel', icon: '🛢️', label: 'Pegar combustível', class: 'success' },
-                    { id: 'ponte_atravessar', icon: '🔙', label: 'Ignorar e seguir', class: '' },
-                ]
-            },
-
-            // ===== RECURSOS DA PONTE =====
-            'ponte_recursos': { id: 'ponte_recursos', location: 'Ponte - Carros', turn: 0,
-                text: 'Você encontrou recursos nos carros! 🪚 Sucata.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
-                onEnter: () => {} },
-            'ponte_recursos_combustivel': { id: 'ponte_recursos_combustivel', location: 'Ponte - Carros', turn: 0,
-                text: 'Você encontrou combustível! 🛢️',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-
-            // ==========================================================
-            // REVELON
-            // ==========================================================
-
-            'revelon_entrada': {
-                id: 'revelon_entrada',
-                location: 'Revelon',
-                turn: 3,
-                text: 'Bem-vindo a <span class="location-name">Revelon</span>. A cidade é maior que Nova Prospekt.',
-                options: [
-                    { id: 'revelon_shopping', icon: '🛍️', label: 'Centro Comercial', class: '' },
-                    { id: 'revelon_trem', icon: '🚆', label: 'Estação de Trem', class: '' },
-                    { id: 'revelon_hospital', icon: '🏥', label: 'Hospital Abandonado', class: '' },
-                    { id: 'revelon_industrial', icon: '🏭', label: 'Parque Industrial', class: '' },
-                    { id: 'revelon_residencial', icon: '🏘️', label: 'Bairro Residencial', class: '' },
-                    { id: 'revelon_torre', icon: '📡', label: 'Torre de Comunicações', class: '' },
-                    { id: 'ponte_inicio', icon: '🔙', label: 'Voltar para Nova Prospekt', class: '' },
-                ]
-            },
-
-            'revelon_torre': {
-                id: 'revelon_torre',
-                location: 'Revelon - Torre de Comunicações',
-                turn: 4,
-                text: 'Uma torre alta e imponente, ainda de pé em meio às ruínas. A porta principal está trancada.',
-                options: [
-                    { id: 'revelon_torre_base', icon: '🚪', label: 'Forçar a porta da base', class: '' },
-                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_torre_base': {
-                id: 'revelon_torre_base',
-                location: 'Revelon - Base da Torre',
-                turn: 5,
-                text: 'Dentro da base há painéis elétricos e uma escada em espiral subindo. Uma sentinela corrompida patrulha o local.',
-                options: [
-                    { id: 'combate_sentinela', icon: '⚔️', label: 'Enfrentar a sentinela', class: 'danger' },
-                    { id: 'revelon_torre_topo', icon: '🪜', label: 'Tentar subir furtivamente', class: 'warning' },
-                    { id: 'revelon_torre', icon: '🔙', label: 'Recuar', class: '' },
-                ]
-            },
-
-            'revelon_torre_topo': {
-                id: 'revelon_torre_topo',
-                location: 'Revelon - Topo da Torre',
-                turn: 6,
-                text: 'No topo da torre, os equipamentos de transmissão ainda emitem um leve zumbido. Uma sala trancada guarda componentes valiosos.',
-                options: [
-                    { id: 'torre_recursos_antena', icon: '📡', label: 'Reparar a antena (recursos)', class: 'success' },
-                    { id: 'torre_recursos', icon: '🔍', label: 'Vasculhar os equipamentos', class: 'success' },
-                    { id: 'revelon_torre_base', icon: '🔙', label: 'Descer', class: '' },
-                ]
-            },
-
-            'revelon_shopping': {
-                id: 'revelon_shopping',
-                location: 'Revelon - Shopping',
-                turn: 4,
-                text: 'O shopping está destruído. Lojas saqueadas.',
-                options: [
-                    { id: 'revelon_shopping_lojas', icon: '🛍️', label: 'Explorar as lojas', class: 'success' },
-                    { id: 'revelon_shopping_comida', icon: '🍽️', label: 'Praça de alimentação', class: '' },
-                    { id: 'revelon_shopping_cinema', icon: '🎬', label: 'Ir para o cinema', class: '' },
-                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_shopping_lojas': {
-                id: 'revelon_shopping_lojas',
-                location: 'Revelon - Loja de Eletrônicos',
-                turn: 5,
-                text: 'Uma loja de eletrônicos. Itens espalhados.',
-                options: [
-                    { id: 'revelon_recursos_eletronicos', icon: '💻', label: 'Pegar eletrônicos', class: 'success' },
-                    { id: 'revelon_recursos_bateria', icon: '🔋', label: 'Procurar baterias', class: 'success' },
-                    { id: 'revelon_shopping', icon: '🔙', label: 'Ignorar', class: '' },
-                ]
-            },
-
-            'revelon_shopping_comida': {
-                id: 'revelon_shopping_comida',
-                location: 'Revelon - Praça de Alimentação',
-                turn: 5,
-                text: 'Restaurantes abandonados.',
-                options: [
-                    { id: 'revelon_recursos_comida', icon: '🍖', label: 'Procurar comida', class: 'success' },
-                    { id: 'revelon_shopping', icon: '🔙', label: 'Ignorar', class: '' },
-                ]
-            },
-
-            'revelon_shopping_cinema': {
-                id: 'revelon_shopping_cinema',
-                location: 'Revelon - Cinema',
-                turn: 5,
-                text: 'Um <span class="danger">mutante</span> está no cinema.',
-                options: [
-                    { id: 'combate_rastejador', icon: '⚔️', label: 'Atacar', class: 'danger' },
-                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
-                    { id: 'revelon_shopping', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'revelon_trem': {
-                id: 'revelon_trem',
-                location: 'Revelon - Estação de Trem',
-                turn: 4,
-                text: 'A estação está vazia.',
-                options: [
-                    { id: 'revelon_trem_vagoes', icon: '🚆', label: 'Explorar o trem', class: 'success' },
-                    { id: 'revelon_recursos2', icon: '🔍', label: 'Verificar a sala de espera', class: 'success' },
-                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_trem_vagoes': {
-                id: 'revelon_trem_vagoes',
-                location: 'Revelon - Trem',
-                turn: 5,
-                text: 'O trem tem vários vagões.',
-                options: [
-                    { id: 'revelon_recursos', icon: '🔍', label: 'Explorar vagões', class: 'success' },
-                    { id: 'revelon_recursos_raros', icon: '💎', label: 'Ir para a cabine', class: 'success' },
-                    { id: 'revelon_trem', icon: '🔙', label: 'Voltar', class: '' },
-                    { id: 'combate_devorador', icon: '⚔️', label: 'Um devorador se esconde no último vagão', class: 'danger' },
-                ]
-            },
-
-            'revelon_hospital': {
-                id: 'revelon_hospital',
-                location: 'Revelon - Hospital',
-                turn: 4,
-                text: 'O hospital está destruído.',
-                options: [
-                    { id: 'revelon_hospital_recepcao', icon: '🏥', label: 'Explorar a recepção', class: '' },
-                    { id: 'revelon_hospital_emergencia', icon: '🚑', label: 'Pronto-Socorro', class: '' },
-                    { id: 'revelon_hospital_laboratorio', icon: '🔬', label: 'Laboratório', class: '' },
-                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_hospital_recepcao': {
-                id: 'revelon_hospital_recepcao',
-                location: 'Revelon - Recepção',
-                turn: 5,
-                text: 'A recepção está destruída.',
-                options: [
-                    { id: 'revelon_recursos_medicina', icon: '💊', label: 'Procurar remédios', class: 'success' },
-                    { id: 'revelon_hospital', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'revelon_hospital_emergencia': {
-                id: 'revelon_hospital_emergencia',
-                location: 'Revelon - Pronto-Socorro',
-                turn: 5,
-                text: 'Há kits médicos e remédios.',
-                options: [
-                    { id: 'revelon_recursos_medicina', icon: '💊', label: 'Pegar kits médicos', class: 'success' },
-                    { id: 'revelon_hospital', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_hospital_laboratorio': {
-                id: 'revelon_hospital_laboratorio',
-                location: 'Revelon - Laboratório',
-                turn: 5,
-                text: 'O laboratório tem equipamentos científicos.',
-                options: [
-                    { id: 'revelon_recursos_eletronicos', icon: '🔬', label: 'Pegar equipamentos', class: 'success' },
-                    { id: 'revelon_hospital', icon: '🔙', label: 'Sair', class: '' },
-                    { id: 'revelon_hospital_subsolo', icon: '🕳️', label: 'Descer ao subsolo', class: 'danger' },
-                ]
-            },
-
-            'revelon_hospital_subsolo': {
-                id: 'revelon_hospital_subsolo',
-                location: 'Revelon - Subsolo do Hospital',
-                turn: 6,
-                text: 'O subsolo é escuro e frio. Algo se move nas sombras entre os equipamentos abandonados.',
-                options: [
-                    { id: 'combate_sibila', icon: '⚔️', label: 'Enfrentar a criatura', class: 'danger' },
-                    { id: 'revelon_recursos_quimicos', icon: '🧪', label: 'Vasculhar rapidamente', class: 'success' },
-                    { id: 'revelon_hospital_laboratorio', icon: '🔙', label: 'Subir', class: '' },
-                ]
-            },
-
-            'revelon_industrial': {
-                id: 'revelon_industrial',
-                location: 'Revelon - Parque Industrial',
-                turn: 4,
-                text: 'Uma fábrica abandonada.',
-                options: [
-                    { id: 'revelon_industrial_fabrica', icon: '🏭', label: 'Explorar a fábrica', class: '' },
-                    { id: 'revelon_recursos_pecas', icon: '⚙️', label: 'Procurar peças', class: 'success' },
-                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_industrial_fabrica': {
-                id: 'revelon_industrial_fabrica',
-                location: 'Revelon - Fábrica',
-                turn: 5,
-                text: 'A fábrica está cheia de máquinas.',
-                options: [
-                    { id: 'revelon_recursos', icon: '🔍', label: 'Explorar a fábrica', class: 'success' },
-                    { id: 'revelon_recursos_pecas', icon: '⚙️', label: 'Procurar peças', class: 'success' },
-                    { id: 'revelon_industrial', icon: '🔙', label: 'Sair', class: '' },
-                    { id: 'combate_triturador', icon: '⚔️', label: 'Um triturador guarda a linha de montagem', class: 'danger' },
-                ]
-            },
-
-            'revelon_residencial': {
-                id: 'revelon_residencial',
-                location: 'Revelon - Bairro Residencial',
-                turn: 4,
-                text: 'Casas abandonadas.',
-                options: [
-                    { id: 'revelon_residencial_casas', icon: '🏠', label: 'Explorar casas', class: 'success' },
-                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            'revelon_residencial_casas': {
-                id: 'revelon_residencial_casas',
-                location: 'Revelon - Casas',
-                turn: 5,
-                text: 'Casas abandonadas.',
-                options: [
-                    { id: 'revelon_recursos', icon: '🔍', label: 'Explorar casas', class: 'success' },
-                    { id: 'revelon_recursos_comida', icon: '🍖', label: 'Procurar suprimentos', class: 'success' },
-                    { id: 'revelon_residencial', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            // ===== RECURSOS DE REVELON =====
-            'revelon_recursos': { id: 'revelon_recursos', location: 'Revelon', turn: 0,
-                text: 'Você encontrou recursos! 🪚 Sucata e 🧴 Plástico.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
-                onEnter: () => {} },
-            'revelon_recursos2': { id: 'revelon_recursos2', location: 'Revelon', turn: 0,
-                text: 'Você encontrou mais recursos! 💧 Água e 🍖 Biomassa.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'revelon_recursos_comida': { id: 'revelon_recursos_comida', location: 'Revelon', turn: 0,
-                text: 'Você encontrou comida! 🍖 Biomassa.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'revelon_recursos_raros': { id: 'revelon_recursos_raros', location: 'Revelon', turn: 0,
-                text: 'Você encontrou itens raros! 💎 Peças Raras.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'revelon_recursos_pecas': { id: 'revelon_recursos_pecas', location: 'Revelon', turn: 0,
-                text: 'Você encontrou peças de máquinas! ⚙️',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'revelon_recursos_eletronicos': { id: 'revelon_recursos_eletronicos', location: 'Revelon', turn: 0,
-                text: 'Você encontrou eletrônicos! 💻',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'revelon_recursos_bateria': { id: 'revelon_recursos_bateria', location: 'Revelon', turn: 0,
-                text: 'Você encontrou baterias! 🔋',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'revelon_recursos_medicina': { id: 'revelon_recursos_medicina', location: 'Revelon - Hospital', turn: 0,
-                text: 'Você encontrou medicamentos! 💊',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-            'revelon_recursos_quimicos': { id: 'revelon_recursos_quimicos', location: 'Revelon - Hospital', turn: 0,
-                text: 'Você encontrou compostos químicos raros! 💎',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
-                onEnter: () => {} },
-
-            // ===== TORRE DE COMUNICAÇÕES (RECURSOS) =====
-            'torre_recursos': { id: 'torre_recursos', location: 'Revelon - Torre', turn: 0,
-                text: 'Você encontrou componentes valiosos! 💻 Eletrônicos e 💎 Peças Raras.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
-                onEnter: () => {} },
-            'torre_recursos_antena': { id: 'torre_recursos_antena', location: 'Revelon - Torre', turn: 0,
-                text: 'Você reparou parte da antena e recuperou componentes! 💻 Eletrônicos e ⚡ Energia.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
-                onEnter: () => {} },
-
-            // ==========================================================
-            // PORTO ABANDONADO
-            // ==========================================================
-
-            'porto_inicio': {
-                id: 'porto_inicio',
-                location: 'Nova Prospekt - Porto Abandonado',
-                turn: 1,
-                text: 'O porto está silencioso. Navios enferrujados balançam levemente na água escura. Guindastes quebrados pendem sobre os contêineres.',
-                options: [
-                    { id: 'porto_navio', icon: '🚢', label: 'Explorar o navio cargueiro', class: '' },
-                    { id: 'porto_containers', icon: '📦', label: 'Vasculhar os contêineres', class: '' },
-                    { id: 'porto_farol', icon: '🗼', label: 'Ir até o farol', class: '' },
-                    { id: 'start', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'porto_navio': {
-                id: 'porto_navio',
-                location: 'Porto - Navio Cargueiro',
-                turn: 2,
-                text: 'O convés do navio está enferrujado. Você ouve ruídos vindos do porão.',
-                options: [
-                    { id: 'porto_porao', icon: '🪜', label: 'Descer ao porão', class: 'danger' },
-                    { id: 'porto_recursos', icon: '🔍', label: 'Explorar o convés', class: 'success' },
-                    { id: 'porto_inicio', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'porto_porao': {
-                id: 'porto_porao',
-                location: 'Porto - Porão do Navio',
-                turn: 3,
-                text: 'O porão está escuro e cheio de caixas de carga. Uma criatura se move entre elas.',
-                options: [
-                    { id: 'combate_triturador', icon: '⚔️', label: 'Atacar', class: 'danger' },
-                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
-                    { id: 'porto_navio', icon: '🔙', label: 'Voltar ao convés', class: '' },
-                ]
-            },
-
-            'porto_containers': {
-                id: 'porto_containers',
-                location: 'Porto - Área de Contêineres',
-                turn: 2,
-                text: 'Fileiras de contêineres empilhados, alguns arrombados.',
-                options: [
-                    { id: 'porto_recursos_carga', icon: '🔍', label: 'Vasculhar a carga', class: 'success' },
-                    { id: 'porto_inicio', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'porto_farol': {
-                id: 'porto_farol',
-                location: 'Porto - Farol',
-                turn: 2,
-                text: 'O farol ainda está de pé, embora rachado. A vista do topo é ampla, mas a escada está instável.',
-                options: [
-                    { id: 'porto_recursos', icon: '🔍', label: 'Explorar a base do farol', class: 'success' },
-                    { id: 'porto_inicio', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            // ===== RECURSOS DO PORTO =====
-            'porto_recursos': { id: 'porto_recursos', location: 'Porto Abandonado', turn: 0,
-                text: 'Você encontrou recursos! 🪚 Sucata e 💧 Água.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
-                onEnter: () => {} },
-            'porto_recursos_carga': { id: 'porto_recursos_carga', location: 'Porto Abandonado', turn: 0,
-                text: 'Você encontrou carga valiosa! 💎 Peças Raras e 🧴 Plástico.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
-                onEnter: () => {} },
-
-            // ==========================================================
-            // FLORESTA MUTANTE
-            // ==========================================================
-
-            'floresta_inicio': {
-                id: 'floresta_inicio',
-                location: 'Floresta Mutante',
-                turn: 1,
-                text: 'A floresta cresceu de forma anormal após a contaminação. Árvores gigantes e fungos bioluminescentes cobrem o solo.',
-                options: [
-                    { id: 'floresta_clareira', icon: '🌾', label: 'Ir até a clareira', class: '' },
-                    { id: 'floresta_caverna', icon: '🕳️', label: 'Entrar na caverna', class: 'danger' },
-                    { id: 'floresta_arvore_gigante', icon: '🌳', label: 'Explorar a árvore gigante', class: '' },
-                    { id: 'start', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'floresta_clareira': {
-                id: 'floresta_clareira',
-                location: 'Floresta - Clareira',
-                turn: 2,
-                text: 'Uma clareira coberta de plantas estranhas e brilhantes. O ar aqui parece mais puro.',
-                options: [
-                    { id: 'floresta_recursos', icon: '🌿', label: 'Coletar biomassa', class: 'success' },
-                    { id: 'floresta_recursos_raizes', icon: '🌱', label: 'Procurar raízes medicinais', class: 'success' },
-                    { id: 'floresta_inicio', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'floresta_caverna': {
-                id: 'floresta_caverna',
-                location: 'Floresta - Caverna',
-                turn: 2,
-                text: 'A entrada da caverna exala um vapor estranho. Sons roucos ecoam lá de dentro.',
-                options: [
-                    { id: 'combate_colosso', icon: '⚔️', label: 'Um colosso vive aqui dentro', class: 'danger' },
-                    { id: 'fuga', icon: '🏃', label: 'Recuar', class: 'warning' },
-                    { id: 'floresta_inicio', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'floresta_arvore_gigante': {
-                id: 'floresta_arvore_gigante',
-                location: 'Floresta - Árvore Gigante',
-                turn: 3,
-                text: 'Uma árvore imensa, com um oco na base grande o suficiente para entrar. Algo brilha lá dentro.',
-                options: [
-                    { id: 'floresta_oco_arvore', icon: '🔦', label: 'Entrar no oco', class: '' },
-                    { id: 'floresta_inicio', icon: '🔙', label: 'Voltar', class: '' },
-                ]
-            },
-
-            'floresta_oco_arvore': {
-                id: 'floresta_oco_arvore',
-                location: 'Floresta - Oco da Árvore',
-                turn: 4,
-                text: 'Dentro do oco há um ninho estranho e um brilho pulsante. Um espectro guarda o local.',
-                options: [
-                    { id: 'combate_espectro', icon: '⚔️', label: 'Enfrentar o espectro', class: 'danger' },
-                    { id: 'floresta_recursos_raizes', icon: '🔍', label: 'Tentar pegar rapidamente', class: 'warning' },
-                    { id: 'floresta_arvore_gigante', icon: '🔙', label: 'Sair', class: '' },
-                ]
-            },
-
-            // ===== RECURSOS DA FLORESTA =====
-            'floresta_recursos': { id: 'floresta_recursos', location: 'Floresta Mutante', turn: 0,
-                text: 'Você coletou biomassa e água da floresta! 🍖 Biomassa e 💧 Água.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
-                onEnter: () => {} },
-            'floresta_recursos_raizes': { id: 'floresta_recursos_raizes', location: 'Floresta Mutante', turn: 0,
-                text: 'Você encontrou raízes medicinais! 🍖 Biomassa e 💊 Medicina.',
-                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
-                onEnter: () => {} },
-
-            // ===== COMBATE =====
-            'combate_rastejador': { id: 'combate_rastejador', location: 'Combate', turn: 0, text: '⚔️ COMBATE INICIADO!',
-                options: [], isCombat: true, combatEnemy: 'Rastejador' },
-            'combate_triturador': { id: 'combate_triturador', location: 'Combate', turn: 0, text: '⚔️ COMBATE INICIADO!',
-                options: [], isCombat: true, combatEnemy: 'Triturador' },
-            'combate_sibila': { id: 'combate_sibila', location: 'Combate', turn: 0, text: '⚔️ COMBATE INICIADO!',
-                options: [], isCombat: true, combatEnemy: 'Sibila' },
-            'combate_colosso': { id: 'combate_colosso', location: 'Combate', turn: 0, text: '⚔️ COMBATE INICIADO!',
-                options: [], isCombat: true, combatEnemy: 'Colosso' },
-            'combate_espectro': { id: 'combate_espectro', location: 'Combate', turn: 0, text: '⚔️ COMBATE INICIADO!',
-                options: [], isCombat: true, combatEnemy: 'Espectro' },
-            'combate_devorador': { id: 'combate_devorador', location: 'Combate', turn: 0, text: '⚔️ COMBATE INICIADO!',
-                options: [], isCombat: true, combatEnemy: 'Devorador' },
-            'combate_enxame': { id: 'combate_enxame', location: 'Combate', turn: 0, text: '⚔️ COMBATE INICIADO!',
-                options: [], isCombat: true, combatEnemy: 'Enxame Tóxico' },
-            'combate_sentinela': { id: 'combate_sentinela', location: 'Combate', turn: 0, text: '⚔️ COMBATE INICIADO!',
-                options: [], isCombat: true, combatEnemy: 'Sentinela Corrompida' },
-
-            'fuga': { id: 'fuga', location: 'Fuga', turn: 0, text: 'Você tentou fugir ou se esconder...', options: [],
-                isFlee: true },
-            'voltar_para_onde_veio': { id: 'voltar_para_onde_veio', location: 'Voltar', turn: 0, text: 'Voltando...',
-                options: [], isReturn: true },
-        };
-
-        // ============================================================
-        // INICIALIZAÇÃO
-        // ============================================================
-
-        function init() {
-            cacheDOM();
-            setupEvents();
-            renderAll();
-            DOM.start.input.focus();
-
-            console.log('⚡ ECOSFERA 2200 - EDIÇÃO SUPREMA v5.0');
-            console.log('📋 EDIÇÃO AMPLIADA');
-            console.log('🔄 SISTEMA ANTI-LOOP ATIVADO');
-            console.log('📊 100+ CENÁRIOS NA SUPERFÍCIE');
-            console.log('⭐ SISTEMA DE NÍVEIS E ATRIBUTOS');
-            console.log('🛒 SISTEMA DE COMÉRCIO');
-            console.log('🏆 10 CONQUISTAS');
-            console.log('⚔️ COMBATE COM HABILIDADES (8 INIMIGOS)');
-            console.log('🔧 UPGRADE E RECARGA DA MÁQUINA (consome 10%/dia)');
-            console.log('📦 INVENTÁRIO COM 25+ ITENS');
-        }
-
-        document.addEventListener('DOMContentLoaded', init);
-    </script>
-
+      } else {
+        feedback("❌ Selecione uma planta (1-5)", 30);
+      }
+    }
+  }
+}
+
+function colide(r1, r2) {
+  return r1.x < r2.x+r2.w && r1.x+r1.w > r2.x && 
+         r1.y < r2.y+r2.h && r1.y+r1.h > r2.y;
+}
+</script>
 </body>
 </html>
