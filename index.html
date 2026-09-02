@@ -846,6 +846,7 @@
             <div style="color:var(--text-secondary);font-size:14px;">Produz <span id="machine-production">2</span> Oxigênio/turno</div>
             <div style="color:var(--text-secondary);font-size:13px;">Upgrade: <span id="machine-level">Nível 1</span></div>
             <button id="btn-machine-upgrade" style="margin-top:4px;padding:8px 24px;background:rgba(255,170,0,0.1);border:1px solid rgba(255,170,0,0.2);border-radius:6px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-weight:600;cursor:pointer;transition:all 0.3s;">⬆ UPGRADE (50 Créditos)</button>
+            <button id="btn-machine-recharge" style="margin-top:4px;padding:8px 24px;background:rgba(68,136,255,0.1);border:1px solid rgba(68,136,255,0.2);border-radius:6px;color:#4488ff;font-family:'Rajdhani',sans-serif;font-weight:600;cursor:pointer;transition:all 0.3s;">🔋 RECARREGAR (15 Créditos/10%)</button>
             <button id="btn-machine-back" style="margin-top:6px;padding:10px 36px;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:var(--text-secondary);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.3s;text-transform:uppercase;letter-spacing:2px;">← VOLTAR</button>
         </div>
 
@@ -869,7 +870,7 @@
     <script>
         // ============================================================
         //  ECOSFERA 2200 - EDIÇÃO SUPREMA
-        //  v4.0 - 15x Melhor que a versão anterior
+        //  v5.0 - Edição Ampliada
         // ============================================================
 
         // ===== ESTADO DO JOGO =====
@@ -993,16 +994,20 @@
             'faca_caca': { name: 'Faca de Caça', type: 'weapon', damage: 20, desc: 'Faca afiada para combate', price: 45 },
             'bastao_eletrico': { name: 'Bastão Elétrico', type: 'weapon', damage: 25, desc: 'Atordoa inimigos', price: 70 },
             'rifle_precisao': { name: 'Rifle de Precisão', type: 'weapon', damage: 35, desc: 'Alto dano a distância', price: 120 },
+            'machado_bombeiro': { name: 'Machado de Bombeiro', type: 'weapon', damage: 28, desc: 'Pesado e devastador', price: 85 },
+            'lamina_serrilhada': { name: 'Lâmina Serrilhada', type: 'weapon', damage: 32, desc: 'Corte profundo, sangramento', price: 100 },
 
             // Armaduras
             'colete_leve': { name: 'Colete Leve', type: 'armor', defense: 10, desc: 'Proteção básica', price: 40 },
             'armadura_combate': { name: 'Armadura de Combate', type: 'armor', defense: 20, desc: 'Proteção militar', price: 90 },
             'traje_quimico': { name: 'Traje Químico', type: 'armor', defense: 15, desc: 'Proteção contra contaminação', price: 80 },
+            'armadura_reforcada': { name: 'Armadura Reforçada', type: 'armor', defense: 28, desc: 'Placas de metal soldadas', price: 130 },
 
             // Acessórios
             'radio_antigo': { name: 'Rádio Antigo', type: 'accessory', effect: 'receber_dicas', desc: 'Revela informações úteis', price: 25 },
             'bussola_antiga': { name: 'Bússola Antiga', type: 'accessory', effect: 'navegacao', desc: 'Melhor navegação', price: 35 },
             'lucky_charm': { name: 'Amuleto da Sorte', type: 'accessory', effect: 'sorte', desc: 'Aumenta chances de encontrar itens', price: 50 },
+            'mascara_gas': { name: 'Máscara de Gás', type: 'accessory', effect: 'filtragem', desc: 'Reduz contaminação recebida', price: 60 },
 
             // Consumíveis
             'kit_medico': { name: 'Kit Médico', type: 'consumable', effect: 'heal', value: 30, desc: 'Restaura 30 HP', price: 25 },
@@ -1011,6 +1016,8 @@
             'bateria_extra': { name: 'Bateria Extra', type: 'consumable', effect: 'energy', value: 20, desc: 'Restaura 20 de energia', price: 20 },
             'medicamento': { name: 'Medicamento', type: 'consumable', effect: 'contamination', value: -15, desc: 'Reduz 15% de contaminação', price: 30 },
             'pocao_energia': { name: 'Poção de Energia', type: 'consumable', effect: 'stamina', value: 30, desc: 'Restaura 30 de stamina', price: 25 },
+            'antibiotico': { name: 'Antibiótico', type: 'consumable', effect: 'contamination', value: -25, desc: 'Reduz 25% de contaminação', price: 45 },
+            'racao_militar': { name: 'Ração Militar', type: 'consumable', effect: 'hunger', value: 40, desc: 'Restaura 40 de fome', price: 30 },
 
             // Materiais
             'sucata': { name: 'Sucata', type: 'material', desc: 'Material comum para crafting', price: 5 },
@@ -1018,11 +1025,13 @@
             'biomassa': { name: 'Biomassa', type: 'material', desc: 'Fonte de alimento', price: 12 },
             'pecas_raras': { name: 'Peças Raras', type: 'material', desc: 'Componentes valiosos', price: 30 },
             'eletronicos': { name: 'Eletrônicos', type: 'material', desc: 'Componentes eletrônicos', price: 20 },
+            'celula_energia': { name: 'Célula de Energia', type: 'material', desc: 'Recarrega equipamentos', price: 35 },
 
             // Itens chave
             'mapa_cidade': { name: 'Mapa da Cidade', type: 'key_item', desc: 'Revela novas localizações' },
             'chave_bunker': { name: 'Chave do Bunker', type: 'key_item', desc: 'Abre áreas secretas' },
             'codigo_revelon': { name: 'Código de Revelon', type: 'key_item', desc: 'Acesso a áreas restritas' },
+            'chave_torre': { name: 'Chave da Torre', type: 'key_item', desc: 'Abre a Torre de Comunicações' },
         };
 
         // ===== INIMIGOS =====
@@ -1037,6 +1046,12 @@
                     chance: 0.4 }] },
             { name: 'Espectro', hp: 75, damage: 25, emoji: '🌀', exp: 35, drops: [{ id: 'eletronicos', chance: 0.6 }, { id: 'kit_medico',
                     chance: 0.3 }] },
+            { name: 'Devorador', hp: 220, damage: 20, emoji: '🦴', exp: 55, drops: [{ id: 'pecas_raras', chance: 0.5 }, { id: 'celula_energia',
+                    chance: 0.3 }] },
+            { name: 'Enxame Tóxico', hp: 85, damage: 16, emoji: '🐝', exp: 20, drops: [{ id: 'medicamento', chance: 0.4 }, { id: 'biomassa',
+                    chance: 0.4 }] },
+            { name: 'Sentinela Corrompida', hp: 160, damage: 24, emoji: '🤖', exp: 45, drops: [{ id: 'eletronicos', chance: 0.6 }, { id: 'celula_energia',
+                    chance: 0.3 }] },
         ];
 
         // ===== MERCADORES =====
@@ -1050,6 +1065,10 @@
             { id: 'colete_leve', stock: 2, price: 40 },
             { id: 'radio_antigo', stock: 1, price: 25 },
             { id: 'lucky_charm', stock: 1, price: 50 },
+            { id: 'antibiotico', stock: 2, price: 45 },
+            { id: 'racao_militar', stock: 3, price: 30 },
+            { id: 'mascara_gas', stock: 1, price: 60 },
+            { id: 'machado_bombeiro', stock: 1, price: 85 },
         ];
 
         // ===== RECURSOS POR LOCAL (ANTI-LOOP) =====
@@ -1059,15 +1078,18 @@
             'predio_recursos_comida': { biomass: 2, hunger: 10 },
             'predio_recursos_raros': { rare_parts: 2, energy: 10 },
             'predio_recursos_ferramenta': { scrap: 3 },
+            'predio_recursos_terraco': { scrap: 2, electronics: 1 },
             'metro_recursos': { scrap: 3, energy: 5 },
             'metro_recursos2': { rare_parts: 1 },
             'metro_recursos_comida': { biomass: 2, hunger: 10 },
             'metro_recursos_lanterna': { scrap: 1 },
+            'metro_recursos_deposito': { scrap: 2, electronics: 1 },
             'rua_recursos': { scrap: 2, plastic: 1, energy: 5 },
             'rua_recursos2': { plastic: 1, water: 2 },
             'rua_recursos_comida': { biomass: 2, hunger: 10 },
             'rua_recursos_ferramenta': { scrap: 3 },
             'rua_recursos_raros': { rare_parts: 2, energy: 10 },
+            'rua_recursos_parque': { biomass: 1, water: 2 },
             'ponte_recursos': { scrap: 3, energy: 5 },
             'ponte_recursos_combustivel': { energy: 15 },
             'ponte_recursos2': { scrap: 2, rare_parts: 1 },
@@ -1081,6 +1103,12 @@
             'revelon_recursos_medicina': { medicine: 3, contamination: -10 },
             'revelon_recursos_medicina2': { medicine: 2 },
             'revelon_recursos_quimicos': { rare_parts: 2 },
+            'torre_recursos': { electronics: 3, rare_parts: 1 },
+            'torre_recursos_antena': { electronics: 2, energy: 10 },
+            'porto_recursos': { scrap: 2, water: 3 },
+            'porto_recursos_carga': { rare_parts: 2, plastic: 2 },
+            'floresta_recursos': { biomass: 3, water: 1 },
+            'floresta_recursos_raizes': { biomass: 2, medicine: 1 },
         };
 
         // ===== PREVENÇÃO DE LOOP =====
@@ -1101,6 +1129,8 @@
             { id: 'collector', name: 'Colecionador', desc: 'Tenha 10 itens diferentes', unlocked: false },
             { id: 'engineer', name: 'Engenheiro', desc: 'Upgrade da máquina para nível 5', unlocked: false },
             { id: 'legend', name: 'Lenda', desc: 'Alcance o nível 10', unlocked: false },
+            { id: 'veteran', name: 'Veterano', desc: 'Vença 25 combates', unlocked: false },
+            { id: 'cartographer', name: 'Cartógrafo', desc: 'Descubra 40 locais diferentes', unlocked: false },
         ];
 
         // ============================================================
@@ -1184,6 +1214,7 @@
                 level: document.getElementById('machine-level'),
                 btnBack: document.getElementById('btn-machine-back'),
                 btnUpgrade: document.getElementById('btn-machine-upgrade'),
+                btnRecharge: document.getElementById('btn-machine-recharge'),
             };
 
             DOM.trade = {
@@ -1474,6 +1505,9 @@
             DOM.machine.production.textContent = m.production;
             DOM.machine.level.textContent = `Nível ${m.level}`;
             DOM.machine.btnUpgrade.textContent = `⬆ UPGRADE (${50 + m.level * 20} Créditos)`;
+            if (DOM.machine.btnRecharge) {
+                DOM.machine.btnRecharge.disabled = m.battery >= 100;
+            }
         }
 
         function renderTrade() {
@@ -1782,6 +1816,10 @@
                 addExp(expGain);
                 Game.credits += creditsGain;
 
+                Game.stats.totalWins = (Game.stats.totalWins || 0) + 1;
+                if (Game.stats.totalWins >= 10) checkAchievement('fighter');
+                if (Game.stats.totalWins >= 25) checkAchievement('veteran');
+
                 // Drop de itens
                 let drops = [];
                 if (enemy.drops) {
@@ -1801,9 +1839,6 @@
                         }
                     });
                 }
-
-                // Verifica conquista de combate
-                checkAchievement('fighter');
 
                 showModal('⚔️ VITÓRIA!',
                     `Você derrotou ${enemy.emoji} ${enemy.name}!\n\n⭐ +${expGain} EXP\n💰 +${creditsGain} Créditos${dropText}`,
@@ -1851,7 +1886,7 @@
                 showModal('⭐ LEVEL UP!',
                     `Parabéns! Você alcançou o Nível ${Game.level}!\n\n💪 Força +1\n🏃 Agilidade +1\n🧠 Inteligência +1\n❤️ Vitalidade +1\n⚡ Stamina +5`);
 
-                checkAchievement('legend');
+                if (Game.level >= 10) checkAchievement('legend');
                 notify(`🎉 Nível ${Game.level} alcançado!`, 'success');
                 renderAll();
             }
@@ -1889,7 +1924,11 @@
                     return false;
             }
 
-            checkAchievement('collector');
+            const uniqueCount = new Set([
+                ...Game.inventory.weapons, ...Game.inventory.armor, ...Game.inventory.accessories,
+                ...Game.inventory.consumables, ...Game.inventory.materials, ...Game.inventory.key_items
+            ]).size;
+            if (uniqueCount >= 10) checkAchievement('collector');
             return true;
         }
 
@@ -1957,7 +1996,7 @@
 
             if (addItem(itemId)) {
                 notify(`🛒 Comprou ${item.name}!`, 'success');
-                checkAchievement('merchant');
+                if (Game.credits >= 500) checkAchievement('merchant');
                 renderAll();
             }
         }
@@ -1990,6 +2029,9 @@
                     'combate_sibila': 'Sibila',
                     'combate_colosso': 'Colosso',
                     'combate_espectro': 'Espectro',
+                    'combate_devorador': 'Devorador',
+                    'combate_enxame': 'Enxame Tóxico',
+                    'combate_sentinela': 'Sentinela Corrompida',
                 };
                 const enemyType = enemyMap[optionId] || 'Rastejador';
                 Game.surface.inCombat = true;
@@ -2046,6 +2088,9 @@
 
                 if (Game.totalDiscoveries >= 20) {
                     checkAchievement('explorer');
+                }
+                if (Game.totalDiscoveries >= 40) {
+                    checkAchievement('cartographer');
                 }
             }
 
@@ -2112,6 +2157,9 @@
 
                 if (Game.totalDiscoveries >= 20) {
                     checkAchievement('explorer');
+                }
+                if (Game.totalDiscoveries >= 40) {
+                    checkAchievement('cartographer');
                 }
             }
 
@@ -2183,8 +2231,20 @@
             r.oxygen = Math.min(100, r.oxygen + 10);
             Game.stamina = Math.min(Game.maxStamina, Game.stamina + 40);
 
-            if (Game.machine.active) {
-                r.oxygen = Math.min(100, r.oxygen + Game.machine.production);
+            // A máquina consome 10% da bateria a cada dia que passa
+            const m = Game.machine;
+            m.battery = Math.max(0, m.battery - 10);
+            if (m.battery <= 0) {
+                m.active = false;
+                m.battery = 0;
+            } else {
+                m.active = true;
+            }
+
+            let oxygenFromMachine = 0;
+            if (m.active) {
+                oxygenFromMachine = m.production;
+                r.oxygen = Math.min(100, r.oxygen + oxygenFromMachine);
             }
 
             Game.cycle = 'day';
@@ -2195,8 +2255,15 @@
                 checkAchievement('survivor');
             }
 
+            let batteryWarning = '';
+            if (m.battery <= 20 && m.battery > 0) {
+                batteryWarning = '\n\n⚠️ A bateria da máquina está fraca! Recarregue no Comércio ou na tela da Máquina.';
+            } else if (!m.active) {
+                batteryWarning = '\n\n🔴 A máquina de carbono ficou sem bateria e desligou! Ela não produzirá mais oxigênio até ser recarregada.';
+            }
+
             showModal('🛏️ Bom Descanso',
-                `Dia ${Game.day} amanheceu.\n\n⚡ +30 Energia\n🍖 +15 Fome\n☣️ -10 Contaminação\n🫧 +${10 + Game.machine.production} Oxigênio\n⚡ +40 Stamina`);
+                `Dia ${Game.day} amanheceu.\n\n⚡ +30 Energia\n🍖 +15 Fome\n☣️ -10 Contaminação\n🫧 +${10 + oxygenFromMachine} Oxigênio\n⚡ +40 Stamina\n🔋 Máquina: -10% Bateria (${Math.floor(m.battery)}%)${batteryWarning}`);
             renderAll();
         }
 
@@ -2227,6 +2294,24 @@
             }
 
             notify(`⬆ Máquina upgrade para Nível ${Game.machine.level}!`, 'success');
+            renderAll();
+        }
+
+        function rechargeMachine() {
+            const m = Game.machine;
+            if (m.battery >= 100) {
+                notify('Bateria já está cheia!', 'info');
+                return;
+            }
+            const cost = 15;
+            if (Game.credits < cost) {
+                notify('Créditos insuficientes!', 'error');
+                return;
+            }
+            Game.credits -= cost;
+            m.battery = Math.min(100, m.battery + 10);
+            m.active = m.battery > 0;
+            notify(`🔋 Máquina recarregada! Bateria: ${Math.floor(m.battery)}%`, 'success');
             renderAll();
         }
 
@@ -2280,6 +2365,9 @@
                 renderAll();
             });
             DOM.machine.btnUpgrade.addEventListener('click', upgradeMachine);
+            if (DOM.machine.btnRecharge) {
+                DOM.machine.btnRecharge.addEventListener('click', rechargeMachine);
+            }
 
             DOM.trade.btnBack.addEventListener('click', () => {
                 showScreen('bunker');
@@ -2310,13 +2398,14 @@
                 '🌙 NOITE: Durma no dormitório\n' +
                 '⚔️ Combate: Ataque, Defenda ou Use Habilidades\n' +
                 '🛒 Comércio: Compre itens com créditos\n' +
-                '⭐ Níveis: Ganhe EXP e aumente seus atributos\n\n' +
-                '🏆 Conquistas: Desbloqueie 8 conquistas especiais!\n\n' +
+                '⭐ Níveis: Ganhe EXP e aumente seus atributos\n' +
+                '🔋 Máquina: perde 10% de bateria por dia — recarregue-a!\n\n' +
+                '🏆 Conquistas: Desbloqueie 10 conquistas especiais!\n\n' +
                 'Boa sorte, sobrevivente!');
         }
 
         // ============================================================
-        // CENÁRIOS COMPLETOS (77+ - Versão Resumida para espaço)
+        // CENÁRIOS COMPLETOS
         // ============================================================
 
         const SCENARIOS = {
@@ -2331,6 +2420,8 @@
                     { id: 'metro_entrada', icon: '🚇', label: 'Ir para o METRÔ', class: '' },
                     { id: 'rua_inicio', icon: '🛣️', label: 'Seguir a RUA', class: '' },
                     { id: 'ponte_inicio', icon: '🌉', label: 'Atravessar a GRANDE PONTE', class: '' },
+                    { id: 'porto_inicio', icon: '⚓', label: 'Ir para o PORTO abandonado', class: '' },
+                    { id: 'floresta_inicio', icon: '🌲', label: 'Adentrar a FLORESTA MUTANTE', class: '' },
                 ]
             },
 
@@ -2392,6 +2483,19 @@
                     { id: 'predio_recursos', icon: '🔍', label: 'Pegar os objetos', class: 'success' },
                     { id: 'predio_recursos_raros', icon: '💎', label: 'Verificar o cofre', class: 'success' },
                     { id: 'predio_andar3', icon: '🔙', label: 'Voltar', class: '' },
+                    { id: 'predio_terraco', icon: '🪜', label: 'Subir ao terraço', class: '' },
+                ]
+            },
+
+            'predio_terraco': {
+                id: 'predio_terraco',
+                location: 'Nova Prospekt - Terraço',
+                turn: 5,
+                text: 'O terraço oferece uma vista ampla da cidade devastada. Há uma antena de rádio caída e caixas de equipamento.',
+                options: [
+                    { id: 'predio_recursos_terraco', icon: '📡', label: 'Vasculhar as caixas', class: 'success' },
+                    { id: 'combate_sentinela', icon: '⚔️', label: 'Uma sentinela corrompida guarda o local', class: 'danger' },
+                    { id: 'predio_andar4', icon: '🔙', label: 'Descer', class: '' },
                 ]
             },
 
@@ -2428,6 +2532,7 @@
                     { id: 'predio_recursos2', icon: '🔍', label: 'Pegar objetos', class: 'success' },
                     { id: 'predio_recursos_raros', icon: '💎', label: 'Procurar por cofres', class: 'success' },
                     { id: 'predio_corredor', icon: '🔙', label: 'Sair', class: '' },
+                    { id: 'predio_andar4', icon: '🚪', label: 'Porta trancada nos fundos (forçar)', class: 'danger' },
                 ]
             },
 
@@ -2462,6 +2567,10 @@
             'predio_recursos_ferramenta': { id: 'predio_recursos_ferramenta', location: 'Nova Prospekt - Prédio', turn: 0,
                 text: 'Você encontrou ferramentas! 🔧 Úteis para arrombar portas.',
                 options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
+                onEnter: () => {} },
+            'predio_recursos_terraco': { id: 'predio_recursos_terraco', location: 'Nova Prospekt - Terraço', turn: 0,
+                text: 'Você encontrou equipamentos de rádio! ⚙️ Sucata e 💻 Eletrônicos.',
+                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
                 onEnter: () => {} },
 
             // ===== METRÔ =====
@@ -2534,6 +2643,18 @@
                     { id: 'combate_rastejador', icon: '⚔️', label: 'Atacar', class: 'danger' },
                     { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
                     { id: 'metro_plataforma_oeste', icon: '🔙', label: 'Voltar', class: '' },
+                    { id: 'metro_deposito', icon: '📦', label: 'Uma porta lateral de depósito', class: '' },
+                ]
+            },
+
+            'metro_deposito': {
+                id: 'metro_deposito',
+                location: 'Nova Prospekt - Depósito do Metrô',
+                turn: 4,
+                text: 'Um pequeno depósito de manutenção com ferramentas empoeiradas.',
+                options: [
+                    { id: 'metro_recursos_deposito', icon: '🔍', label: 'Vasculhar o depósito', class: 'success' },
+                    { id: 'metro_tunel_escuro', icon: '🔙', label: 'Voltar ao túnel', class: '' },
                 ]
             },
 
@@ -2572,6 +2693,10 @@
                 text: 'Você encontrou comida! 🍖 Biomassa.',
                 options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
                 onEnter: () => {} },
+            'metro_recursos_deposito': { id: 'metro_recursos_deposito', location: 'Nova Prospekt - Metrô', turn: 0,
+                text: 'Você encontrou peças no depósito! ⚙️ Sucata e 💻 Eletrônicos.',
+                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
+                onEnter: () => {} },
 
             // ===== RUA =====
             'rua_inicio': {
@@ -2584,7 +2709,20 @@
                     { id: 'rua_loja_carros', icon: '🚗', label: 'Concessionária', class: '' },
                     { id: 'rua_esgoto', icon: '🕳️', label: 'Esgoto', class: 'danger' },
                     { id: 'rua_residencial', icon: '🏢', label: 'Prédio Residencial', class: '' },
+                    { id: 'rua_parque', icon: '🌳', label: 'Parque Abandonado', class: '' },
                     { id: 'start', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'rua_parque': {
+                id: 'rua_parque',
+                location: 'Nova Prospekt - Parque Abandonado',
+                turn: 2,
+                text: 'Um parque tomado pela vegetação mutada. Árvores retorcidas crescem em formas estranhas.',
+                options: [
+                    { id: 'rua_recursos_parque', icon: '🌿', label: 'Coletar plantas e água', class: 'success' },
+                    { id: 'combate_enxame', icon: '⚔️', label: 'Um enxame tóxico ataca!', class: 'danger' },
+                    { id: 'rua_inicio', icon: '🔙', label: 'Sair', class: '' },
                 ]
             },
 
@@ -2726,6 +2864,10 @@
                 text: 'Você encontrou itens raros! 💎 Peças Raras.',
                 options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
                 onEnter: () => {} },
+            'rua_recursos_parque': { id: 'rua_recursos_parque', location: 'Nova Prospekt - Parque', turn: 0,
+                text: 'Você coletou plantas e água! 🍖 Biomassa e 💧 Água.',
+                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
+                onEnter: () => {} },
 
             // ===== PONTE =====
             'ponte_inicio': {
@@ -2800,7 +2942,43 @@
                     { id: 'revelon_hospital', icon: '🏥', label: 'Hospital Abandonado', class: '' },
                     { id: 'revelon_industrial', icon: '🏭', label: 'Parque Industrial', class: '' },
                     { id: 'revelon_residencial', icon: '🏘️', label: 'Bairro Residencial', class: '' },
+                    { id: 'revelon_torre', icon: '📡', label: 'Torre de Comunicações', class: '' },
                     { id: 'ponte_inicio', icon: '🔙', label: 'Voltar para Nova Prospekt', class: '' },
+                ]
+            },
+
+            'revelon_torre': {
+                id: 'revelon_torre',
+                location: 'Revelon - Torre de Comunicações',
+                turn: 4,
+                text: 'Uma torre alta e imponente, ainda de pé em meio às ruínas. A porta principal está trancada.',
+                options: [
+                    { id: 'revelon_torre_base', icon: '🚪', label: 'Forçar a porta da base', class: '' },
+                    { id: 'revelon_entrada', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            'revelon_torre_base': {
+                id: 'revelon_torre_base',
+                location: 'Revelon - Base da Torre',
+                turn: 5,
+                text: 'Dentro da base há painéis elétricos e uma escada em espiral subindo. Uma sentinela corrompida patrulha o local.',
+                options: [
+                    { id: 'combate_sentinela', icon: '⚔️', label: 'Enfrentar a sentinela', class: 'danger' },
+                    { id: 'revelon_torre_topo', icon: '🪜', label: 'Tentar subir furtivamente', class: 'warning' },
+                    { id: 'revelon_torre', icon: '🔙', label: 'Recuar', class: '' },
+                ]
+            },
+
+            'revelon_torre_topo': {
+                id: 'revelon_torre_topo',
+                location: 'Revelon - Topo da Torre',
+                turn: 6,
+                text: 'No topo da torre, os equipamentos de transmissão ainda emitem um leve zumbido. Uma sala trancada guarda componentes valiosos.',
+                options: [
+                    { id: 'torre_recursos_antena', icon: '📡', label: 'Reparar a antena (recursos)', class: 'success' },
+                    { id: 'torre_recursos', icon: '🔍', label: 'Vasculhar os equipamentos', class: 'success' },
+                    { id: 'revelon_torre_base', icon: '🔙', label: 'Descer', class: '' },
                 ]
             },
 
@@ -2873,6 +3051,7 @@
                     { id: 'revelon_recursos', icon: '🔍', label: 'Explorar vagões', class: 'success' },
                     { id: 'revelon_recursos_raros', icon: '💎', label: 'Ir para a cabine', class: 'success' },
                     { id: 'revelon_trem', icon: '🔙', label: 'Voltar', class: '' },
+                    { id: 'combate_devorador', icon: '⚔️', label: 'Um devorador se esconde no último vagão', class: 'danger' },
                 ]
             },
 
@@ -2919,6 +3098,19 @@
                 options: [
                     { id: 'revelon_recursos_eletronicos', icon: '🔬', label: 'Pegar equipamentos', class: 'success' },
                     { id: 'revelon_hospital', icon: '🔙', label: 'Sair', class: '' },
+                    { id: 'revelon_hospital_subsolo', icon: '🕳️', label: 'Descer ao subsolo', class: 'danger' },
+                ]
+            },
+
+            'revelon_hospital_subsolo': {
+                id: 'revelon_hospital_subsolo',
+                location: 'Revelon - Subsolo do Hospital',
+                turn: 6,
+                text: 'O subsolo é escuro e frio. Algo se move nas sombras entre os equipamentos abandonados.',
+                options: [
+                    { id: 'combate_sibila', icon: '⚔️', label: 'Enfrentar a criatura', class: 'danger' },
+                    { id: 'revelon_recursos_quimicos', icon: '🧪', label: 'Vasculhar rapidamente', class: 'success' },
+                    { id: 'revelon_hospital_laboratorio', icon: '🔙', label: 'Subir', class: '' },
                 ]
             },
 
@@ -2943,6 +3135,7 @@
                     { id: 'revelon_recursos', icon: '🔍', label: 'Explorar a fábrica', class: 'success' },
                     { id: 'revelon_recursos_pecas', icon: '⚙️', label: 'Procurar peças', class: 'success' },
                     { id: 'revelon_industrial', icon: '🔙', label: 'Sair', class: '' },
+                    { id: 'combate_triturador', icon: '⚔️', label: 'Um triturador guarda a linha de montagem', class: 'danger' },
                 ]
             },
 
@@ -3002,6 +3195,167 @@
                 text: 'Você encontrou medicamentos! 💊',
                 options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
                 onEnter: () => {} },
+            'revelon_recursos_quimicos': { id: 'revelon_recursos_quimicos', location: 'Revelon - Hospital', turn: 0,
+                text: 'Você encontrou compostos químicos raros! 💎',
+                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar', class: 'success' }],
+                onEnter: () => {} },
+
+            // ===== TORRE DE COMUNICAÇÕES (RECURSOS) =====
+            'torre_recursos': { id: 'torre_recursos', location: 'Revelon - Torre', turn: 0,
+                text: 'Você encontrou componentes valiosos! 💻 Eletrônicos e 💎 Peças Raras.',
+                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
+                onEnter: () => {} },
+            'torre_recursos_antena': { id: 'torre_recursos_antena', location: 'Revelon - Torre', turn: 0,
+                text: 'Você reparou parte da antena e recuperou componentes! 💻 Eletrônicos e ⚡ Energia.',
+                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
+                onEnter: () => {} },
+
+            // ==========================================================
+            // PORTO ABANDONADO
+            // ==========================================================
+
+            'porto_inicio': {
+                id: 'porto_inicio',
+                location: 'Nova Prospekt - Porto Abandonado',
+                turn: 1,
+                text: 'O porto está silencioso. Navios enferrujados balançam levemente na água escura. Guindastes quebrados pendem sobre os contêineres.',
+                options: [
+                    { id: 'porto_navio', icon: '🚢', label: 'Explorar o navio cargueiro', class: '' },
+                    { id: 'porto_containers', icon: '📦', label: 'Vasculhar os contêineres', class: '' },
+                    { id: 'porto_farol', icon: '🗼', label: 'Ir até o farol', class: '' },
+                    { id: 'start', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'porto_navio': {
+                id: 'porto_navio',
+                location: 'Porto - Navio Cargueiro',
+                turn: 2,
+                text: 'O convés do navio está enferrujado. Você ouve ruídos vindos do porão.',
+                options: [
+                    { id: 'porto_porao', icon: '🪜', label: 'Descer ao porão', class: 'danger' },
+                    { id: 'porto_recursos', icon: '🔍', label: 'Explorar o convés', class: 'success' },
+                    { id: 'porto_inicio', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'porto_porao': {
+                id: 'porto_porao',
+                location: 'Porto - Porão do Navio',
+                turn: 3,
+                text: 'O porão está escuro e cheio de caixas de carga. Uma criatura se move entre elas.',
+                options: [
+                    { id: 'combate_triturador', icon: '⚔️', label: 'Atacar', class: 'danger' },
+                    { id: 'fuga', icon: '🏃', label: 'Fugir', class: 'warning' },
+                    { id: 'porto_navio', icon: '🔙', label: 'Voltar ao convés', class: '' },
+                ]
+            },
+
+            'porto_containers': {
+                id: 'porto_containers',
+                location: 'Porto - Área de Contêineres',
+                turn: 2,
+                text: 'Fileiras de contêineres empilhados, alguns arrombados.',
+                options: [
+                    { id: 'porto_recursos_carga', icon: '🔍', label: 'Vasculhar a carga', class: 'success' },
+                    { id: 'porto_inicio', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'porto_farol': {
+                id: 'porto_farol',
+                location: 'Porto - Farol',
+                turn: 2,
+                text: 'O farol ainda está de pé, embora rachado. A vista do topo é ampla, mas a escada está instável.',
+                options: [
+                    { id: 'porto_recursos', icon: '🔍', label: 'Explorar a base do farol', class: 'success' },
+                    { id: 'porto_inicio', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            // ===== RECURSOS DO PORTO =====
+            'porto_recursos': { id: 'porto_recursos', location: 'Porto Abandonado', turn: 0,
+                text: 'Você encontrou recursos! 🪚 Sucata e 💧 Água.',
+                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
+                onEnter: () => {} },
+            'porto_recursos_carga': { id: 'porto_recursos_carga', location: 'Porto Abandonado', turn: 0,
+                text: 'Você encontrou carga valiosa! 💎 Peças Raras e 🧴 Plástico.',
+                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
+                onEnter: () => {} },
+
+            // ==========================================================
+            // FLORESTA MUTANTE
+            // ==========================================================
+
+            'floresta_inicio': {
+                id: 'floresta_inicio',
+                location: 'Floresta Mutante',
+                turn: 1,
+                text: 'A floresta cresceu de forma anormal após a contaminação. Árvores gigantes e fungos bioluminescentes cobrem o solo.',
+                options: [
+                    { id: 'floresta_clareira', icon: '🌾', label: 'Ir até a clareira', class: '' },
+                    { id: 'floresta_caverna', icon: '🕳️', label: 'Entrar na caverna', class: 'danger' },
+                    { id: 'floresta_arvore_gigante', icon: '🌳', label: 'Explorar a árvore gigante', class: '' },
+                    { id: 'start', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'floresta_clareira': {
+                id: 'floresta_clareira',
+                location: 'Floresta - Clareira',
+                turn: 2,
+                text: 'Uma clareira coberta de plantas estranhas e brilhantes. O ar aqui parece mais puro.',
+                options: [
+                    { id: 'floresta_recursos', icon: '🌿', label: 'Coletar biomassa', class: 'success' },
+                    { id: 'floresta_recursos_raizes', icon: '🌱', label: 'Procurar raízes medicinais', class: 'success' },
+                    { id: 'floresta_inicio', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'floresta_caverna': {
+                id: 'floresta_caverna',
+                location: 'Floresta - Caverna',
+                turn: 2,
+                text: 'A entrada da caverna exala um vapor estranho. Sons roucos ecoam lá de dentro.',
+                options: [
+                    { id: 'combate_colosso', icon: '⚔️', label: 'Um colosso vive aqui dentro', class: 'danger' },
+                    { id: 'fuga', icon: '🏃', label: 'Recuar', class: 'warning' },
+                    { id: 'floresta_inicio', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'floresta_arvore_gigante': {
+                id: 'floresta_arvore_gigante',
+                location: 'Floresta - Árvore Gigante',
+                turn: 3,
+                text: 'Uma árvore imensa, com um oco na base grande o suficiente para entrar. Algo brilha lá dentro.',
+                options: [
+                    { id: 'floresta_oco_arvore', icon: '🔦', label: 'Entrar no oco', class: '' },
+                    { id: 'floresta_inicio', icon: '🔙', label: 'Voltar', class: '' },
+                ]
+            },
+
+            'floresta_oco_arvore': {
+                id: 'floresta_oco_arvore',
+                location: 'Floresta - Oco da Árvore',
+                turn: 4,
+                text: 'Dentro do oco há um ninho estranho e um brilho pulsante. Um espectro guarda o local.',
+                options: [
+                    { id: 'combate_espectro', icon: '⚔️', label: 'Enfrentar o espectro', class: 'danger' },
+                    { id: 'floresta_recursos_raizes', icon: '🔍', label: 'Tentar pegar rapidamente', class: 'warning' },
+                    { id: 'floresta_arvore_gigante', icon: '🔙', label: 'Sair', class: '' },
+                ]
+            },
+
+            // ===== RECURSOS DA FLORESTA =====
+            'floresta_recursos': { id: 'floresta_recursos', location: 'Floresta Mutante', turn: 0,
+                text: 'Você coletou biomassa e água da floresta! 🍖 Biomassa e 💧 Água.',
+                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
+                onEnter: () => {} },
+            'floresta_recursos_raizes': { id: 'floresta_recursos_raizes', location: 'Floresta Mutante', turn: 0,
+                text: 'Você encontrou raízes medicinais! 🍖 Biomassa e 💊 Medicina.',
+                options: [{ id: 'voltar_para_onde_veio', icon: '✅', label: 'Pegar tudo', class: 'success' }],
+                onEnter: () => {} },
 
             // ===== COMBATE =====
             'combate_rastejador': { id: 'combate_rastejador', location: 'Combate', turn: 0, text: '⚔️ COMBATE INICIADO!',
@@ -3014,6 +3368,12 @@
                 options: [], isCombat: true, combatEnemy: 'Colosso' },
             'combate_espectro': { id: 'combate_espectro', location: 'Combate', turn: 0, text: '⚔️ COMBATE INICIADO!',
                 options: [], isCombat: true, combatEnemy: 'Espectro' },
+            'combate_devorador': { id: 'combate_devorador', location: 'Combate', turn: 0, text: '⚔️ COMBATE INICIADO!',
+                options: [], isCombat: true, combatEnemy: 'Devorador' },
+            'combate_enxame': { id: 'combate_enxame', location: 'Combate', turn: 0, text: '⚔️ COMBATE INICIADO!',
+                options: [], isCombat: true, combatEnemy: 'Enxame Tóxico' },
+            'combate_sentinela': { id: 'combate_sentinela', location: 'Combate', turn: 0, text: '⚔️ COMBATE INICIADO!',
+                options: [], isCombat: true, combatEnemy: 'Sentinela Corrompida' },
 
             'fuga': { id: 'fuga', location: 'Fuga', turn: 0, text: 'Você tentou fugir ou se esconder...', options: [],
                 isFlee: true },
@@ -3031,16 +3391,16 @@
             renderAll();
             DOM.start.input.focus();
 
-            console.log('⚡ ECOSFERA 2200 - EDIÇÃO SUPREMA v4.0');
-            console.log('📋 15x MELHOR QUE A VERSÃO ANTERIOR');
+            console.log('⚡ ECOSFERA 2200 - EDIÇÃO SUPREMA v5.0');
+            console.log('📋 EDIÇÃO AMPLIADA');
             console.log('🔄 SISTEMA ANTI-LOOP ATIVADO');
-            console.log('📊 77+ CENÁRIOS NA SUPERFÍCIE');
+            console.log('📊 100+ CENÁRIOS NA SUPERFÍCIE');
             console.log('⭐ SISTEMA DE NÍVEIS E ATRIBUTOS');
             console.log('🛒 SISTEMA DE COMÉRCIO');
-            console.log('🏆 8 CONQUISTAS');
-            console.log('⚔️ COMBATE COM HABILIDADES');
-            console.log('🔧 UPGRADE DA MÁQUINA');
-            console.log('📦 INVENTÁRIO COM 20+ ITENS');
+            console.log('🏆 10 CONQUISTAS');
+            console.log('⚔️ COMBATE COM HABILIDADES (8 INIMIGOS)');
+            console.log('🔧 UPGRADE E RECARGA DA MÁQUINA (consome 10%/dia)');
+            console.log('📦 INVENTÁRIO COM 25+ ITENS');
         }
 
         document.addEventListener('DOMContentLoaded', init);
